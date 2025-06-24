@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complicidad Femenina</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-rose-50 text-gray-800">
+  <header class="bg-white shadow p-4 sticky top-0 z-50">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold text-rose-600">Complicidad</h1>
+      <nav class="space-x-4">
+        <a href="#catalogo" class="text-rose-500 hover:underline">Catálogo</a>
+        <a href="#formulario" class="text-rose-500 hover:underline">Pedir</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="text-center py-12 bg-gradient-to-b from-white to-rose-100">
+    <h2 class="text-4xl font-bold mb-2">Ropa para mujeres que inspiran</h2>
+    <p class="text-lg text-gray-600">Un nuevo canal para tu estilo: único, suave, poderoso.</p>
+  </section>
+
+  <section id="catalogo" class="container mx-auto py-12">
+    <h3 class="text-3xl font-semibold text-center mb-8 text-rose-600">Catálogo</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-2xl overflow-hidden hover:shadow-xl transition">
+        <img src="https://source.unsplash.com/400x500/?fashion,woman" alt="Prenda 1" class="w-full h-64 object-cover">
+        <div class="p-4">
+          <h4 class="font-bold text-xl">Vestido Natural</h4>
+          <p class="text-gray-600">Tallas: S, M, L</p>
+          <button onclick="seleccionarProducto('Vestido Natural')" class="mt-2 bg-rose-500 text-white px-4 py-2 rounded-xl hover:bg-rose-600">Me interesa</button>
+        </div>
+      </div>
+      <div class="bg-white shadow rounded-2xl overflow-hidden hover:shadow-xl transition">
+        <img src="https://source.unsplash.com/400x500/?clothing,women" alt="Prenda 2" class="w-full h-64 object-cover">
+        <div class="p-4">
+          <h4 class="font-bold text-xl">Blusa Aire</h4>
+          <p class="text-gray-600">Tallas: M, L</p>
+          <button onclick="seleccionarProducto('Blusa Aire')" class="mt-2 bg-rose-500 text-white px-4 py-2 rounded-xl hover:bg-rose-600">Me interesa</button>
+        </div>
+      </div>
+      <div class="bg-white shadow rounded-2xl overflow-hidden hover:shadow-xl transition">
+        <img src="https://source.unsplash.com/400x500/?woman,apparel" alt="Prenda 3" class="w-full h-64 object-cover">
+        <div class="p-4">
+          <h4 class="font-bold text-xl">Pantalón Brisa</h4>
+          <p class="text-gray-600">Tallas: S, M</p>
+          <button onclick="seleccionarProducto('Pantalón Brisa')" class="mt-2 bg-rose-500 text-white px-4 py-2 rounded-xl hover:bg-rose-600">Me interesa</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="formulario" class="bg-white py-12">
+    <div class="container mx-auto text-center">
+      <h3 class="text-3xl font-semibold text-rose-600 mb-4">Formulario de Pedido</h3>
+      <p class="text-gray-500 mb-8">Llena tus datos y te contactaremos por WhatsApp.</p>
+      <form onsubmit="enviarPorWhatsApp(event)" class="max-w-xl mx-auto space-y-4 text-left">
+        <input type="hidden" id="productoElegido" name="Producto" value="" />
+        <input type="text" id="nombre" required placeholder="Tu nombre" class="w-full border border-rose-300 p-3 rounded-xl">
+        <input type="text" id="whatsapp" required placeholder="Tu número de WhatsApp" class="w-full border border-rose-300 p-3 rounded-xl">
+        <textarea id="comentario" placeholder="Detalles adicionales (talla, color, etc.)" class="w-full border border-rose-300 p-3 rounded-xl"></textarea>
+        <button type="submit" class="w-full bg-rose-500 text-white p-3 rounded-xl hover:bg-rose-600">Enviar Pedido</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="bg-rose-100 text-center text-gray-500 py-6 mt-8">
+    Hecho con <span class="text-rose-400 font-bold">complicidad</span> para mujeres que eligen su estilo
+  </footer>
+
+  <script>
+    let productoSeleccionado = "";
+
+    function seleccionarProducto(nombre) {
+      productoSeleccionado = nombre;
+      document.getElementById('productoElegido').value = nombre;
+      document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function enviarPorWhatsApp(event) {
+      event.preventDefault();
+      const nombre = document.getElementById('nombre').value.trim();
+      const numero = document.getElementById('whatsapp').value.trim();
+      const comentario = document.getElementById('comentario').value.trim();
+      const mensaje = `Hola, soy ${nombre}. Estoy interesada en la prenda: ${productoSeleccionado}.\n\nMi número es: ${numero}\n\nDetalles adicionales: ${comentario}`;
+      const url = `https://wa.me/51942096391?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>
