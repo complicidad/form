@@ -65,12 +65,12 @@
 
         <label for="distrito">Distrito</label>
         <select id="distrito" name="distrito">
-          <option value="">Cargando...</option>
+          <option value="">Cargando distritos...</option>
         </select>
 
         <label for="agencia">Agencia (si aplica)</label>
         <select id="agencia" name="agencia">
-          <option value="">Cargando...</option>
+          <option value="">Cargando agencias...</option>
         </select>
 
         <label for="fecha">Fecha de envío</label>
@@ -91,7 +91,7 @@
 
   <script>
     $(document).ready(function() {
-      const webAppUrl = 'https://script.google.com/macros/s/AKfycbwXO3SCQ_4u1H7P_B1VgBoVQF1Y6JcLUedjCvsCnF_ZKSl7AP4o_U_y0hG8LE5xMz6Lfg/exec'; // Reemplaza con tu URL de Web App
+      const webAppUrl = 'https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec'; // Reemplaza con tu URL
 
       $('#tipoAccion').change(function() {
         const val = $(this).val();
@@ -99,16 +99,19 @@
         $('#seccionUsada').toggle(val === 'usado');
       });
 
-      // Simular carga desde Google Sheets
-      const distritos = ["SJM", "Surco", "Miraflores"];
-      const agencias = ["Shalom Arequipa", "Shalom Lima", "Olva"];
-
-      distritos.forEach(function(d) {
-        $('#distrito').append(`<option value="${d}">${d}</option>`);
+      // Cargar distritos y agencias desde hojas específicas
+      $.getJSON('https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec?sheet=Distrito', function(data) {
+        const distritos = data.values || [];
+        distritos.forEach(function(d) {
+          $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
+        });
       });
 
-      agencias.forEach(function(a) {
-        $('#agencia').append(`<option value="${a}">${a}</option>`);
+      $.getJSON('https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec?sheet=Shalom', function(data) {
+        const agencias = data.values || [];
+        agencias.forEach(function(a) {
+          $('#agencia').append(`<option value="${a[0]}">${a[0]}</option>`);
+        });
       });
 
       $('#formularioSAF').on('submit', function(e) {
