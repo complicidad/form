@@ -2,158 +2,128 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulario de Envío - SAF</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <title>Formulario SAF - Cliente Final</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 2rem;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin: 1rem 0 0.5rem;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background-color: #4A00E0;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #3700b3;
-    }
-    select option {
-      white-space: pre-wrap;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    select, input { width: 100%; padding: 8px; margin-top: 5px; }
+    .select2-container .select2-selection--single { height: 38px; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { white-space: pre-line; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Formulario de Envío</h2>
-    <form id="formularioSAF">
 
-      <label for="tipoAccion">¿Qué deseas hacer?</label>
-      <select id="tipoAccion" name="tipoAccion" required>
-        <option value="">Selecciona una opción</option>
-        <option value="nuevo">Registrar mis datos</option>
-        <option value="usado">Usar mis datos registrados</option>
-      </select>
+  <h2>Programar mi envío</h2>
 
-      <div id="seccionNueva" style="display: none;">
-        <label for="nombre">Nombre completo</label>
-        <input type="text" id="nombre" name="nombre">
+  <form id="formulario">
+    <label>¿Qué deseas hacer?</label>
+    <select id="tipoAccion" name="tipoAccion" required>
+      <option value="" disabled selected>Selecciona una opción</option>
+      <option value="nuevo">📝 Registrar mis datos por primera vez</option>
+      <option value="usado">📲 Usar mis datos registrados</option>
+    </select>
 
-        <label for="telefono">Teléfono</label>
-        <input type="text" id="telefono" name="telefono">
+    <div id="camposNuevos" style="display: none;">
+      <label>Nombre completo:</label>
+      <input type="text" name="nombre" required>
 
-        <label for="direccion">Dirección</label>
-        <input type="text" id="direccion" name="direccion">
+      <label>Teléfono:</label>
+      <input type="tel" name="telefono" required>
 
-        <label for="distrito">Distrito</label>
-        <select id="distrito" name="distrito">
-          <option value="">Cargando distritos...</option>
-        </select>
+      <label>Dirección:</label>
+      <input type="text" name="direccion" required>
 
-        <label for="agencia">Agencia (si aplica)</label>
-        <select id="agencia" name="agencia">
-          <option value="">Cargando agencias...</option>
-        </select>
+      <label>Distrito:</label>
+      <select id="distrito" name="distrito" required></select>
 
-        <label for="fecha">Fecha de envío</label>
-        <input type="date" id="fecha" name="fecha">
-      </div>
+      <label>Agencia (si aplica):</label>
+      <select id="agencia" name="agencia" class="select2"></select>
+    </div>
 
-      <div id="seccionUsada" style="display: none;">
-        <label for="telefonoUsado">Teléfono registrado</label>
-        <input type="text" id="telefonoUsado" name="telefonoUsado">
+    <div id="camposUsados" style="display: none;">
+      <label>Teléfono registrado:</label>
+      <input type="tel" name="telefonoUsado">
+    </div>
 
-        <label for="fechaUsada">Fecha de envío</label>
-        <input type="date" id="fechaUsada" name="fechaUsada">
-      </div>
+    <label>Fecha de envío:</label>
+    <input type="date" name="fecha" required>
 
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
+    <button type="submit">Enviar</button>
+  </form>
 
   <script>
-    $(document).ready(function() {
-      const webAppUrl = 'https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec'; // Reemplaza con tu URL
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
-      $('#tipoAccion').change(function() {
-        const val = $(this).val();
-        $('#seccionNueva').toggle(val === 'nuevo');
-        $('#seccionUsada').toggle(val === 'usado');
-      });
-
-      // Cargar distritos y agencias desde hojas específicas
-      $.getJSON('https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec?sheet=Distrito', function(data) {
-        const distritos = data.values || [];
-        distritos.forEach(function(d) {
+    $(document).ready(function () {
+      // Cargar distritos
+      $.getJSON(scriptURL + "?sheet=Distrito", function (data) {
+        data.values.forEach(function (d) {
           $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
         });
       });
 
-      $.getJSON('https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec?sheet=Shalom', function(data) {
-        const agencias = data.values || [];
-        agencias.forEach(function(a) {
-          const textoMultilinea = a[0]; // Ya tiene saltos reales
-          $('#agencia').append(`<option value="${textoMultilinea}">${textoMultilinea}</option>`);
+      // Cargar agencias
+      $.getJSON(scriptURL + "?sheet=Shalom", function (data) {
+        data.values.forEach(function (a) {
+          const texto = a[0];
+          $('#agencia').append(new Option(texto, texto));
+        });
+
+        $('#agencia').select2({
+          placeholder: 'Selecciona una agencia',
+          allowClear: true,
+          templateResult: function (data) {
+            return $('<span>').html(data.text.replace(/\n/g, "<br>"));
+          },
+          templateSelection: function (data) {
+            return data.text.split('\n')[0];
+          }
         });
       });
 
-      $('#formularioSAF').on('submit', function(e) {
-        e.preventDefault();
-        const tipo = $('#tipoAccion').val();
-        let datos = new URLSearchParams();
-
-        datos.append("tipoAccion", tipo);
-
-        if (tipo === 'nuevo') {
-          datos.append("nombre", $('#nombre').val());
-          datos.append("telefono", $('#telefono').val());
-          datos.append("direccion", $('#direccion').val());
-          datos.append("distrito", $('#distrito').val());
-          datos.append("agencia", $('#agencia').val());
-          datos.append("fecha", $('#fecha').val());
-        } else if (tipo === 'usado') {
-          datos.append("telefonoUsado", $('#telefonoUsado').val());
-          datos.append("fechaUsada", $('#fechaUsada').val());
+      // Mostrar/ocultar campos según acción
+      $('#tipoAccion').change(function () {
+        const valor = $(this).val();
+        if (valor === 'nuevo') {
+          $('#camposNuevos').show();
+          $('#camposUsados').hide();
+        } else if (valor === 'usado') {
+          $('#camposNuevos').hide();
+          $('#camposUsados').show();
+        } else {
+          $('#camposNuevos, #camposUsados').hide();
         }
+      });
 
-        fetch(webAppUrl, {
-          method: 'POST',
-          body: datos
-        })
-        .then(res => res.text())
-        .then(data => {
-          alert('Formulario enviado correctamente');
-          $('#formularioSAF')[0].reset();
-          $('#seccionNueva').hide();
-          $('#seccionUsada').hide();
-        })
-        .catch(err => {
-          console.error('Error:', err);
-          alert('Hubo un error al enviar el formulario');
+      // Envío del formulario
+      $('#formulario').on('submit', function (e) {
+        e.preventDefault();
+        const tipoAccion = $('#tipoAccion').val();
+        const formData = new FormData(this);
+
+        $.ajax({
+          url: scriptURL,
+          method: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function () {
+            alert("Datos enviados correctamente");
+            $('#formulario')[0].reset();
+            $('.select2').val(null).trigger('change');
+            $('#camposNuevos, #camposUsados').hide();
+          },
+          error: function () {
+            alert("Ocurrió un error al enviar tus datos");
+          }
         });
       });
     });
   </script>
+
 </body>
 </html>
