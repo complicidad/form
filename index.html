@@ -112,10 +112,7 @@
 
       $.getJSON('https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec?sheet=Shalom', function(data) {
         const agencias = data.values || [];
-        agencias.forEach(function(a) {
-          const texto = a[0].replace(/\\n/g, '\n'); // si ya están guardados como '\n'
-          $('#agencia').append(`<option value="${texto}">${texto}</option>`);
-        });
+        $('#agencia').append(`<option value="${a[0]}">${a[0]}</option>`);
       });
 
       $('#formularioSAF').on('submit', function(e) {
