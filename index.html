@@ -2,72 +2,84 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Formulario SAF - Cliente Final</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      margin: auto;
+      margin: 0 auto;
       max-width: 600px;
-      box-sizing: border-box;
+      background-color: #f9f9f9;
     }
-    
+
+    h2 {
+      text-align: center;
+    }
+
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
     }
-    
-    select, input {
+
+    select, input, button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 5px;
-      box-sizing: border-box;
       font-size: 1rem;
     }
-    
+
     button {
-      margin-top: 20px;
-      padding: 12px 20px;
-      font-size: 1rem;
-      width: 100%;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-    
-    /* Ajuste específico para select2 */
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
     .select2-container {
       width: 100% !important;
     }
-    
+
     .select2-container--default .select2-selection--single {
-      height: 42px;
-      padding: 5px 10px;
+      height: auto;
+      padding: 10px;
       font-size: 1rem;
-      display: flex;
-      align-items: center;
     }
-    
+
     .select2-container--default .select2-selection--single .select2-selection__rendered {
       white-space: pre-line;
-      line-height: 1.2em;
-      padding-left: 5px;
+      line-height: 1.3em;
     }
-    
-    /* Estilo responsive para pantallas pequeñas */
+
     @media (max-width: 480px) {
       body {
-        padding: 10px;
+        padding: 15px;
         font-size: 1rem;
       }
-    
+
+      h2 {
+        font-size: 1.4rem;
+      }
+
       select, input, button {
         font-size: 1.1rem;
+        padding: 14px;
       }
-    
+
       .select2-container--default .select2-selection--single {
         font-size: 1.1rem;
+        padding: 14px;
       }
     }
   </style>
@@ -145,21 +157,13 @@
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').change(function () {
         const valor = $(this).val();
-        if (valor === 'nuevo') {
-          $('#camposNuevos').show();
-          $('#camposUsados').hide();
-        } else if (valor === 'usado') {
-          $('#camposNuevos').hide();
-          $('#camposUsados').show();
-        } else {
-          $('#camposNuevos, #camposUsados').hide();
-        }
+        $('#camposNuevos').toggle(valor === 'nuevo');
+        $('#camposUsados').toggle(valor === 'usado');
       });
 
       // Envío del formulario
       $('#formulario').on('submit', function (e) {
         e.preventDefault();
-        const tipoAccion = $('#tipoAccion').val();
         const formData = new FormData(this);
 
         $.ajax({
