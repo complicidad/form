@@ -1,46 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulario SAF - Cliente Final</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulario SAF</title>
+
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      margin: 0 auto;
-      max-width: 600px;
+      margin: 0;
+      padding: 1rem;
       background-color: #f9f9f9;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     }
 
     h2 {
       text-align: center;
+      font-size: 1.6rem;
     }
 
     label {
-      display: block;
-      margin-top: 15px;
       font-weight: bold;
+      margin-top: 1rem;
+      display: block;
     }
 
-    select, input, button {
+    input, select, button {
       width: 100%;
       padding: 12px;
-      margin-top: 5px;
       font-size: 1rem;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
     button {
-      background-color: #007BFF;
+      background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+      margin-top: 1.5rem;
     }
 
     button:hover {
@@ -51,33 +65,29 @@
       width: 100% !important;
     }
 
+    .select2-results__options {
+      max-height: 250px !important;
+    }
+
     .select2-container--default .select2-selection--single {
       height: auto;
-      padding: 10px;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
       font-size: 1rem;
     }
 
     .select2-container--default .select2-selection--single .select2-selection__rendered {
       white-space: pre-line;
-      line-height: 1.3em;
+      padding-left: 8px;
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 15px;
-        font-size: 1rem;
-      }
-
       h2 {
         font-size: 1.4rem;
       }
 
-      select, input, button {
-        font-size: 1.1rem;
-        padding: 14px;
-      }
-
-      .select2-container--default .select2-selection--single {
+      input, select, button {
         font-size: 1.1rem;
         padding: 14px;
       }
@@ -85,44 +95,44 @@
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Programar mi envío</h2>
+    <form id="formulario">
+      <label>¿Qué deseas hacer?</label>
+      <select id="tipoAccion" name="tipoAccion" required>
+        <option value="" disabled selected>Selecciona una opción</option>
+        <option value="nuevo">📝 Registrar mis datos por primera vez</option>
+        <option value="usado">📲 Usar mis datos registrados</option>
+      </select>
 
-  <h2>Programar mi envío</h2>
+      <div id="camposNuevos" style="display: none;">
+        <label>Nombre completo:</label>
+        <input type="text" name="nombre" required />
 
-  <form id="formulario">
-    <label>¿Qué deseas hacer?</label>
-    <select id="tipoAccion" name="tipoAccion" required>
-      <option value="" disabled selected>Selecciona una opción</option>
-      <option value="nuevo">📝 Registrar mis datos por primera vez</option>
-      <option value="usado">📲 Usar mis datos registrados</option>
-    </select>
+        <label>Teléfono:</label>
+        <input type="tel" name="telefono" required />
 
-    <div id="camposNuevos" style="display: none;">
-      <label>Nombre completo:</label>
-      <input type="text" name="nombre" required>
+        <label>Dirección:</label>
+        <input type="text" name="direccion" required />
 
-      <label>Teléfono:</label>
-      <input type="tel" name="telefono" required>
+        <label>Distrito:</label>
+        <select id="distrito" name="distrito" required></select>
 
-      <label>Dirección:</label>
-      <input type="text" name="direccion" required>
+        <label>Agencia (si aplica):</label>
+        <select id="agencia" name="agencia" class="select2"></select>
+      </div>
 
-      <label>Distrito:</label>
-      <select id="distrito" name="distrito" required></select>
+      <div id="camposUsados" style="display: none;">
+        <label>Teléfono registrado:</label>
+        <input type="tel" name="telefonoUsado" />
+      </div>
 
-      <label>Agencia (si aplica):</label>
-      <select id="agencia" name="agencia" class="select2"></select>
-    </div>
+      <label>Fecha de envío:</label>
+      <input type="date" name="fecha" required />
 
-    <div id="camposUsados" style="display: none;">
-      <label>Teléfono registrado:</label>
-      <input type="tel" name="telefonoUsado">
-    </div>
-
-    <label>Fecha de envío:</label>
-    <input type="date" name="fecha" required>
-
-    <button type="submit">Enviar</button>
-  </form>
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
 
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
@@ -145,12 +155,8 @@
         $('#agencia').select2({
           placeholder: 'Selecciona una agencia',
           allowClear: true,
-          templateResult: function (data) {
-            return $('<span>').html(data.text.replace(/\n/g, "<br>"));
-          },
-          templateSelection: function (data) {
-            return data.text.split('\n')[0];
-          }
+          width: '100%',
+          dropdownAutoWidth: true,
         });
       });
 
@@ -161,7 +167,7 @@
         $('#camposUsados').toggle(valor === 'usado');
       });
 
-      // Envío del formulario
+      // Enviar datos
       $('#formulario').on('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -185,6 +191,5 @@
       });
     });
   </script>
-
 </body>
 </html>
