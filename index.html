@@ -1,113 +1,152 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Complicidad Privée</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario de Envío - SAF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <style>
     body {
-      font-family: 'Outfit', sans-serif;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4A00E0;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3700b3;
     }
   </style>
 </head>
-<body class="bg-rose-50 text-gray-800">
-  <header class="bg-white shadow p-4 sticky top-0 z-50">
-    <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-extrabold text-rose-600">Complicidad</h1>
-      <nav class="space-x-4">
-        <a href="#catalogo" class="text-rose-500 hover:underline">Catálogo</a>
-        <a href="#formulario" class="text-rose-500 hover:underline">Pedir</a>
-      </nav>
-    </div>
-  </header>
+<body>
+  <div class="container">
+    <h2>Formulario de Envío</h2>
+    <form id="formularioSAF">
 
-  <section class="text-center py-12 bg-gradient-to-b from-white to-rose-100">
-    <h2 class="text-4xl font-bold mb-2">Ropa para mujeres que inspiran</h2>
-    <p class="text-lg text-gray-600">Un nuevo canal para tu estilo: único, suave, poderoso.</p>
-  </section>
+      <label for="tipoAccion">¿Qué deseas hacer?</label>
+      <select id="tipoAccion" name="tipoAccion" required>
+        <option value="">Selecciona una opción</option>
+        <option value="nuevo">Registrar mis datos</option>
+        <option value="usado">Usar mis datos registrados</option>
+      </select>
 
-  <section id="catalogo" class="container mx-auto py-12">
-    <h3 class="text-3xl font-semibold text-center mb-8 text-rose-600">Catálogo</h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      <div class="bg-white shadow rounded-2xl overflow-hidden hover:shadow-xl transition">
-        <img src="SubirDeseo.png" alt="Vestido Natural" class="w-full h-64 object-cover">
-        <div class="p-4">
-          <h4 class="font-bold text-xl">Vestido Natural</h4>
-          <p class="text-gray-600">Tallas: S, M, L</p>
-          <button onclick="seleccionarProducto('Vestido Natural', 'SubirDeseo.png')" class="mt-2 bg-rose-500 text-white px-4 py-2 rounded-xl hover:bg-rose-600">Me interesa</button>
-        </div>
-      </div>
-      <div class="bg-white shadow rounded-2xl overflow-hidden hover:shadow-xl transition">
-        <img src="TopDeseos.png" alt="Blusa Aire" class="w-full h-64 object-cover">
-        <div class="p-4">
-          <h4 class="font-bold text-xl">Blusa Aire</h4>
-          <p class="text-gray-600">Tallas: M, L</p>
-          <button onclick="seleccionarProducto('Blusa Aire', 'TopDeseos.png')" class="mt-2 bg-rose-500 text-white px-4 py-2 rounded-xl hover:bg-rose-600">Me interesa</button>
-        </div>
-      </div>
-      <div class="bg-white shadow rounded-2xl overflow-hidden hover:shadow-xl transition">
-        <img src="VotarDeseo.png" alt="Pantalón Brisa" class="w-full h-64 object-cover">
-        <div class="p-4">
-          <h4 class="font-bold text-xl">Pantalón Brisa</h4>
-          <p class="text-gray-600">Tallas: S, M</p>
-          <button onclick="seleccionarProducto('Pantalón Brisa', 'VotarDeseo.png')" class="mt-2 bg-rose-500 text-white px-4 py-2 rounded-xl hover:bg-rose-600">Me interesa</button>
-        </div>
-      </div>
-    </div>
-  </section>
+      <div id="seccionNueva" style="display: none;">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre">
 
-  <section id="formulario" class="bg-white py-12">
-    <div class="container mx-auto text-center">
-      <h3 class="text-3xl font-semibold text-rose-600 mb-4">Formulario de Pedido</h3>
-      <p class="text-gray-500 mb-8">Llena tus datos y te contactaremos por WhatsApp.</p>
+        <label for="telefono">Teléfono</label>
+        <input type="text" id="telefono" name="telefono">
 
-      <div id="preview" class="mb-6 hidden">
-        <h4 class="text-lg font-semibold text-gray-600 mb-2">Prenda Seleccionada:</h4>
-        <img id="previewImg" src="" alt="Prenda seleccionada" class="mx-auto w-48 h-64 object-cover rounded-xl border">
-        <p id="previewNombre" class="mt-2 font-medium text-gray-700"></p>
+        <label for="direccion">Dirección</label>
+        <input type="text" id="direccion" name="direccion">
+
+        <label for="distrito">Distrito</label>
+        <select id="distrito" name="distrito">
+          <option value="">Cargando...</option>
+        </select>
+
+        <label for="agencia">Agencia (si aplica)</label>
+        <select id="agencia" name="agencia">
+          <option value="">Cargando...</option>
+        </select>
+
+        <label for="fecha">Fecha de envío</label>
+        <input type="date" id="fecha" name="fecha">
       </div>
 
-      <form onsubmit="enviarPorWhatsApp(event)" class="max-w-xl mx-auto space-y-4 text-left">
-        <input type="hidden" id="productoElegido" name="Producto" value="" />
-        <input type="hidden" id="productoImg" value="" />
-        <input type="text" id="nombre" required placeholder="Tu nombre" class="w-full border border-rose-300 p-3 rounded-xl">
-        <input type="text" id="whatsapp" required placeholder="Tu número de WhatsApp" class="w-full border border-rose-300 p-3 rounded-xl">
-        <textarea id="comentario" placeholder="Detalles adicionales (talla, color, etc.)" class="w-full border border-rose-300 p-3 rounded-xl"></textarea>
-        <button type="submit" class="w-full bg-rose-500 text-white p-3 rounded-xl hover:bg-rose-600">Enviar Pedido</button>
-      </form>
-    </div>
-  </section>
+      <div id="seccionUsada" style="display: none;">
+        <label for="telefonoUsado">Teléfono registrado</label>
+        <input type="text" id="telefonoUsado" name="telefonoUsado">
 
-  <footer class="bg-rose-100 text-center text-gray-500 py-6 mt-8">
-    Hecho con <span class="text-rose-400 font-bold">complicidad</span> para mujeres que eligen su estilo
-  </footer>
+        <label for="fechaUsada">Fecha de envío</label>
+        <input type="date" id="fechaUsada" name="fechaUsada">
+      </div>
+
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
 
   <script>
-    let productoSeleccionado = "";
-    let imagenSeleccionada = "";
+    $(document).ready(function() {
+      const webAppUrl = 'https://script.google.com/macros/s/TU_WEBAPP_URL/exec'; // Reemplaza con tu URL de Web App
 
-    function seleccionarProducto(nombre, imagenURL) {
-      productoSeleccionado = nombre;
-      imagenSeleccionada = imagenURL;
-      document.getElementById('productoElegido').value = nombre;
-      document.getElementById('productoImg').value = imagenURL;
-      document.getElementById('previewImg').src = imagenURL;
-      document.getElementById('previewNombre').innerText = nombre;
-      document.getElementById('preview').classList.remove('hidden');
-      document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
-    }
+      $('#tipoAccion').change(function() {
+        const val = $(this).val();
+        $('#seccionNueva').toggle(val === 'nuevo');
+        $('#seccionUsada').toggle(val === 'usado');
+      });
 
-    function enviarPorWhatsApp(event) {
-      event.preventDefault();
-      const nombre = document.getElementById('nombre').value.trim();
-      const numero = document.getElementById('whatsapp').value.trim();
-      const comentario = document.getElementById('comentario').value.trim();
-      const mensaje = `Hola, soy ${nombre}. Estoy interesada en la prenda: ${productoSeleccionado}.%0A%0AMi número es: ${numero}.%0ADetalles adicionales: ${comentario}.%0A%0AVer prenda: https://complicidad.github.io/store/${imagenSeleccionada}`;
-      const url = `https://wa.me/51942096391?text=${mensaje}`;
-      window.open(url, '_blank');
-    }
+      // Simular carga desde Google Sheets
+      const distritos = ["SJM", "Surco", "Miraflores"];
+      const agencias = ["Shalom Arequipa", "Shalom Lima", "Olva"];
+
+      distritos.forEach(function(d) {
+        $('#distrito').append(`<option value="${d}">${d}</option>`);
+      });
+
+      agencias.forEach(function(a) {
+        $('#agencia').append(`<option value="${a}">${a}</option>`);
+      });
+
+      $('#formularioSAF').on('submit', function(e) {
+        e.preventDefault();
+        const tipo = $('#tipoAccion').val();
+        let datos = new URLSearchParams();
+
+        datos.append("tipoAccion", tipo);
+
+        if (tipo === 'nuevo') {
+          datos.append("nombre", $('#nombre').val());
+          datos.append("telefono", $('#telefono').val());
+          datos.append("direccion", $('#direccion').val());
+          datos.append("distrito", $('#distrito').val());
+          datos.append("agencia", $('#agencia').val());
+          datos.append("fecha", $('#fecha').val());
+        } else if (tipo === 'usado') {
+          datos.append("telefonoUsado", $('#telefonoUsado').val());
+          datos.append("fechaUsada", $('#fechaUsada').val());
+        }
+
+        fetch(webAppUrl, {
+          method: 'POST',
+          body: datos
+        })
+        .then(res => res.text())
+        .then(data => {
+          alert('Formulario enviado correctamente');
+          $('#formularioSAF')[0].reset();
+          $('#seccionNueva').hide();
+          $('#seccionUsada').hide();
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          alert('Hubo un error al enviar el formulario');
+        });
+      });
+    });
   </script>
 </body>
 </html>
