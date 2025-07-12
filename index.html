@@ -13,12 +13,8 @@
     select, input { width: 100%; padding: 8px; margin-top: 5px; }
     .select2-container .select2-selection--single { height: 38px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { white-space: pre-line; }
-    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
-    .select2-container {
-  width: 100% !important;
-}
-
-    
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    .select2-container { width: 100% !important; }
   </style>
 </head>
 <body>
@@ -51,8 +47,8 @@
     </div>
 
     <div id="camposUsados" style="display: none;">
-      <label>Teléfono registrado:</label>
-      <input type="tel" name="telefonoUsado">
+      <label>Selecciona tu número registrado:</label>
+      <select id="telefonoUsado" name="telefonoUsado" class="select2" required></select>
     </div>
 
     <label>Fecha de envío:</label>
@@ -68,9 +64,7 @@
       // Cargar distritos
       $.getJSON(scriptURL + "?sheet=Distrito", function (data) {
         data.values.forEach(function (d) {
-          $('#distrito').append(`
-            <option value="${d[0]}">${d[0]}</option>
-          `);
+          $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
         });
       });
 
@@ -95,17 +89,31 @@
         });
       });
 
+      // Cargar teléfonos registrados
+      $.getJSON(scriptURL + "?sheet=Clientes", function (data) {
+        data.values.forEach(function (row) {
+          const telefono = row[0];
+          if (/^\d{9}$/.test(telefono)) {
+            $('#telefonoUsado').append(new Option(telefono, telefono));
+          }
+        });
+        $('#telefonoUsado').select2({
+          placeholder: 'Selecciona tu número registrado',
+          allowClear: true
+        });
+      });
+
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').change(function () {
         const valor = $(this).val();
         if (valor === 'nuevo') {
-          $('#camposNuevos').show();
-          $('#camposUsados').hide();
+          $('#camposNuevos').show().find('input, select').prop('disabled', false);
+          $('#camposUsados').hide().find('select').prop('disabled', true);
         } else if (valor === 'usado') {
-          $('#camposNuevos').hide();
-          $('#camposUsados').show();
+          $('#camposNuevos').hide().find('input, select').prop('disabled', true);
+          $('#camposUsados').show().find('select').prop('disabled', false);
         } else {
-          $('#camposNuevos, #camposUsados').hide();
+          $('#camposNuevos, #camposUsados').hide().find('input, select').prop('disabled', true);
         }
       });
 
@@ -114,6 +122,11 @@
         e.preventDefault();
         const tipoAccion = $('#tipoAccion').val();
         const formData = new FormData(this);
+
+        if (tipoAccion === 'usado' && !$('#telefonoUsado').val()) {
+          alert('Selecciona un número registrado.');
+          return;
+        }
 
         $.ajax({
           url: scriptURL,
