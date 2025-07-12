@@ -1,138 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formulario SAF</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>Formulario SAF - Cliente Final</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background-color: #f9f9f9;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      text-align: center;
-      font-size: 1.6rem;
-    }
-
-    label {
-      font-weight: bold;
-      margin-top: 1rem;
-      display: block;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      margin-top: 1.5rem;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    select, input { width: 100%; padding: 8px; margin-top: 5px; }
+    .select2-container .select2-selection--single { height: 38px; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { white-space: pre-line; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
     .select2-container {
-      width: 100% !important;
-    }
+  width: 100% !important;
+}
 
-    .select2-results__options {
-      max-height: 250px !important;
-    }
-
-    .select2-container--default .select2-selection--single {
-      height: auto;
-      min-height: 42px;
-      display: flex;
-      align-items: center;
-      font-size: 1rem;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      white-space: pre-line;
-      padding-left: 8px;
-    }
-
-    @media (max-width: 480px) {
-      h2 {
-        font-size: 1.4rem;
-      }
-
-      input, select, button {
-        font-size: 1.1rem;
-        padding: 14px;
-      }
-    }
+    
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Programar mi envío</h2>
-    <form id="formulario">
-      <label>¿Qué deseas hacer?</label>
-      <select id="tipoAccion" name="tipoAccion" required>
-        <option value="" disabled selected>Selecciona una opción</option>
-        <option value="nuevo">📝 Registrar mis datos por primera vez</option>
-        <option value="usado">📲 Usar mis datos registrados</option>
-      </select>
 
-      <div id="camposNuevos" style="display: none;">
-        <label>Nombre completo:</label>
-        <input type="text" name="nombre" required />
+  <h2>Programar mi envío</h2>
 
-        <label>Teléfono:</label>
-        <input type="tel" name="telefono" required />
+  <form id="formulario">
+    <label>¿Qué deseas hacer?</label>
+    <select id="tipoAccion" name="tipoAccion" required>
+      <option value="" disabled selected>Selecciona una opción</option>
+      <option value="nuevo">📝 Registrar mis datos por primera vez</option>
+      <option value="usado">📲 Usar mis datos registrados</option>
+    </select>
 
-        <label>Dirección:</label>
-        <input type="text" name="direccion" required />
+    <div id="camposNuevos" style="display: none;">
+      <label>Nombre completo:</label>
+      <input type="text" name="nombre" required>
 
-        <label>Distrito:</label>
-        <select id="distrito" name="distrito" required></select>
+      <label>Teléfono:</label>
+      <input type="tel" name="telefono" required>
 
-        <label>Agencia (si aplica):</label>
-        <select id="agencia" name="agencia" class="select2"></select>
-      </div>
+      <label>Dirección:</label>
+      <input type="text" name="direccion" required>
 
-      <div id="camposUsados" style="display: none;">
-        <label>Teléfono registrado:</label>
-        <input type="tel" name="telefonoUsado" />
-      </div>
+      <label>Distrito:</label>
+      <select id="distrito" name="distrito" required></select>
 
-      <label>Fecha de envío:</label>
-      <input type="date" name="fecha" required />
+      <label>Agencia (si aplica):</label>
+      <select id="agencia" name="agencia" class="select2"></select>
+    </div>
 
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
+    <div id="camposUsados" style="display: none;">
+      <label>Teléfono registrado:</label>
+      <input type="tel" name="telefonoUsado">
+    </div>
+
+    <label>Fecha de envío:</label>
+    <input type="date" name="fecha" required>
+
+    <button type="submit">Enviar</button>
+  </form>
 
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
@@ -141,7 +67,9 @@
       // Cargar distritos
       $.getJSON(scriptURL + "?sheet=Distrito", function (data) {
         data.values.forEach(function (d) {
-          $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
+          $('#distrito').append(`
+            <option value="${d[0]}">${d[0]}</option>
+          `);
         });
       });
 
@@ -155,21 +83,35 @@
         $('#agencia').select2({
           placeholder: 'Selecciona una agencia',
           allowClear: true,
-          width: '100%',
-          dropdownAutoWidth: true,
+          templateResult: function (data) {
+            if (!data.id) return data.text;
+            const lineas = data.text.split('\n');
+            return $('<span>').html(`<strong>${lineas[0]}</strong><br>${lineas.slice(1).join('<br>')}`);
+          },
+          templateSelection: function (data) {
+            return data.text.split('\n')[0];
+          }
         });
       });
 
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').change(function () {
         const valor = $(this).val();
-        $('#camposNuevos').toggle(valor === 'nuevo');
-        $('#camposUsados').toggle(valor === 'usado');
+        if (valor === 'nuevo') {
+          $('#camposNuevos').show();
+          $('#camposUsados').hide();
+        } else if (valor === 'usado') {
+          $('#camposNuevos').hide();
+          $('#camposUsados').show();
+        } else {
+          $('#camposNuevos, #camposUsados').hide();
+        }
       });
 
-      // Enviar datos
+      // Envío del formulario
       $('#formulario').on('submit', function (e) {
         e.preventDefault();
+        const tipoAccion = $('#tipoAccion').val();
         const formData = new FormData(this);
 
         $.ajax({
@@ -191,5 +133,6 @@
       });
     });
   </script>
+
 </body>
 </html>
