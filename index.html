@@ -40,7 +40,7 @@
       background-color: #3700b3;
     }
     select option {
-      white-space: pre-line;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -112,7 +112,10 @@
 
       $.getJSON('https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec?sheet=Shalom', function(data) {
         const agencias = data.values || [];
-        $('#agencia').append(`<option value="${a[0]}">${a[0]}</option>`);
+        agencias.forEach(function(a) {
+          const textoMultilinea = a[0]; // Ya tiene saltos reales
+          $('#agencia').append(`<option value="${textoMultilinea}">${textoMultilinea}</option>`);
+        });
       });
 
       $('#formularioSAF').on('submit', function(e) {
