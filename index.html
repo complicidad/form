@@ -147,7 +147,7 @@
         } else if (valor === 'shalom') {
           $('#camposShalom')
             .show()
-            .find('select')
+            .find('input, 'select')
             .prop('disabled', false);
       
         } else {
@@ -181,7 +181,11 @@
             alert("Datos enviados correctamente");
             $('#formulario')[0].reset();
             $('.select2').val(null).trigger('change');
-            $('#camposDelivery, #camposUsados').hide();
+          
+            $('#camposDelivery, #camposShalom, #camposUsados')
+              .hide()
+              .find('input, select')
+              .prop('disabled', true);
           },
           error: function () {
             alert("Ocurrió un error al enviar tus datos");
