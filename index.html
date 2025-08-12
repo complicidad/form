@@ -41,7 +41,9 @@
       <input type="tel" name="telefono" required>
       
       <label>Distrito:</label>
-      <select id="distrito" name="distrito" required></select>
+      <select id="distrito" name="distrito" required>
+        <option value="" disabled selected hidden>Selecciona un distrito</option>
+      </select>
       
       <label>Dirección:</label>
       <input type="text" name="direccion" required>
@@ -64,7 +66,9 @@
       <input type="text" name="DNI" required>
 
       <label>Agencia:</label>
-      <select id="agencia" name="agencia" class="select2"></select>
+      <select id="agencia" name="agencia" class="select2" required>
+        <option value=""></option>
+      </select>
 
       <label>Fecha de envío:</label>
       <input type="date" name="fecha" required>
@@ -86,16 +90,23 @@
 
     $(document).ready(function () {
 
-      // Inicializa Select2 (si lo deseas)
-      $('#distrito').select2({
-        placeholder: 'Selecciona un distrito',
-        allowClear: true
+      $('#agencia').select2({
+        placeholder: 'Selecciona una agencia',
+        allowClear: true,
+        width: '100%'
       });
       
-      // Inicializa Select2 (si lo deseas)
-      $('#shalom').select2({
-        placeholder: 'Selecciona una agencia',
-        allowClear: true
+      $('#telefonoUsado').select2({
+        placeholder: 'Selecciona tu número registrado',
+        allowClear: true,
+        width: '100%'
+      });
+      
+      // Si quieres también Select2 para distrito:
+      $('#distrito').select2({
+        placeholder: 'Selecciona un distrito',
+        allowClear: true,
+        width: '100%'
       });
       
       // Deshabilitar todos los bloques
@@ -103,12 +114,17 @@
         .find('input, select')
         .prop('disabled', true);
       
-      // Cargar distritos
-      $.getJSON(scriptURL + "?sheet=Distrito", function (data) {
-        data.values.forEach(function (d) {
-          $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
+      // 1. Inicializar Select2
+      $('#distrito').select2({ placeholder: 'Selecciona un distrito', allowClear: true });
+      // 2. Cargar opciones
+      $.getJSON(`${scriptURL}?sheet=Distrito`)
+        .done(data => {
+          data.values.forEach(d => {
+            $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
+          });
+          // 3. Refrescar el select2
+          $('#distrito').trigger('change');
         });
-      });
 
       // Cargar agencias
       $.getJSON(scriptURL + "?sheet=Shalom", function (data) {
