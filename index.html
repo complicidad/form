@@ -119,7 +119,7 @@ $(document).ready(function () {
 function obtenerFechasEnvio() {
   const ahora = new Date();
   const opciones = [];
-  const diasPermitidos = [2, 5]; // martes (2), viernes (5)
+  const diasPermitidos = [3, 5]; // martes (2), viernes (5)
   const horaCorte = 10; // 10:00 a.m.
   const limite = new Date();
   limite.setDate(ahora.getDate() + 14); // hasta 2 semanas
