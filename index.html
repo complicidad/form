@@ -41,17 +41,17 @@ form select {
     <label>Selecciona el tipo de servicio</label>
     <select id="tipoAccion" name="tipoAccion" required>
       <option value="" disabled selected>Elige una opción</option>
-      <option value="delivery">📝 Envío a domicilio/trabajo (Delivery)</option>
-      <option value="shalom">📝 Retiro en agencia Shalom</option>
-      <option value="usado">📲 Usar mi dirección registrada</option>
+      <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
+      <option value="shalom">Retiro en agencia Shalom</option>
+      <option value="usado">Usar mi dirección registrada</option>
     </select>
     
     <div id="camposDelivery" style="display: none;">
       
       <h2>📦 Delivery</h2>
-      <legend>Datos de la persona que recibirá el pedido en su domicilio o trabajo:</legend>
+      <legend>Datos de la persona que recibirá el pedido en su domicilio o trabajo</legend>
       
-      <label>Nombre completo:</label>
+      <label>Nombre:</label>
       <input type="text" name="nombre" required>
 
       <label>Teléfono:</label>
@@ -66,15 +66,12 @@ form select {
       <label>Referencia:</label>
       <input type="text" name="referencia" required>
       
-      <label for="fecha">Fecha de envío:</label>
-      <select id="fecha" name="fecha"></select>
-      
     </div>
 
     <div id="camposShalom" style="display: none;">
       
       <h2>📦 Shalom</h2>
-      <legend>Datos de la persona que recogerá el pedido en la agencia Shalom:</legend>
+      <legend>Datos de la persona que recogerá el pedido en la agencia Shalom</legend>
       
       <label>Nombre completo:</label>
       <input type="text" name="nombre" required>
@@ -82,23 +79,28 @@ form select {
       <label>Teléfono:</label>
       <input type="text" name="telefono" required>
       
-      <label>DNI:</label>
+      <label>DNI/CE:</label>
       <input type="text" name="DNI" required>
 
       <label>Agencia:</label>
       <select id="agencia" name="agencia" class="select2" required></select>
 
-      <label for="fecha">Fecha de envío:</label>
-      <select id="fecha" name="fecha"></select>
-      
     </div>
 
     <div id="camposUsados" style="display: none;">
       
-      <label for="fecha">Fecha de envío:</label>
-      <select id="fecha" name="fecha"></select>
+      <h2>😍 Ya eres parte de la familia</h2>
+      <legend>Solo elige tu fecha de envío:</legend>
       
     </div>
+    
+
+    <!-- Campo de fecha reutilizable -->
+    <div id="contenedorFecha" style="display: none;">
+      <label for="fecha">Fecha de envío:</label>
+      <select id="fecha" name="fecha"required></select>
+    </div>
+
 
     <button type="submit">Enviar</button>
   </form>
@@ -112,22 +114,38 @@ const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/ls
 const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
 const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
-    function obtenerFechasEnvio() {
-    const hoy = new Date();
-    const opciones = [];
-    const diasPermitidos = [2, 5]; // 2 = martes, 5 = viernes
-    const limite = new Date(hoy);
-    limite.setDate(hoy.getDate() + 14); // +2 semanas
+$(document).ready(function () {
+  
+function obtenerFechasEnvio() {
+  const ahora = new Date();
+  const opciones = [];
+  const diasPermitidos = [2, 5]; // martes (2), viernes (5)
+  const horaCorte = 10; // 10:00 a.m.
+  const limite = new Date();
+  limite.setDate(ahora.getDate() + 14); // hasta 2 semanas
 
-    let fecha = new Date(hoy);
-    while (fecha <= limite) {
-        if (diasPermitidos.includes(fecha.getDay())) {
-            opciones.push(new Date(fecha));
-        }
-        fecha.setDate(fecha.getDate() + 1);
+  let fecha = new Date();
+  fecha.setHours(0, 0, 0, 0); // normaliza hora
+
+  while (fecha <= limite) {
+    const diaSemana = fecha.getDay();
+
+    if (diasPermitidos.includes(diaSemana)) {
+      const fechaCorte = new Date(fecha);
+      fechaCorte.setDate(fecha.getDate() - 1); // día anterior
+      fechaCorte.setHours(horaCorte, 0, 0, 0); // 10:00 a.m. del día anterior
+
+      if (ahora < fechaCorte) {
+        opciones.push(new Date(fecha));
+      }
     }
-    return opciones;
+
+    fecha.setDate(fecha.getDate() + 1);
+  }
+
+  return opciones;
 }
+
 
 function formatearFecha(fecha) {
     return fecha.toLocaleDateString('es-ES', {
@@ -146,9 +164,7 @@ fechas.forEach(f => {
     option.textContent = formatearFecha(f);
     select.appendChild(option);
 });
-    
-    
-$(document).ready(function () {
+  
     // Inicializar Select2
     $('#distrito').select2({
         placeholder: 'Escribe el distrito...',
@@ -223,6 +239,9 @@ telefonosRegistrados = data.values
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').on('change', function () {
 
+
+
+
         // Limpia los tres bloques
         limpiarCampos('camposDelivery');
         limpiarCampos('camposShalom');
@@ -233,6 +252,9 @@ telefonosRegistrados = data.values
           .hide()
           .find('input, select')
           .prop('disabled', true);
+
+
+
       
         // 2) Mostrar y habilitar el bloque correspondiente
         const v = $(this).val();
@@ -244,8 +266,29 @@ telefonosRegistrados = data.values
         }
         else if (v === 'usado') {
           $('#camposUsados').show().find('input, select').prop('disabled', false);
+        };
+      
+
+        // Mover el campo de fecha al bloque correspondiente
+        const contenedorFecha = $('#contenedorFecha');
+        contenedorFecha.hide(); // Oculta antes de mover
+        
+        if (v === 'delivery') {
+          $('#camposDelivery').append(contenedorFecha);
+          contenedorFecha.show();
+          $('#fecha').prop('disabled', false);
         }
-      });
+        else if (v === 'shalom') {
+          $('#camposShalom').append(contenedorFecha);
+          contenedorFecha.show();
+          $('#fecha').prop('disabled', false);
+        }
+        else if (v === 'usado') {
+          $('#camposUsados').append(contenedorFecha);
+          contenedorFecha.show();
+          $('#fecha').prop('disabled', false);
+        }
+});
 
       // Envío del formulario
 $('#formulario').on('submit', function (e) {
