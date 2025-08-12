@@ -92,6 +92,12 @@
         allowClear: true
       });
       
+      // Inicializa Select2 (si lo deseas)
+      $('#shalom').select2({
+        placeholder: 'Selecciona una agencia',
+        allowClear: true
+      });
+      
       // Deshabilitar todos los bloques
       $('#camposDelivery, #camposShalom, #camposUsados')
         .find('input, select')
