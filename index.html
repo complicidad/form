@@ -163,6 +163,11 @@
 
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').on('change', function () {
+
+        // Limpiar todo el formulario y los select2
+        $('#formulario')[0].reset();
+        $('.select2').val(null).trigger('change');  
+        
         // 1) Ocultar y deshabilitar todo
         $('#camposDelivery, #camposShalom, #camposUsados')
           .hide()
