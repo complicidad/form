@@ -89,26 +89,7 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
     $(document).ready(function () {
-
-      $('#agencia').select2({
-        placeholder: 'Selecciona una agencia',
-        allowClear: true,
-        width: '100%'
-      });
-      
-      $('#telefonoUsado').select2({
-        placeholder: 'Selecciona tu número registrado',
-        allowClear: true,
-        width: '100%'
-      });
-      
-      // Si quieres también Select2 para distrito:
-      $('#distrito').select2({
-        placeholder: 'Selecciona un distrito',
-        allowClear: true,
-        width: '100%'
-      });
-      
+    
       // Deshabilitar todos los bloques
       $('#camposDelivery, #camposShalom, #camposUsados')
         .find('input, select')
@@ -169,12 +150,24 @@
             input.value = "";
         });
     
-        // También puedes limpiar selects adicionales
-        document.querySelectorAll("select").forEach(sel => {
-            if (sel.id !== "opcionAccion") { // evita limpiar el select principal
-                sel.selectedIndex = 0;
-            }
-        });
+      $('#agencia').select2({
+        placeholder: 'Selecciona una agencia',
+        allowClear: true,
+        width: '100%'
+      });
+      
+      $('#telefonoUsado').select2({
+        placeholder: 'Selecciona tu número registrado',
+        allowClear: true,
+        width: '100%'
+      });
+      
+      // Si quieres también Select2 para distrito:
+      $('#distrito').select2({
+        placeholder: 'Selecciona un distrito',
+        allowClear: true,
+        width: '100%'
+      });
         
         // 1) Ocultar y deshabilitar todo
         $('#camposDelivery, #camposShalom, #camposUsados')
