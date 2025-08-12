@@ -141,29 +141,11 @@
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').on('change', function () {
 
-        // Limpia todos los campos de texto
-        document.querySelectorAll("input[type=text]").forEach(input => {
-            input.value = "";
-        });
-    
-      $('#agencia').select2({
-        placeholder: 'Selecciona una agencia',
-        allowClear: true,
-        width: '100%'
-      });
+        // 🔹 Limpia todos los inputs y selects
+        $('#formulario')[0].reset();
       
-      $('#telefonoUsado').select2({
-        placeholder: 'Selecciona tu número registrado',
-        allowClear: true,
-        width: '100%'
-      });
-      
-      // Si quieres también Select2 para distrito:
-      $('#distrito').select2({
-        placeholder: 'Selecciona un distrito',
-        allowClear: true,
-        width: '100%'
-      });
+        // 🔹 Limpia todos los select2
+        $('.select2').val(null).trigger('change');
         
         // 1) Ocultar y deshabilitar todo
         $('#camposDelivery, #camposShalom, #camposUsados')
