@@ -33,6 +33,11 @@ form select {
   <h2>Agenda tu envío</h2>
 
   <form id="formulario">
+    
+      <label>WhatsApp con el que compraste</label>
+      <input type="text" id="telefonoUsado" name="telefonoUsado" required placeholder="Ingresa tu número">
+
+    
     <label>Selecciona el tipo de servicio</label>
     <select id="tipoAccion" name="tipoAccion" required>
       <option value="" disabled selected>Elige una opción</option>
@@ -42,6 +47,10 @@ form select {
     </select>
     
     <div id="camposDelivery" style="display: none;">
+      
+      <h2>📦 Delivery</h2>
+      <legend>Datos de la persona que recibirá el pedido en su domicilio o trabajo:</legend>
+      
       <label>Nombre completo:</label>
       <input type="text" name="nombre" required>
 
@@ -57,11 +66,16 @@ form select {
       <label>Referencia:</label>
       <input type="text" name="referencia" required>
       
-<label for="fecha">Fecha de envío:</label>
-<select id="fecha" name="fecha"></select>
+      <label for="fecha">Fecha de envío:</label>
+      <select id="fecha" name="fecha"></select>
+      
     </div>
 
     <div id="camposShalom" style="display: none;">
+      
+      <h2>📦 Shalom</h2>
+      <legend>Datos de la persona que recogerá el pedido en la agencia Shalom:</legend>
+      
       <label>Nombre completo:</label>
       <input type="text" name="nombre" required>
 
@@ -74,18 +88,16 @@ form select {
       <label>Agencia:</label>
       <select id="agencia" name="agencia" class="select2" required></select>
 
-<label for="fecha">Fecha de envío:</label>
-<select id="fecha" name="fecha"></select>
+      <label for="fecha">Fecha de envío:</label>
+      <select id="fecha" name="fecha"></select>
+      
     </div>
 
     <div id="camposUsados" style="display: none;">
-      <label>Teléfono:</label>
-<input type="text" id="telefonoUsado" name="telefonoUsado" required placeholder="Ingresa tu número registrado">
-
-
-
-<label for="fecha">Fecha de envío:</label>
-<select id="fecha" name="fecha"></select>
+      
+      <label for="fecha">Fecha de envío:</label>
+      <select id="fecha" name="fecha"></select>
+      
     </div>
 
     <button type="submit">Enviar</button>
