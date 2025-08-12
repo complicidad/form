@@ -133,11 +133,28 @@
         });
       });
 
+function limpiarCampos(idContenedor) {
+    // Limpia inputs y selects dentro del contenedor
+    document.querySelectorAll(`#${idContenedor} input, #${idContenedor} select`).forEach(campo => {
+        if (campo.tagName === 'SELECT') {
+            campo.selectedIndex = 0; // Reinicia al primer option
+            if ($(campo).hasClass('select2')) {
+                $(campo).val(null).trigger('change'); // Si usa select2
+            }
+        } else {
+            campo.value = ''; // Borra texto o fecha
+        }
+    });
+}
+
+      
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').on('change', function () {
 
-        // 🔹 Limpia todos los inputs y selects
-        $('#formulario')[0].reset();
+        // Limpia los tres bloques
+        limpiarCampos('camposDelivery');
+        limpiarCampos('camposShalom');
+        limpiarCampos('camposUsados');
         
         // 1) Ocultar y deshabilitar todo
         $('#camposDelivery, #camposShalom, #camposUsados')
