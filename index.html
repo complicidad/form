@@ -1,375 +1,462 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agenda tu envío</title>
+
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+  <!-- Select2 CSS & JS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+    rel="stylesheet"
+  />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  
+
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
 
-    form input,
-form select {
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 8px;
-}
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
 
-    
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    select, input { width: 100%; padding: 8px; margin-top: 5px; }
-    .select2-container .select2-selection--single { height: 38px; }
-    .select2-container--default .select2-selection--single .select2-selection__rendered { white-space: pre-line; }
-.contenedor-boton {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
+    select,
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border-radius: 8px;
+    }
 
-button[type="submit"] {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
+    .select2-container {
+      width: 100% !important;
+    }
 
-    .select2-container { width: 100% !important; }
-    
+    .select2-container .select2-selection--single {
+      height: 38px;
+    }
+
+    .select2-container--default .select2-selection--single
+      .select2-selection__rendered {
+      white-space: pre-line;
+    }
+
+    .contenedor-boton {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button[type="submit"] {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+  <h2>Agenda tu envío</h2>
+  Tienda: Complicidad boutique
 
-  <h2>Agenda tu envío (@complicidadboutique)</h2>
+  <form id="formulario" novalidate>
+    <label for="telefonoUsado">WhatsApp con el que compraste</label>
+    <input
+      type="text"
+      id="telefonoUsado"
+      name="telefonoUsado"
+      required
+      placeholder="Ingresa tu número"
+      pattern="\d{9}"
+      title="Ingresa un número de teléfono válido de 9 dígitos"
+    />
 
-  <form id="formulario">
-    
-      <label>WhatsApp con el que compraste</label>
-      <input type="text" id="telefonoUsado" name="telefonoUsado" required placeholder="Ingresa tu número">
-
-    
-    <label>Selecciona el tipo de servicio</label>
+    <label for="tipoAccion">Selecciona el tipo de servicio</label>
     <select id="tipoAccion" name="tipoAccion" required>
       <option value="" disabled selected>Elige una opción</option>
-      <option value="shalom">Retiro en agencia Shalom</option>
       <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
+      <option value="shalom">Retiro en agencia Shalom</option>
       <option value="recoger">Recoger en almacén</option>
       <option value="usado">Usar mi dirección registrada</option>
     </select>
-    
+
     <div id="camposDelivery" style="display: none;">
-      
       <h2>📦 Delivery</h2>
       <legend>Datos de la persona que recibirá el pedido en su domicilio o trabajo</legend>
-      
-      <label>Nombre:</label>
-      <input type="text" name="nombre" required>
 
-      <label>Teléfono:</label>
-      <input type="text" name="telefono" required>
-      
-      <label>Distrito:</label>
+      <label for="nombreDelivery">Nombre:</label>
+      <input type="text" id="nombreDelivery" name="nombre" required />
+
+      <label for="telefonoDelivery">Teléfono:</label>
+      <input
+        type="text"
+        id="telefonoDelivery"
+        name="telefono"
+        required
+        pattern="\d{9}"
+        title="Ingresa un número de teléfono válido de 9 dígitos"
+      />
+
+      <label for="distrito">Distrito:</label>
       <select id="distrito" name="distrito" required></select>
-      
-      <label>Dirección:</label>
-      <input type="text" name="direccion" required>
 
-      <label>Referencia:</label>
-      <input type="text" name="referencia" required>
-      
+      <label for="direccion">Dirección:</label>
+      <input type="text" id="direccion" name="direccion" required />
+
+      <label for="referencia">Referencia:</label>
+      <input type="text" id="referencia" name="referencia" required />
     </div>
 
     <div id="camposShalom" style="display: none;">
-      
       <h2>📦 Shalom</h2>
       <legend>Datos de la persona que recogerá el pedido en la agencia Shalom</legend>
-      
-      <label>Nombre completo:</label>
-      <input type="text" name="nombre" required>
 
-      <label>Teléfono:</label>
-      <input type="text" name="telefono" required>
-      
-      <label>DNI/CE:</label>
-      <input type="text" name="DNI" required>
+      <label for="nombreShalom">Nombre completo:</label>
+      <input type="text" id="nombreShalom" name="nombre" required />
 
-      <label>Agencia:</label>
+      <label for="telefonoShalom">Teléfono:</label>
+      <input
+        type="text"
+        id="telefonoShalom"
+        name="telefono"
+        required
+        pattern="\d{9}"
+        title="Ingresa un número de teléfono válido de 9 dígitos"
+      />
+
+      <label for="DNI">DNI/CE:</label>
+      <input type="text" id="DNI" name="DNI" required />
+
+      <label for="agencia">Agencia:</label>
       <select id="agencia" name="agencia" class="select2" required></select>
-
     </div>
 
     <div id="camposUsados" style="display: none;">
-      
       <h2>😍 Ya eres parte de la familia</h2>
       <legend>Solo elige tu fecha de envío:</legend>
-      
     </div>
-    
 
     <!-- Campo de fecha reutilizable -->
     <div id="contenedorFecha" style="display: none;">
       <label for="fecha">Fecha de envío:</label>
-      <select id="fecha" name="fecha"required></select>
+      <select id="fecha" name="fecha" required></select>
     </div>
-
 
     <div class="contenedor-boton">
       <button type="submit">Enviar</button>
     </div>
-
   </form>
 
+  <footer
+    style="
+      padding: 20px;
+      text-align: center;
+      font-family: sans-serif;
+      margin-top: 40px;
+    "
+  >
+    <div style="margin-top: 10px;">
+      <a
+        href="https://www.tiktok.com/@complicidadboutique"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="margin-right: 15px; text-decoration: none"
+        ><img
+          src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png"
+          alt="TikTok"
+          width="24"
+          style="vertical-align: middle"
+      /><span
+        style="margin-left: 5px; font-size: 14px"
+        ></span
+      ></a>
 
-<footer style="padding:20px; text-align:center; font-family:sans-serif;">
+      <a
+        href="https://wa.me/51981391159"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="text-decoration: none"
+        ><img
+          src="https://cdn-icons-png.flaticon.com/512/733/733585.png"
+          alt="WhatsApp"
+          width="24"
+          style="vertical-align: middle"
+      /><span style="margin-left: 5px; font-size: 14px"></span></a>
+    </div>
 
-  <div style="margin-top:10px;">
-    <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" style="margin-right:15px; text-decoration:none;">
-      <img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" alt="TikTok" width="24" style="vertical-align:middle;">
-      <span style="margin-left:5px; font-size:14px;"></span>
-    </a>
-
-    <a href="https://wa.me/51981391159" target="_blank" style="text-decoration:none;">
-      <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="24" style="vertical-align:middle;">
-      <span style="margin-left:5px; font-size:14px;"></span>
-    </a>
-  </div>
-
-  <p style="margin-top:15px; font-size:12px; color:#888;">© 2025 Complicidad. Todos los derechos reservados.</p>
-</footer>
-
+    <p style="margin-top: 15px; font-size: 12px; color: #888">
+      © 2025 Agéndalo. Todos los derechos reservados.
+    </p>
+  </footer>
 
   <script>
-    
-    let telefonosRegistrados = [];
+    $(document).ready(function () {
+      const urlDistritos =
+        "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
+      const urlShalom =
+        "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
+      const scriptURL =
+        "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
-    
-const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
-const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
-const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
+      let telefonosRegistrados = [];
 
-$(document).ready(function () {
-  
-function obtenerFechasEnvio() {
-  const ahora = new Date();
-  const opciones = [];
-  const diasPermitidos = [3, 5]; // martes (2), viernes (5)
-  const horaCorte = 10; // 10:00 a.m.
-  const limite = new Date();
-  limite.setDate(ahora.getDate() + 14); // hasta 2 semanas
+      /**
+       * Obtiene las fechas válidas para envío: martes y viernes,
+       * hasta dos semanas adelante y con horario de corte a las 10:00 a.m. del día anterior.
+       * @returns {Date[]} Array de fechas válidas
+       */
+      function obtenerFechasEnvio() {
+        const ahora = new Date();
+        const opciones = [];
+        const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
+        const horaCorte = 10; // 10:00 a.m.
+        const limite = new Date();
+        limite.setDate(ahora.getDate() + 14); // hasta 2 semanas adelante
 
-  let fecha = new Date();
-  fecha.setHours(0, 0, 0, 0); // normaliza hora
+        let fecha = new Date();
+        fecha.setHours(0, 0, 0, 0); // normaliza la hora
 
-  while (fecha <= limite) {
-    const diaSemana = fecha.getDay();
+        while (fecha <= limite) {
+          const diaSemana = fecha.getDay();
 
-    if (diasPermitidos.includes(diaSemana)) {
-      const fechaCorte = new Date(fecha);
-      fechaCorte.setDate(fecha.getDate() - 1); // día anterior
-      fechaCorte.setHours(horaCorte, 0, 0, 0); // 10:00 a.m. del día anterior
+          if (diasPermitidos.includes(diaSemana)) {
+            // Día válido, chequeamos horario de corte (10 a.m. día anterior)
+            const fechaCorte = new Date(fecha);
+            fechaCorte.setDate(fecha.getDate() - 1);
+            fechaCorte.setHours(horaCorte, 0, 0, 0);
 
-      if (ahora < fechaCorte) {
-        opciones.push(new Date(fecha));
-      }
-    }
-
-    fecha.setDate(fecha.getDate() + 1);
-  }
-
-  return opciones;
-}
-
-
-function formatearFecha(fecha) {
-    return fecha.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-    });
-}
-
-const select = document.getElementById('fecha');
-const fechas = obtenerFechasEnvio();
-fechas.forEach(f => {
-    const option = document.createElement('option');
-    option.value = f.toISOString().split('T')[0]; // formato yyyy-mm-dd
-    option.textContent = formatearFecha(f);
-    select.appendChild(option);
-});
-  
-    // Inicializar Select2
-    $('#distrito').select2({
-        placeholder: 'Escribe el distrito...',
-        minimumInputLength: 1, // solo muestra cuando escribe al menos 1 letra
-        dropdownAutoWidth: true,
-        width: '100%',
-        language: {
-            inputTooShort: function () {
-                return 'Escribe al menos una letra';
+            if (ahora < fechaCorte) {
+              opciones.push(new Date(fecha));
             }
+          }
+          fecha.setDate(fecha.getDate() + 1);
         }
-    });
-    $('#agencia').select2({
-        placeholder: 'Selecciona una agencia',
-        allowClear: true,
+        return opciones;
+      }
+
+      /**
+       * Formatea una fecha a string en español, con día de semana, día, mes y año.
+       * Ejemplo: "martes, 15 de agosto de 2025"
+       * @param {Date} fecha
+       * @returns {string}
+       */
+      function formatearFecha(fecha) {
+        return fecha.toLocaleDateString("es-ES", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      // Carga las fechas en el select #fecha
+      const $selectFecha = $("#fecha");
+      const fechas = obtenerFechasEnvio();
+      fechas.forEach((f) => {
+        const option = $("<option>")
+          .val(f.toISOString().split("T")[0])
+          .text(formatearFecha(f));
+        $selectFecha.append(option);
+      });
+
+      // Inicializar Select2 en distritos y agencias
+      $("#distrito").select2({
+        placeholder: "Escribe el distrito...",
+        dropdownAutoWidth: false,
+        width: "100%",
+      });
+
+      $("#agencia").select2({
+        placeholder: "Selecciona una agencia",
+        dropdownAutoWidth: false,
+        width: "100%",
         templateResult: function (data) {
-            if (!data.id) return data.text;
-            const lineas = data.text.split('\n');
-            return $('<span>').html(`<strong>${lineas[0]}</strong><br>${lineas.slice(1).join('<br>')}`);
+          if (!data.id) return data.text;
+          const lineas = data.text.split("\n");
+          return $("<span>").html(
+            `<strong>${lineas[0]}</strong><br>${lineas.slice(1).join("<br>")}`
+          );
         },
         templateSelection: function (data) {
-            return data.text.split('\n')[0];
-        }
-    });
+          return data.text ? data.text.split("\n")[0] : "";
+        },
+      });
 
-    // Cargar Distritos desde JSON en GitHub
-    const cargarDistritos = $.getJSON(urlDistritos)
-        .done(data => {
-            let opciones = '<option></option>';
-            data.forEach(d => {
-                opciones += `<option value="${d.Distrito}">${d.Distrito}</option>`;
-            });
-            $('#distrito').html(opciones).trigger('change');
-        });
-
-    // Cargar Agencias desde JSON en GitHub
-    const cargarAgencias = $.getJSON(urlShalom)
-        .done(data => {
-            let opciones = '<option></option>';
-            data.forEach(d => {
-                opciones += `<option value="${d.Shalom}">${d.Shalom}</option>`;
-            });
-            $('#agencia').html(opciones).trigger('change');
-        });
-
-    // Cargar Teléfonos desde Google Sheets (se mantiene igual)
-const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
-    .done(data => {
-telefonosRegistrados = data.values
-  .map(row => String(row[0]).replace(/\D/g, '')) // 👈 convierte a string primero
-  .filter(t => t.length === 9);
-
-
-    });
-
-
-    Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos])
-        .catch(() => alert("Error al cargar datos"));
-  
-      function limpiarCampos(idContenedor) {
-          document.querySelectorAll(`#${idContenedor} input, #${idContenedor} select`).forEach(campo => {
-              if (campo.tagName === 'SELECT') {
-                  // Siempre limpia la selección
-                  $(campo).val(null).trigger('change');
-              } else {
-                  campo.value = '';
-              }
+      // Cargar distritos desde JSON remoto
+      const cargarDistritos = $.getJSON(urlDistritos)
+        .done((data) => {
+          let opciones = '<option value=""></option>';
+          data.forEach((d) => {
+            opciones += `<option value="${d.Distrito}">${d.Distrito}</option>`;
           });
+          $("#distrito").html(opciones).trigger("change");
+        })
+        .fail(() => {
+          alert("No se pudieron cargar los distritos.");
+        });
+
+      // Cargar agencias desde JSON remoto
+      const cargarAgencias = $.getJSON(urlShalom)
+        .done((data) => {
+          let opciones = '<option value=""></option>';
+          data.forEach((d) => {
+            opciones += `<option value="${d.Shalom}">${d.Shalom}</option>`;
+          });
+          $("#agencia").html(opciones).trigger("change");
+        })
+        .fail(() => {
+          alert("No se pudieron cargar las agencias.");
+        });
+
+      // Cargar teléfonos registrados desde Google Sheets
+      const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
+        .done((data) => {
+          // Extrae y normaliza teléfonos de 9 dígitos
+          telefonosRegistrados = data.values
+            .map((row) => String(row[0]).replace(/\D/g, ""))
+            .filter((t) => t.length === 9);
+        })
+        .fail(() => {
+          alert("No se pudieron cargar los teléfonos registrados.");
+        });
+
+      // Espera a que todo se cargue antes de continuar
+      Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos]).catch(() =>
+        alert("Error al cargar datos necesarios para el formulario.")
+      );
+
+      /**
+       * Limpia inputs y selects dentro de un contenedor por ID
+       * @param {string} idContenedor
+       */
+      function limpiarCampos(idContenedor) {
+        const selector = `#${idContenedor} input, #${idContenedor} select`;
+        document.querySelectorAll(selector).forEach((campo) => {
+          if (campo.tagName === "SELECT") {
+            $(campo).val(null).trigger("change");
+          } else {
+            campo.value = "";
+          }
+        });
       }
 
-      
-      // Mostrar/ocultar campos según acción
-      $('#tipoAccion').on('change', function () {
+      // Muestra/oculta bloques de campos según la opción seleccionada
+      $("#tipoAccion").on("change", function () {
+        limpiarCampos("camposDelivery");
+        limpiarCampos("camposShalom");
+        limpiarCampos("camposUsados");
 
-
-
-
-        // Limpia los tres bloques
-        limpiarCampos('camposDelivery');
-        limpiarCampos('camposShalom');
-        limpiarCampos('camposUsados');
-        
-        // 1) Ocultar y deshabilitar todo
-        $('#camposDelivery, #camposShalom, #camposUsados')
+        // Oculta todos los bloques y deshabilita inputs/selects dentro
+        $("#camposDelivery, #camposShalom, #camposUsados")
           .hide()
-          .find('input, select')
-          .prop('disabled', true);
+          .find("input, select")
+          .prop("disabled", true);
 
+        const valor = $(this).val();
 
-
-      
-        // 2) Mostrar y habilitar el bloque correspondiente
-        const v = $(this).val();
-        if (v === 'delivery') {
-          $('#camposDelivery').show().find('input, select').prop('disabled', false);
+        // Mostrar y habilitar bloque correspondiente
+        if (valor === "delivery") {
+          $("#camposDelivery").show().find("input, select").prop("disabled", false);
+        } else if (valor === "shalom") {
+          $("#camposShalom").show().find("input, select").prop("disabled", false);
+        } else if (valor === "usado") {
+          $("#camposUsados").show().find("input, select").prop("disabled", false);
         }
-        else if (v === 'shalom') {
-          $('#camposShalom').show().find('input, select').prop('disabled', false);
+
+        // Mover y mostrar campo fecha en el bloque correspondiente
+        const $contenedorFecha = $("#contenedorFecha");
+        $contenedorFecha.hide();
+
+        if (["delivery", "shalom", "usado"].includes(valor)) {
+          if (valor === "delivery") {
+            $("#camposDelivery").append($contenedorFecha);
+          } else if (valor === "shalom") {
+            $("#camposShalom").append($contenedorFecha);
+          } else {
+            $("#camposUsados").append($contenedorFecha);
+          }
+          $contenedorFecha.show();
+          $("#fecha").prop("disabled", false);
+        } else {
+          $("#fecha").prop("disabled", true);
         }
-        else if (v === 'usado') {
-          $('#camposUsados').show().find('input, select').prop('disabled', false);
-        };
-      
+      });
 
-        // Mover el campo de fecha al bloque correspondiente
-        const contenedorFecha = $('#contenedorFecha');
-        contenedorFecha.hide(); // Oculta antes de mover
-        
-        if (v === 'delivery') {
-          $('#camposDelivery').append(contenedorFecha);
-          contenedorFecha.show();
-          $('#fecha').prop('disabled', false);
+      // Envío del formulario con validación extra para opción "usado"
+      $("#formulario").on("submit", function (e) {
+        e.preventDefault();
+
+        const tipoAccion = $("#tipoAccion").val();
+
+        // Validación personalizada para "usado"
+        if (tipoAccion === "usado") {
+          const telefonoIngresado = $("#telefonoUsado")
+            .val()
+            .replace(/\D/g, "");
+
+          if (!telefonoIngresado) {
+            alert("Por favor, ingresa tu número registrado.");
+            $("#telefonoUsado").focus();
+            return;
+          }
+
+          if (!telefonosRegistrados.includes(telefonoIngresado)) {
+            alert(
+              "El número ingresado no está registrado. Verifica e intenta nuevamente."
+            );
+            $("#telefonoUsado").focus();
+            return;
+          }
         }
-        else if (v === 'shalom') {
-          $('#camposShalom').append(contenedorFecha);
-          contenedorFecha.show();
-          $('#fecha').prop('disabled', false);
+
+        // Validación nativa HTML5 para campos visibles
+        if (!this.checkValidity()) {
+          // Esto activará mensajes nativos del navegador
+          this.reportValidity();
+          return;
         }
-        else if (v === 'usado') {
-          $('#camposUsados').append(contenedorFecha);
-          contenedorFecha.show();
-          $('#fecha').prop('disabled', false);
-        }
-});
 
-      // Envío del formulario
-$('#formulario').on('submit', function (e) {
-  e.preventDefault();
-  const tipoAccion = $('#tipoAccion').val();
-  const formData = new FormData(this);
+        // Prepara FormData para enviar
+        const formData = new FormData(this);
 
-  // Validación solo si se seleccionó "Usar mi dirección registrada"
-  if (tipoAccion === 'usado') {
-const telefonoIngresado = $('#telefonoUsado').val().replace(/\D/g, '');
+        // Envío AJAX
+        $.ajax({
+          url: scriptURL,
+          method: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: () => {
+            alert("Datos enviados correctamente");
+            // Resetea formulario y Select2
+            $("#formulario")[0].reset();
+            $(".select2").val(null).trigger("change");
 
+            // Oculta todos los bloques y deshabilita inputs
+            $("#camposDelivery, #camposShalom, #camposUsados")
+              .hide()
+              .find("input, select")
+              .prop("disabled", true);
 
-    if (!telefonoIngresado) {
-      alert('Por favor, ingresa tu número registrado.');
-      return;
-    }
-
-    if (!telefonosRegistrados.includes(telefonoIngresado)) {
-      alert('El número ingresado no está registrado. Verifica e intenta nuevamente.');
-      return;
-    }
-  }
-
-  // Si pasa la validación, se envía el formulario
-  $.ajax({
-    url: scriptURL,
-    method: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function () {
-      alert("Datos enviados correctamente");
-      $('#formulario')[0].reset();
-      $('.select2').val(null).trigger('change');
-      $('#camposDelivery, #camposShalom, #camposUsados')
-        .hide()
-        .find('input, select')
-        .prop('disabled', true);
-    },
-    error: function () {
-      alert("Ocurrió un error al enviar tus datos");
-    }
-  });
-});
-
+            // Oculta y limpia campo fecha
+            $("#contenedorFecha").hide();
+            $("#fecha").empty();
+          },
+          error: () => {
+            alert("Ocurrió un error al enviar tus datos");
+          },
+        });
+      });
     });
   </script>
-
 </body>
 </html>
