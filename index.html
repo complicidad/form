@@ -45,6 +45,10 @@ button[type="submit"] {
 
   <form id="formulario">
     
+
+    
+    
+    
       <label>WhatsApp con el que compraste</label>
       <input type="text" id="telefonoUsado" name="telefonoUsado" required placeholder="Ingresa tu número">
 
@@ -69,8 +73,10 @@ button[type="submit"] {
       <label>Teléfono:</label>
       <input type="text" name="telefono" required>
       
-      <label>Distrito:</label>
-      <select id="distrito" name="distrito" required></select>
+      <label for="distrito">Distrito:</label>
+      <input list="lstDistritos" id="distrito" name="distrito" autocomplete="off" required />
+      <datalist id="lstDistritos"></datalist>
+      <div class="error" id="error"></div>
       
       <label>Dirección:</label>
       <input type="text" name="direccion" required>
@@ -140,15 +146,39 @@ button[type="submit"] {
 
 
   <script>
-    
+       
+    const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
+    const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
+    const datalist = document.getElementById('lstDistritos');
+    const input = document.getElementById('distrito');
+    const form = document.getElementById('formulario');
+    const error = document.getElementById('error');
+    let distritos = [];
     let telefonosRegistrados = [];
 
-    
-const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
-const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
-const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
+
+  
 $(document).ready(function () {
+  
+  
+        // Cargar distritos desde la URL
+    fetch(urlDistritos)
+      .then(response => response.json())
+      .then(data => {
+        distritos = data.map(d => d.Distrito.toLowerCase());
+        data.forEach(d => {
+          const option = document.createElement('option');
+          option.value = d.Distrito;
+          datalist.appendChild(option);
+        });
+      })
+      .catch(err => {
+        console.error("Error al cargar distritos:", err);
+        error.textContent = "No se pudo cargar la lista de distritos.";
+      });  
+  
   
 function obtenerFechasEnvio() {
   const ahora = new Date();
@@ -199,18 +229,7 @@ fechas.forEach(f => {
     select.appendChild(option);
 });
   
-    // Inicializar Select2
-    $('#distrito').select2({
-        placeholder: 'Escribe el distrito...',
-        minimumInputLength: 1, // solo muestra cuando escribe al menos 1 letra
-        dropdownAutoWidth: true,
-        width: '100%',
-        language: {
-            inputTooShort: function () {
-                return 'Escribe al menos una letra';
-            }
-        }
-    });
+
     $('#agencia').select2({
         placeholder: 'Selecciona una agencia',
         allowClear: true,
@@ -224,15 +243,7 @@ fechas.forEach(f => {
         }
     });
 
-    // Cargar Distritos desde JSON en GitHub
-    const cargarDistritos = $.getJSON(urlDistritos)
-        .done(data => {
-            let opciones = '<option></option>';
-            data.forEach(d => {
-                opciones += `<option value="${d.Distrito}">${d.Distrito}</option>`;
-            });
-            $('#distrito').html(opciones).trigger('change');
-        });
+
 
     // Cargar Agencias desde JSON en GitHub
     const cargarAgencias = $.getJSON(urlShalom)
@@ -255,7 +266,7 @@ telefonosRegistrados = data.values
     });
 
 
-    Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos])
+    Promise.all([cargarAgencias, cargarTelefonos])
         .catch(() => alert("Error al cargar datos"));
   
       function limpiarCampos(idContenedor) {
