@@ -108,7 +108,7 @@ $(document).ready(function () {
         .done(data => {
             let opciones = '<option></option>';
             data.forEach(d => {
-                opciones += `<option value="${d}">${d}</option>`;
+                opciones += `<option value="${d.Distrito}">${d.Distrito}</option>`;
             });
             $('#distrito').html(opciones).trigger('change');
         });
@@ -117,8 +117,8 @@ $(document).ready(function () {
     const cargarAgencias = $.getJSON(urlShalom)
         .done(data => {
             let opciones = '<option></option>';
-            data.forEach(a => {
-                opciones += `<option value="${a}">${a}</option>`;
+            data.forEach(d => {
+                opciones += `<option value="${d.Agencia}">${d.Agencia}</option>`;
             });
             $('#agencia').html(opciones).trigger('change');
         });
