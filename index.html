@@ -124,14 +124,14 @@
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').change(function () {
         const valor = $(this).val();
-        if (valor === 'nuevo') {
+        if (valor === 'delivery') {
           $('#camposDelivery').show().find('input, select').prop('disabled', false);
           $('#camposUsados').hide().find('select').prop('disabled', true);
         } else if (valor === 'usado') {
           $('#camposDelivery').hide().find('input, select').prop('disabled', true);
           $('#camposUsados').show().find('select').prop('disabled', false);
         } else {
-          $('#camposNuevos, #camposUsados').hide().find('input, select').prop('disabled', true);
+          $('#camposDelivery, #camposUsados').hide().find('input, select').prop('disabled', true);
         }
       });
 
@@ -156,7 +156,7 @@
             alert("Datos enviados correctamente");
             $('#formulario')[0].reset();
             $('.select2').val(null).trigger('change');
-            $('#camposNuevos, #camposUsados').hide();
+            $('#camposDelivery, #camposUsados').hide();
           },
           error: function () {
             alert("Ocurrió un error al enviar tus datos");
