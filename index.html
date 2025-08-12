@@ -118,7 +118,7 @@ $(document).ready(function () {
         .done(data => {
             let opciones = '<option></option>';
             data.forEach(d => {
-                opciones += `<option value="${d.Agencia}">${d.Agencia}</option>`;
+                opciones += `<option value="${d.Shalom}">${d.Shalom}</option>`;
             });
             $('#agencia').html(opciones).trigger('change');
         });
