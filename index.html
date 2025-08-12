@@ -28,24 +28,39 @@
     <label>¿Qué deseas hacer?</label>
     <select id="tipoAccion" name="tipoAccion" required>
       <option value="" disabled selected>Selecciona una opción</option>
-      <option value="nuevo">📝 Registrar mis datos por primera vez</option>
-      <option value="usado">📲 Usar mis datos registrados</option>
+      <option value="delivery">📝 Quiero mi envío por Delivery</option>
+      <option value="shalom">📝 Quiero mi envío por Shalom</option>
+      <option value="usado">📲 Quiero usar mi dirección registrada</option>
     </select>
 
-    <div id="camposNuevos" style="display: none;">
+    <div id="camposDelivery" style="display: none;">
       <label>Nombre completo:</label>
       <input type="text" name="nombre" required>
 
       <label>Teléfono:</label>
       <input type="tel" name="telefono" required>
 
+      <label>Distrito:</label>
+      <select id="distrito" name="distrito" required></select>
+      
       <label>Dirección:</label>
       <input type="text" name="direccion" required>
 
-      <label>Distrito:</label>
-      <select id="distrito" name="distrito" required></select>
+      <label>Referencia:</label>
+      <input type="text" name="referencia" required>
+    </div>
 
-      <label>Agencia (si aplica):</label>
+    <div id="camposShalom" style="display: none;">
+      <label>Nombre completo:</label>
+      <input type="text" name="nombre" required>
+
+      <label>Teléfono:</label>
+      <input type="tel" name="telefono" required>
+
+      <label>DNI:</label>
+      <input type="text" name="DNI" required>
+
+      <label>Agencia:</label>
       <select id="agencia" name="agencia" class="select2"></select>
     </div>
 
