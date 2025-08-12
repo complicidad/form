@@ -86,52 +86,57 @@
 
     $(document).ready(function () {
 
-      // 1. Inicializar Select2
-      $('#distrito').select2({ placeholder: 'Selecciona un distrito', allowClear: true });
-      // 2. Cargar opciones
-      $.getJSON(`${scriptURL}?sheet=Distrito`)
-        .done(data => {
-          data.values.forEach(d => {
-            $('#distrito').append(`<option value="${d[0]}">${d[0]}</option>`);
-          });
-          // 3. Refrescar el select2
-          $('#distrito').trigger('change');
-        });
 
-      // Cargar agencias
-      $.getJSON(scriptURL + "?sheet=Shalom", function (data) {
-        data.values.forEach(function (a) {
-          const texto = a[0];
-          $('#agencia').append(new Option(texto, texto));
-        });
-
-        $('#agencia').select2({
-          placeholder: 'Selecciona una agencia',
-          allowClear: true,
-          templateResult: function (data) {
+    // Inicializar Select2
+    $('#distrito').select2({ placeholder: 'Selecciona un distrito', allowClear: true });
+    $('#agencia').select2({
+        placeholder: 'Selecciona una agencia',
+        allowClear: true,
+        templateResult: function (data) {
             if (!data.id) return data.text;
             const lineas = data.text.split('\n');
             return $('<span>').html(`<strong>${lineas[0]}</strong><br>${lineas.slice(1).join('<br>')}`);
-          },
-          templateSelection: function (data) {
+        },
+        templateSelection: function (data) {
             return data.text.split('\n')[0];
-          }
-        });
-      });
+        }
+    });
+    $('#telefonoUsado').select2({ placeholder: 'Selecciona tu número registrado', allowClear: true });
 
-      // Cargar teléfonos registrados
-      $.getJSON(scriptURL + "?sheet=Clientes", function (data) {
-        data.values.forEach(function (row) {
-          const telefono = row[0];
-          if (/^\d{9}$/.test(telefono)) {
-            $('#telefonoUsado').append(new Option(telefono, telefono));
-          }
+    // Cargar datos en paralelo
+    const cargarDistritos = $.getJSON(`${scriptURL}?sheet=Distrito`)
+        .done(data => {
+            let opciones = '<option></option>'; // Para el placeholder
+            data.values.forEach(d => {
+                opciones += `<option value="${d[0]}">${d[0]}</option>`;
+            });
+            $('#distrito').html(opciones).trigger('change');
         });
-        $('#telefonoUsado').select2({
-          placeholder: 'Selecciona tu número registrado',
-          allowClear: true
+
+    const cargarAgencias = $.getJSON(`${scriptURL}?sheet=Shalom`)
+        .done(data => {
+            let opciones = '<option></option>';
+            data.values.forEach(a => {
+                opciones += `<option value="${a[0]}">${a[0]}</option>`;
+            });
+            $('#agencia').html(opciones).trigger('change');
         });
-      });
+
+    const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
+        .done(data => {
+            let opciones = '<option></option>';
+            data.values.forEach(row => {
+                const telefono = row[0];
+                if (/^\d{9}$/.test(telefono)) {
+                    opciones += `<option value="${telefono}">${telefono}</option>`;
+                }
+            });
+            $('#telefonoUsado').html(opciones).trigger('change');
+        });
+
+    // Ejecutar todas
+    Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos])
+        .catch(() => alert("Error al cargar datos"));
 
       function limpiarCampos(idContenedor) {
           document.querySelectorAll(`#${idContenedor} input, #${idContenedor} select`).forEach(campo => {
