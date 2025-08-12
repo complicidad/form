@@ -164,9 +164,17 @@
       // Mostrar/ocultar campos según acción
       $('#tipoAccion').on('change', function () {
 
-        // Limpiar todo el formulario y los select2
-        $('#formulario')[0].reset();
-        $('.select2').val(null).trigger('change');  
+        // Limpia todos los campos de texto
+        document.querySelectorAll("input[type=text]").forEach(input => {
+            input.value = "";
+        });
+    
+        // También puedes limpiar selects adicionales
+        document.querySelectorAll("select").forEach(sel => {
+            if (sel.id !== "opcionAccion") { // evita limpiar el select principal
+                sel.selectedIndex = 0;
+            }
+        });
         
         // 1) Ocultar y deshabilitar todo
         $('#camposDelivery, #camposShalom, #camposUsados')
