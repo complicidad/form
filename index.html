@@ -81,14 +81,16 @@
     <button type="submit">Enviar</button>
   </form>
 
-  <select id="distrito" name="distrito" required>
-    <option value="" disabled selected>Selecciona un distrito</option>
-  </select>
-
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
     $(document).ready(function () {
+
+      // Inicializa Select2 (si lo deseas)
+      $('#distrito').select2({
+        placeholder: 'Selecciona un distrito',
+        allowClear: true
+      });
       
       // Deshabilitar todos los bloques
       $('#camposDelivery, #camposShalom, #camposUsados')
