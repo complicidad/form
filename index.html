@@ -81,10 +81,20 @@
     <button type="submit">Enviar</button>
   </form>
 
+  <select id="distrito" name="distrito" required>
+    <option value="" disabled selected>Selecciona un distrito</option>
+  </select>
+
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
     $(document).ready(function () {
+      
+      // Deshabilitar todos los bloques
+      $('#camposDelivery, #camposShalom, #camposUsados')
+        .find('input, select')
+        .prop('disabled', true);
+      
       // Cargar distritos
       $.getJSON(scriptURL + "?sheet=Distrito", function (data) {
         data.values.forEach(function (d) {
@@ -127,44 +137,26 @@
         });
       });
 
-      // Mostrar/ocultar campos según acción, incluyendo camposShalom
+      // Mostrar/ocultar campos según acción
       $('#tipoAccion').on('change', function () {
-        const valor = $(this).val();
-      
-        // 1) Ocultar todos los bloques y deshabilitar sus inputs/selects
-        $('#camposDelivery, #camposUsados, #camposShalom')
+        // 1) Ocultar y deshabilitar todo
+        $('#camposDelivery, #camposShalom, #camposUsados')
           .hide()
           .find('input, select')
           .prop('disabled', true);
       
-        // 2) Mostrar solo el bloque correspondiente
-        if (valor === 'delivery') {
-          $('#camposDelivery')
-            .show()
-            .find('input, select')
-            .prop('disabled', false);
-      
-        } else if (valor === 'usado') {
-          $('#camposUsados')
-            .show()
-            .find('input, select')
-            .prop('disabled', false);
-      
-        } else if (valor === 'shalom') {
-          $('#camposShalom')
-            .show()
-            .find('input, select')
-            .prop('disabled', false);
-      
-        } else {
-          // Si hay alguna otra opción (o reset), todo queda oculto
-          $('#camposDelivery, #camposUsados, #camposShalom')
-            .hide()
-            .find('input, select')
-            .prop('disabled', true);
+        // 2) Mostrar y habilitar el bloque correspondiente
+        const v = $(this).val();
+        if (v === 'delivery') {
+          $('#camposDelivery').show().find('input, select').prop('disabled', false);
+        }
+        else if (v === 'shalom') {
+          $('#camposShalom').show().find('input, select').prop('disabled', false);
+        }
+        else if (v === 'usado') {
+          $('#camposUsados').show().find('input, select').prop('disabled', false);
         }
       });
-
 
       // Envío del formulario
       $('#formulario').on('submit', function (e) {
