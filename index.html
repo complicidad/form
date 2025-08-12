@@ -82,11 +82,11 @@
   </form>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
+const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
+const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
+const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
-    $(document).ready(function () {
-
-
+$(document).ready(function () {
     // Inicializar Select2
     $('#distrito').select2({ placeholder: 'Selecciona un distrito', allowClear: true });
     $('#agencia').select2({
@@ -103,25 +103,27 @@
     });
     $('#telefonoUsado').select2({ placeholder: 'Selecciona tu número registrado', allowClear: true });
 
-    // Cargar datos en paralelo
-    const cargarDistritos = $.getJSON(`${scriptURL}?sheet=Distrito`)
+    // Cargar Distritos desde JSON en GitHub
+    const cargarDistritos = $.getJSON(urlDistritos)
         .done(data => {
-            let opciones = '<option></option>'; // Para el placeholder
-            data.values.forEach(d => {
-                opciones += `<option value="${d[0]}">${d[0]}</option>`;
+            let opciones = '<option></option>';
+            data.forEach(d => {
+                opciones += `<option value="${d}">${d}</option>`;
             });
             $('#distrito').html(opciones).trigger('change');
         });
 
-    const cargarAgencias = $.getJSON(`${scriptURL}?sheet=Shalom`)
+    // Cargar Agencias desde JSON en GitHub
+    const cargarAgencias = $.getJSON(urlShalom)
         .done(data => {
             let opciones = '<option></option>';
-            data.values.forEach(a => {
-                opciones += `<option value="${a[0]}">${a[0]}</option>`;
+            data.forEach(a => {
+                opciones += `<option value="${a}">${a}</option>`;
             });
             $('#agencia').html(opciones).trigger('change');
         });
 
+    // Cargar Teléfonos desde Google Sheets (se mantiene igual)
     const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
         .done(data => {
             let opciones = '<option></option>';
@@ -134,10 +136,9 @@
             $('#telefonoUsado').html(opciones).trigger('change');
         });
 
-    // Ejecutar todas
     Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos])
         .catch(() => alert("Error al cargar datos"));
-
+  
       function limpiarCampos(idContenedor) {
           document.querySelectorAll(`#${idContenedor} input, #${idContenedor} select`).forEach(campo => {
               if (campo.tagName === 'SELECT') {
