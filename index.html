@@ -85,12 +85,7 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
     $(document).ready(function () {
-    
-      // Deshabilitar todos los bloques
-      $('#camposDelivery, #camposShalom, #camposUsados')
-        .find('input, select')
-        .prop('disabled', true);
-      
+
       // 1. Inicializar Select2
       $('#distrito').select2({ placeholder: 'Selecciona un distrito', allowClear: true });
       // 2. Cargar opciones
