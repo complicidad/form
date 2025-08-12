@@ -121,19 +121,44 @@
         });
       });
 
-      // Mostrar/ocultar campos según acción
-      $('#tipoAccion').change(function () {
+      // Mostrar/ocultar campos según acción, incluyendo camposShalom
+      $('#tipoAccion').on('change', function () {
         const valor = $(this).val();
+      
+        // 1) Ocultar todos los bloques y deshabilitar sus inputs/selects
+        $('#camposDelivery, #camposUsados, #camposShalom')
+          .hide()
+          .find('input, select')
+          .prop('disabled', true);
+      
+        // 2) Mostrar solo el bloque correspondiente
         if (valor === 'delivery') {
-          $('#camposDelivery').show().find('input, select').prop('disabled', false);
-          $('#camposUsados').hide().find('select').prop('disabled', true);
+          $('#camposDelivery')
+            .show()
+            .find('input, select')
+            .prop('disabled', false);
+      
         } else if (valor === 'usado') {
-          $('#camposDelivery').hide().find('input, select').prop('disabled', true);
-          $('#camposUsados').show().find('select').prop('disabled', false);
+          $('#camposUsados')
+            .show()
+            .find('select')
+            .prop('disabled', false);
+      
+        } else if (valor === 'shalom') {
+          $('#camposShalom')
+            .show()
+            .find('select')
+            .prop('disabled', false);
+      
         } else {
-          $('#camposDelivery, #camposUsados').hide().find('input, select').prop('disabled', true);
+          // Si hay alguna otra opción (o reset), todo queda oculto
+          $('#camposDelivery, #camposUsados, #camposShalom')
+            .hide()
+            .find('input, select')
+            .prop('disabled', true);
         }
       });
+
 
       // Envío del formulario
       $('#formulario').on('submit', function (e) {
