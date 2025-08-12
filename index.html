@@ -10,6 +10,14 @@
   
   <style>
 
+    form input,
+form select {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+    
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
     label { display: block; margin-top: 15px; font-weight: bold; }
     select, input { width: 100%; padding: 8px; margin-top: 5px; }
@@ -22,15 +30,15 @@
 </head>
 <body>
 
-  <h2>Programar mi envío</h2>
+  <h2>Agenda tu envío</h2>
 
   <form id="formulario">
-    <label>¿Qué deseas hacer?</label>
+    <label>Selecciona el tipo de servicio</label>
     <select id="tipoAccion" name="tipoAccion" required>
-      <option value="" disabled selected>Selecciona una opción</option>
-      <option value="delivery">📝 Quiero mi envío por Delivery</option>
-      <option value="shalom">📝 Quiero mi envío por Shalom</option>
-      <option value="usado">📲 Quiero usar mi dirección registrada</option>
+      <option value="" disabled selected>Elige una opción</option>
+      <option value="delivery">📝 Envío a domicilio/trabajo (Delivery)</option>
+      <option value="shalom">📝 Retiro en agencia Shalom</option>
+      <option value="usado">📲 Usar mi dirección registrada</option>
     </select>
     
     <div id="camposDelivery" style="display: none;">
@@ -49,8 +57,8 @@
       <label>Referencia:</label>
       <input type="text" name="referencia" required>
       
-      <label>Fecha de envío:</label>
-      <input type="date" name="fecha" required>
+<label for="fecha">Fecha de envío:</label>
+<select id="fecha" name="fecha"></select>
     </div>
 
     <div id="camposShalom" style="display: none;">
@@ -66,16 +74,16 @@
       <label>Agencia:</label>
       <select id="agencia" name="agencia" class="select2" required></select>
 
-      <label>Fecha de envío:</label>
-      <input type="date" name="fecha" required>
+<label for="fecha">Fecha de envío:</label>
+<select id="fecha" name="fecha"></select>
     </div>
 
     <div id="camposUsados" style="display: none;">
       <label>Selecciona tu número registrado:</label>
       <select id="telefonoUsado" name="telefonoUsado" class="select2" required></select>
 
-      <label>Fecha de envío:</label>
-      <input type="date" name="fecha" required>
+<label for="fecha">Fecha de envío:</label>
+<select id="fecha" name="fecha"></select>
     </div>
 
     <button type="submit">Enviar</button>
@@ -86,6 +94,42 @@ const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/ls
 const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
 const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
 
+    function obtenerFechasEnvio() {
+    const hoy = new Date();
+    const opciones = [];
+    const diasPermitidos = [2, 5]; // 2 = martes, 5 = viernes
+    const limite = new Date(hoy);
+    limite.setDate(hoy.getDate() + 14); // +2 semanas
+
+    let fecha = new Date(hoy);
+    while (fecha <= limite) {
+        if (diasPermitidos.includes(fecha.getDay())) {
+            opciones.push(new Date(fecha));
+        }
+        fecha.setDate(fecha.getDate() + 1);
+    }
+    return opciones;
+}
+
+function formatearFecha(fecha) {
+    return fecha.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+
+const select = document.getElementById('fecha');
+const fechas = obtenerFechasEnvio();
+fechas.forEach(f => {
+    const option = document.createElement('option');
+    option.value = f.toISOString().split('T')[0]; // formato yyyy-mm-dd
+    option.textContent = formatearFecha(f);
+    select.appendChild(option);
+});
+    
+    
 $(document).ready(function () {
     // Inicializar Select2
     $('#distrito').select2({
