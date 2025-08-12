@@ -125,10 +125,10 @@
       $('#tipoAccion').change(function () {
         const valor = $(this).val();
         if (valor === 'nuevo') {
-          $('#camposNuevos').show().find('input, select').prop('disabled', false);
+          $('#camposDelivery').show().find('input, select').prop('disabled', false);
           $('#camposUsados').hide().find('select').prop('disabled', true);
         } else if (valor === 'usado') {
-          $('#camposNuevos').hide().find('input, select').prop('disabled', true);
+          $('#camposDelivery').hide().find('input, select').prop('disabled', true);
           $('#camposUsados').show().find('select').prop('disabled', false);
         } else {
           $('#camposNuevos, #camposUsados').hide().find('input, select').prop('disabled', true);
