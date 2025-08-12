@@ -23,14 +23,25 @@ form select {
     select, input { width: 100%; padding: 8px; margin-top: 5px; }
     .select2-container .select2-selection--single { height: 38px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { white-space: pre-line; }
-    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+.contenedor-boton {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+button[type="submit"] {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
     .select2-container { width: 100% !important; }
     
   </style>
 </head>
 <body>
 
-  <h2>Agenda tu envío</h2>
+  <h2>Agenda tu envío (@complicidadboutique)</h2>
 
   <form id="formulario">
     
@@ -103,7 +114,10 @@ form select {
     </div>
 
 
-    <button type="submit">Enviar</button>
+    <div class="contenedor-boton">
+      <button type="submit">Enviar</button>
+    </div>
+
   </form>
 
 
@@ -112,12 +126,12 @@ form select {
   <div style="margin-top:10px;">
     <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" style="margin-right:15px; text-decoration:none;">
       <img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" alt="TikTok" width="24" style="vertical-align:middle;">
-      <span style="margin-left:5px; font-size:14px;">@complicidad</span>
+      <span style="margin-left:5px; font-size:14px;"></span>
     </a>
 
     <a href="https://wa.me/51981391159" target="_blank" style="text-decoration:none;">
       <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="24" style="vertical-align:middle;">
-      <span style="margin-left:5px; font-size:14px;">WhatsApp</span>
+      <span style="margin-left:5px; font-size:14px;"></span>
     </a>
   </div>
 
