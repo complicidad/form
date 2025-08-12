@@ -133,19 +133,16 @@
         });
       });
 
-function limpiarCampos(idContenedor) {
-    // Limpia inputs y selects dentro del contenedor
-    document.querySelectorAll(`#${idContenedor} input, #${idContenedor} select`).forEach(campo => {
-        if (campo.tagName === 'SELECT') {
-            campo.selectedIndex = 0; // Reinicia al primer option
-            if ($(campo).hasClass('select2')) {
-                $(campo).val(null).trigger('change'); // Si usa select2
-            }
-        } else {
-            campo.value = ''; // Borra texto o fecha
-        }
-    });
-}
+      function limpiarCampos(idContenedor) {
+          document.querySelectorAll(`#${idContenedor} input, #${idContenedor} select`).forEach(campo => {
+              if (campo.tagName === 'SELECT') {
+                  // Siempre limpia la selección
+                  $(campo).val(null).trigger('change');
+              } else {
+                  campo.value = '';
+              }
+          });
+      }
 
       
       // Mostrar/ocultar campos según acción
