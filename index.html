@@ -88,7 +88,17 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0
 
 $(document).ready(function () {
     // Inicializar Select2
-    $('#distrito').select2({ placeholder: 'Selecciona un distrito', allowClear: true });
+    $('#distrito').select2({
+        placeholder: 'Escribe el distrito...',
+        minimumInputLength: 1, // solo muestra cuando escribe al menos 1 letra
+        dropdownAutoWidth: true,
+        width: '100%',
+        language: {
+            inputTooShort: function () {
+                return 'Escribe al menos una letra';
+            }
+        }
+    });
     $('#agencia').select2({
         placeholder: 'Selecciona una agencia',
         allowClear: true,
