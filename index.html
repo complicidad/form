@@ -79,8 +79,10 @@ form select {
     </div>
 
     <div id="camposUsados" style="display: none;">
-      <label>Selecciona tu número registrado:</label>
-      <select id="telefonoUsado" name="telefonoUsado" class="select2" required></select>
+      <label>Teléfono:</label>
+<input type="text" id="telefonoUsado" name="telefonoUsado" required placeholder="Ingresa tu número registrado">
+
+
 
 <label for="fecha">Fecha de envío:</label>
 <select id="fecha" name="fecha"></select>
@@ -90,6 +92,10 @@ form select {
   </form>
 
   <script>
+    
+    let telefonosRegistrados = [];
+
+    
 const urlDistritos = "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
 const urlShalom = "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
 const scriptURL = "https://script.google.com/macros/s/AKfycbwywJN-AoE39NHrAwAYR0GFfrs94ys-1eIyEvn0SNLPPhUMBCK9hBWbYfP1CrZ6o20npQ/exec";
@@ -155,7 +161,6 @@ $(document).ready(function () {
             return data.text.split('\n')[0];
         }
     });
-    $('#telefonoUsado').select2({ placeholder: 'Selecciona tu número registrado', allowClear: true });
 
     // Cargar Distritos desde JSON en GitHub
     const cargarDistritos = $.getJSON(urlDistritos)
@@ -178,17 +183,15 @@ $(document).ready(function () {
         });
 
     // Cargar Teléfonos desde Google Sheets (se mantiene igual)
-    const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
-        .done(data => {
-            let opciones = '<option></option>';
-            data.values.forEach(row => {
-                const telefono = row[0];
-                if (/^\d{9}$/.test(telefono)) {
-                    opciones += `<option value="${telefono}">${telefono}</option>`;
-                }
-            });
-            $('#telefonoUsado').html(opciones).trigger('change');
-        });
+const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
+    .done(data => {
+telefonosRegistrados = data.values
+  .map(row => String(row[0]).replace(/\D/g, '')) // 👈 convierte a string primero
+  .filter(t => t.length === 9);
+
+
+    });
+
 
     Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos])
         .catch(() => alert("Error al cargar datos"));
@@ -233,36 +236,49 @@ $(document).ready(function () {
       });
 
       // Envío del formulario
-      $('#formulario').on('submit', function (e) {
-        e.preventDefault();
-        const tipoAccion = $('#tipoAccion').val();
-        const formData = new FormData(this);
+$('#formulario').on('submit', function (e) {
+  e.preventDefault();
+  const tipoAccion = $('#tipoAccion').val();
+  const formData = new FormData(this);
 
-        if (tipoAccion === 'usado' && !$('#telefonoUsado').val()) {
-          alert('Selecciona un número registrado.');
-          return;
-        }
+  // Validación solo si se seleccionó "Usar mi dirección registrada"
+  if (tipoAccion === 'usado') {
+const telefonoIngresado = $('#telefonoUsado').val().replace(/\D/g, '');
 
-        $.ajax({
-          url: scriptURL,
-          method: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function () {
-            alert("Datos enviados correctamente");
-            $('#formulario')[0].reset();
-            $('.select2').val(null).trigger('change');
-            $('#camposDelivery, #camposShalom, #camposUsados')
-              .hide()
-              .find('input, select')
-              .prop('disabled', true);
-          },
-          error: function () {
-            alert("Ocurrió un error al enviar tus datos");
-          }
-        });
-      });
+
+    if (!telefonoIngresado) {
+      alert('Por favor, ingresa tu número registrado.');
+      return;
+    }
+
+    if (!telefonosRegistrados.includes(telefonoIngresado)) {
+      alert('El número ingresado no está registrado. Verifica e intenta nuevamente.');
+      return;
+    }
+  }
+
+  // Si pasa la validación, se envía el formulario
+  $.ajax({
+    url: scriptURL,
+    method: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function () {
+      alert("Datos enviados correctamente");
+      $('#formulario')[0].reset();
+      $('.select2').val(null).trigger('change');
+      $('#camposDelivery, #camposShalom, #camposUsados')
+        .hide()
+        .find('input, select')
+        .prop('disabled', true);
+    },
+    error: function () {
+      alert("Ocurrió un error al enviar tus datos");
+    }
+  });
+});
+
     });
   </script>
 
