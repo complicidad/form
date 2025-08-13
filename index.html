@@ -62,6 +62,12 @@
       font-size: 16px;
       cursor: pointer;
     }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
   </style>
 </head>
 <body>
@@ -202,6 +208,21 @@
     </p>
   </footer>
 
+    <div id="spinner" style="
+        display:none;
+        position:fixed;
+        top:0; left:0; 
+        width:100%; height:100%;
+        background:rgba(255,255,255,0.85);
+        z-index:9999;
+        justify-content:center;
+        align-items:center;
+        flex-direction:column;
+    ">
+        <img src="https://raw.githubusercontent.com/complicidad/form/main/Logo.png" alt="Cargando..." style="width:100px; height:auto; animation:spin 2s linear infinite;">
+        <p style="margin-top:15px; font-size:18px; color:#333;">Enviando datos...</p>
+    </div>
+  
   <script>
     $(document).ready(function () {
       const urlDistritos =
@@ -398,7 +419,9 @@
       // Envío del formulario con validación extra para opción "usado"
       $("#formulario").on("submit", function (e) {
         e.preventDefault();
+        
 
+        
         const tipoAccion = $("#tipoAccion").val();
 
         // Validación personalizada para "usado"
@@ -429,6 +452,9 @@
           return;
         }
 
+        // Mostrar spinner antes de enviar
+        $("#spinner").fadeIn(200);
+     
         // Prepara FormData para enviar
         const formData = new FormData(this);
 
@@ -464,9 +490,14 @@
           error: () => {
             alert("Ocurrió un error al enviar tus datos");
           },
+          complete: () => {
+            // Ocultar spinner siempre al finalizar
+            $("#spinner").fadeOut(200);
+          }
         });
       });
     });
   </script>
+    
 </body>
 </html>
