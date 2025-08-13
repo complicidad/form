@@ -87,6 +87,40 @@
       animation: spin 1s linear infinite;
     }
     
+/* Estilos del modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background: white;
+  padding: 15px;
+  max-width: 400px;
+  margin: 100px auto;
+  border-radius: 10px;
+}
+
+#listaDistritos {
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+}
+
+#listaDistritos li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#listaDistritos li:hover {
+  background: #eee;
+}    
+    
   </style>
 </head>
 <body>
@@ -136,13 +170,22 @@
       />
 
       <label for="distrito">Distrito:</label>
-      <select id="distrito" name="distrito" required></select>
+      <input type="text" id="distrito" placeholder="Selecciona un distrito" readonly>
 
       <label for="direccion">Dirección:</label>
       <input type="text" id="direccion" name="direccion" required />
 
       <label for="referencia">Referencia:</label>
       <input type="text" id="referencia" name="referencia" required />
+      
+      <!-- Modal oculto -->
+<div id="modalDistrito" class="modal">
+  <div class="modal-content">
+    <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
+    <ul id="listaDistritos"></ul>
+  </div>
+</div>
+      
     </div>
 
     <div id="camposShalom" style="display: none;">
@@ -243,6 +286,45 @@
     </div>
   
   <script>
+    
+    const distritos = [
+  "Miraflores", "San Isidro", "Barranco", "Surco", "Magdalena",
+  "San Miguel", "Jesús María", "La Molina", "Pueblo Libre"
+];
+
+// Mostrar modal al hacer clic en el campo distrito
+$("#distrito").on("click", function() {
+  $("#modalDistrito").show();
+  $("#buscadorDistrito").val("").focus();
+  cargarLista(distritos);
+});
+
+// Filtrar distritos mientras se escribe
+$("#buscadorDistrito").on("input", function() {
+  const filtro = $(this).val().toLowerCase();
+  const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
+  cargarLista(filtrados);
+});
+
+// Cargar lista de distritos en el modal
+function cargarLista(data) {
+  const $lista = $("#listaDistritos");
+  $lista.empty();
+  data.forEach(d => {
+    $("<li>").text(d).on("click", function() {
+      $("#distrito").val(d);
+      $("#modalDistrito").hide();
+    }).appendTo($lista);
+  });
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+$(window).on("click", function(e) {
+  if (e.target.id === "modalDistrito") {
+    $("#modalDistrito").hide();
+  }
+});
+    
     $(document).ready(function () {
       const urlDistritos =
         "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
@@ -313,12 +395,6 @@
       });
 
       // Inicializar Select2 en distritos y agencias
-      $("#distrito").select2({
-        placeholder: "Escribe el distrito...",
-        dropdownAutoWidth: false,
-        width: "100%",
-      });
-
       $("#agencia").select2({
         placeholder: "Selecciona una agencia",
         dropdownAutoWidth: false,
