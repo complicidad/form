@@ -454,6 +454,12 @@
             // Oculta y limpia campo fecha
             $("#contenedorFecha").hide();
             $("#fecha").empty();
+            const nuevasFechas = obtenerFechasEnvio();
+            nuevasFechas.forEach(f => {
+              $("#fecha").append(
+                $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
+              );
+            });
           },
           error: () => {
             alert("Ocurrió un error al enviar tus datos");
