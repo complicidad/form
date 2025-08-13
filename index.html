@@ -51,16 +51,39 @@
       white-space: pre-line;
     }
 
+    .texto-privacidad {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #555;
+      text-align: left;
+    }
+
+    .texto-privacidad a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
     .contenedor-boton {
       display: flex;
       justify-content: center;
-      margin-top: 20px;
+      width: 100%;
+      margin-top: 15px;
     }
 
     button[type="submit"] {
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
+      background-color: #1a73e8;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #1669c1;
     }
     
     @keyframes spin {
@@ -170,7 +193,7 @@
       />
 
       <label for="distrito">Distrito:</label>
-      <input type="text" id="distrito" placeholder="Selecciona un distrito" readonly>
+      <input type="text" id="distrito" name="distrito" required />
 
       <label for="direccion">Dirección:</label>
       <input type="text" id="direccion" name="direccion" required />
@@ -223,9 +246,15 @@
       <select id="fecha" name="fecha" required></select>
     </div>
 
-    <div class="contenedor-boton">
-      <button type="submit">Enviar</button>
+    <div class="texto-privacidad">
+      Usaremos tus datos solo para procesar y entregar tu pedido.<br>
+      <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
     </div>
+
+    <div class="contenedor-boton">
+      <button type="submit">Confirmar</button>
+    </div>   
+    
   </form>
 
   <footer
@@ -395,6 +424,7 @@ $(window).on("click", function(e) {
       });
 
       // Inicializar Select2 en distritos y agencias
+
       $("#agencia").select2({
         placeholder: "Selecciona una agencia",
         dropdownAutoWidth: false,
