@@ -110,24 +110,40 @@
       animation: spin 1s linear infinite;
     }
     
-/* Estilos del modal */
+ /* Estilo del overlay del popup */
 .modal {
-  display: none;
+  display: none; /* Oculto por defecto */
   position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.4);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Caja del popup */
 .modal-content {
   background: white;
-  padding: 15px;
-  max-width: 400px;
-  margin: 100px auto;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 8px;
+  width: 350px;
+  max-height: 95vh; /* Antes 80vh, ahora más alto */
+  overflow-y: auto;
 }
 
+  .list-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+
+  .list-item:hover {
+    background: #f0f0f0;
+  }    
+    
 #listaDistritos {
   max-height: 80vh;
   overflow-y: auto;
@@ -144,15 +160,7 @@
   background: #eee;
 }    
 
-  .list-item {
-    padding: 8px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-  }
-
-  .list-item:hover {
-    background: #f0f0f0;
-  }    
+ 
     
   </style>
 </head>
@@ -212,10 +220,10 @@
       <input type="text" id="referencia" name="referencia" required />
       
             <!-- Modal oculto -->
-      <div id="modalDistrito" class="modal">
+      <div class="modal" id="modalDistrito">
         <div class="modal-content">
           <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
-          <ul id="listaDistritos"></ul>
+          <div id="listaDistritos"></div>
         </div>
       </div>
       
