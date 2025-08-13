@@ -143,6 +143,16 @@
 #listaDistritos li:hover {
   background: #eee;
 }    
+
+  .list-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+
+  .list-item:hover {
+    background: #f0f0f0;
+  }    
     
   </style>
 </head>
@@ -201,13 +211,13 @@
       <label for="referencia">Referencia:</label>
       <input type="text" id="referencia" name="referencia" required />
       
-      <!-- Modal oculto -->
-<div id="modalDistrito" class="modal">
-  <div class="modal-content">
-    <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
-    <ul id="listaDistritos"></ul>
-  </div>
-</div>
+            <!-- Modal oculto -->
+      <div id="modalDistrito" class="modal">
+        <div class="modal-content">
+          <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
+          <ul id="listaDistritos"></ul>
+        </div>
+      </div>
       
     </div>
 
@@ -302,43 +312,60 @@
   
   <script>
     
-    const distritos = [
-  "Miraflores", "San Isidro", "Barranco", "Surco", "Magdalena",
-  "San Miguel", "Jesús María", "La Molina", "Pueblo Libre"
-];
+const campoDistrito = document.getElementById("distrito");
+const overlay = document.getElementById("modalDistrito");
+const buscador = document.getElementById("buscadorDistrito");
+const listaDistritos = document.getElementById("listaDistritos");
+let distritos = [];
 
-// Mostrar modal al hacer clic en el campo distrito
-$("#distrito").on("click", function() {
-  $("#modalDistrito").show();
-  $("#buscadorDistrito").val("").focus();
-  cargarLista(distritos);
+// Abrir popup al hacer click en el campo
+campoDistrito.addEventListener("click", () => {
+  overlay.style.display = "flex";
+  buscador.value = "";
+  mostrarDistritos(distritos);
+  buscador.focus();
 });
 
-// Filtrar distritos mientras se escribe
-$("#buscadorDistrito").on("input", function() {
-  const filtro = $(this).val().toLowerCase();
+// Cerrar popup si clic fuera de la caja
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) {
+    overlay.style.display = "none";
+  }
+});
+
+// Buscar distritos
+buscador.addEventListener("input", () => {
+  const filtro = buscador.value.toLowerCase();
   const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
-  cargarLista(filtrados);
+  mostrarDistritos(filtrados);
 });
 
-// Cargar lista de distritos en el modal
-function cargarLista(data) {
-  const $lista = $("#listaDistritos");
-  $lista.empty();
-  data.forEach(d => {
-    $("<li>").text(d).on("click", function() {
-      $("#distrito").val(d);
-      $("#modalDistrito").hide();
-    }).appendTo($lista);
+// Mostrar lista en el popup
+function mostrarDistritos(lista) {
+  listaDistritos.innerHTML = "";
+  lista.forEach(d => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.textContent = d;
+    div.addEventListener("click", () => {
+      campoDistrito.value = d;
+      overlay.style.display = "none";
+    });
+    listaDistritos.appendChild(div);
   });
 }
 
-// Cerrar modal al hacer clic fuera del contenido
-$(window).on("click", function(e) {
-  if (e.target.id === "modalDistrito") {
-    $("#modalDistrito").hide();
-  }
-});
+// Cargar JSON de distritos
+fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json")
+  .then(res => res.json())
+  .then(data => {
+    // El JSON puede ser un array de strings o de objetos
+    distritos = data.map(item => typeof item === "string" ? item : item.Distrito || item.nombre || "");
+    mostrarDistritos(distritos);
+  })
+  .catch(err => {
+    console.error("Error cargando distritos:", err);
+  });
     
     $(document).ready(function () {
       const urlDistritos =
