@@ -252,9 +252,18 @@
       <input type="text" id="DNI" name="DNI" required />
 
       <label for="agencia">Agencia:</label>
-      <select id="agencia" name="agencia" class="select2" required></select>
-    </div>
+      <input type="text" id="agencia" name="agencia" required />
+      
+            <!-- Modal oculto -->
+      <div class="modal" id="modalAgencia">
+        <div class="modal-content">
+          <input type="text" id="buscadorAgencia" placeholder="Buscar agencia...">
+          <div id="listaAgencias"></div>
+        </div>
+      </div>          
 
+    </div>
+   
     <div id="camposUsados" style="display: none;">
       
     </div>
@@ -322,6 +331,7 @@
   
   <script>
     
+// Conf para Distritos    
 const campoDistrito = document.getElementById("distrito");
 const overlay = document.getElementById("modalDistrito");
 const buscador = document.getElementById("buscadorDistrito");
@@ -376,6 +386,66 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json
   .catch(err => {
     console.error("Error cargando distritos:", err);
   });
+ 
+// Conf para Agencias
+const campoAgencia = document.getElementById("agencia");
+const overlayAgencia = document.getElementById("modalAgencia");
+const buscadorAgencia = document.getElementById("buscadorAgencia");
+const listaAgencias = document.getElementById("listaAgencias");
+let agencias = [];
+
+// Abrir popup al hacer click en el campo
+campoAgencia.addEventListener("click", () => {
+  overlayAgencia.style.display = "flex";
+  buscadorAgencia.value = "";
+  mostrarAgencias(agencias);
+  buscadorAgencia.focus();
+});
+
+// Cerrar popup si clic fuera de la caja
+overlayAgencia.addEventListener("click", (e) => {
+  if (e.target === overlayAgencia) {
+    overlayAgencia.style.display = "none";
+  }
+});
+
+// Buscar agencias
+buscadorAgencia.addEventListener("input", () => {
+  const filtro = buscadorAgencia.value.toLowerCase();
+  const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
+  mostrarAgencias(filtrados);
+});
+
+// Mostrar lista en el popup
+function mostrarAgencias(lista) {
+  listaAgencias.innerHTML = "";
+  lista.forEach(a => {
+    const [titulo, ...resto] = a.split("\n"); // Separar en partes
+    const div = document.createElement("div");
+    div.className = "list-item";
+    // Armamos el HTML con la primera línea en negrita
+    div.innerHTML = `<strong>${titulo}</strong>${resto.length ? "<br>" + resto.join("<br>") : ""}`;
+    div.addEventListener("click", () => {
+      campoAgencia.value = a; // Mantener el valor original con \n
+      overlayAgencia.style.display = "none";
+    });
+    listaAgencias.appendChild(div);
+  });
+}
+
+// Cargar JSON de agencias
+fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
+  .then(res => res.json())
+  .then(data => {
+    // El JSON puede ser un array de strings o de objetos
+    agencias = data.map(item => typeof item === "string" ? item : item.Shalom || item.nombre || "");
+    mostrarAgencias(agencias);
+  })
+  .catch(err => {
+    console.error("Error cargando agencias:", err);
+  });
+
+     
     
     $(document).ready(function () {
       const urlDistritos =
@@ -448,21 +518,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json
 
       // Inicializar Select2 en distritos y agencias
 
-      $("#agencia").select2({
-        placeholder: "Selecciona una agencia",
-        dropdownAutoWidth: false,
-        width: "100%",
-        templateResult: function (data) {
-          if (!data.id) return data.text;
-          const lineas = data.text.split("\n");
-          return $("<span>").html(
-            `<strong>${lineas[0]}</strong><br>${lineas.slice(1).join("<br>")}`
-          );
-        },
-        templateSelection: function (data) {
-          return data.text ? data.text.split("\n")[0] : "";
-        },
-      });
+
 
       // Cargar distritos desde JSON remoto
       const cargarDistritos = $.getJSON(urlDistritos)
