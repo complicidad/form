@@ -123,7 +123,8 @@
   justify-content: center;
   align-items: center;
   align-items: flex-start; /* Alinea arriba en vez de al centro */
-  padding-top: 0; /* Espacio desde arriba */
+  padding-top: 20px; /* Espacio desde arriba */
+  padding-bottom: 20px; /* Espacio desde arriba */
 }
 
 /* Caja del popup */
@@ -162,7 +163,21 @@
   background: #eee;
 }    
 
- 
+#listaAgencias {
+  max-height: 80vh;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+}
+
+#listaAgencias li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#listaAgencias li:hover {
+  background: #eee;
+}  
     
   </style>
 </head>
