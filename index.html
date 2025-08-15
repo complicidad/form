@@ -1,379 +1,391 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agenda tu envío</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agenda tu envío</title>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Estilos del sitio -->
+  <style>
+    /* =========================================
+       Tokens y base
+    ========================================== */
+    :root {
+      --brand: #1a73e8;
+      --brand-hover: #1669c1;
+      --text: #222;
+      --muted: #555;
+      --bg-muted: #f4f4f4;
+      --border: #e5e5e5;
+      --danger: #d93025;
+      --radius: 8px;
+      --space-1: 5px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 15px;
+      --space-5: 20px;
+    }
+ 
+    /* Layout container principal */
+    .container {
+      padding: var(--space-5);
+      max-width: 640px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+    }
 
-    <style>
-        /* =========================================
-           Tokens y base
-        ========================================== */
-        :root {
-            --brand: #1a73e8;
-            --brand-hover: #1669c1;
-            --text: #222;
-            --muted: #555;
-            --bg-muted: #f4f4f4;
-            --border: #e5e5e5;
-            --danger: #d93025;
-            --radius: 8px;
-            --space-1: 5px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 15px;
-            --space-5: 20px;
-        }
+    /* Secciones de formulario */
+    .section {
+      margin-top: var(--space-4);
+    }
 
-        /* Layout container principal */
-        .container {
-            padding: var(--space-5);
-            max-width: 640px;
-            margin: 0 auto;
-            font-family: Arial, sans-serif;
-            color: var(--text);
-        }
+    .section-help {
+      margin: var(--space-2) 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-        /* Secciones de formulario */
-        .section {
-            margin-top: var(--space-4);
-        }
+    /* Accesibilidad: oculto visualmente pero accesible */
+    .visually-hidden {
+      position: absolute !important;
+      height: 1px; width: 1px;
+      overflow: hidden;
+      clip: rect(1px, 1px, 1px, 1px);
+      white-space: nowrap;
+    }
 
-        .section-help {
-            margin: var(--space-2) 0;
-            color: var(--muted);
-            font-size: 13px;
-        }
+    /* Etiquetas y controles */
+    label {
+      display: block;
+      margin-top: var(--space-4);
+      font-weight: bold;
+    }
 
-        /* Accesibilidad: oculto visualmente pero accesible */
-        .visually-hidden {
-            position: absolute !important;
-            height: 1px;
-            width: 1px;
-            overflow: hidden;
-            clip: rect(1px, 1px, 1px, 1px);
-            white-space: nowrap;
-        }
+    input, select, button {
+      font: inherit;
+    }
 
-        /* Etiquetas y controles */
-        label {
-            display: block;
-            margin-top: var(--space-4);
-            font-weight: bold;
-        }
+    input, select {
+      width: 100%;
+      padding: var(--space-2);
+      margin-top: var(--space-1);
+      box-sizing: border-box;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: #fff;
+      outline: none;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
 
-        input,
-        select,
-        button {
-            font: inherit;
-        }
+    input:focus, select:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+    }
 
-        input,
-        select {
-            width: 100%;
-            padding: var(--space-2);
-            margin-top: var(--space-1);
-            box-sizing: border-box;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: #fff;
-            outline: none;
-            transition: box-shadow .15s ease, border-color .15s ease;
-        }
+    /* Estado de error básico para validación */
+    .is-invalid {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 3px rgba(217, 48, 37, .15) !important;
+    }
 
-        input:focus,
-        select:focus {
-            border-color: var(--brand);
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
-        }
+    /* Texto de privacidad */
+    .texto-privacidad {
+      margin-top: var(--space-5);
+      font-size: 13px;
+      color: var(--muted);
+      text-align: left;
+    }
 
-        /* Estado de error básico para validación */
-        .is-invalid {
-            border-color: var(--danger) !important;
-            box-shadow: 0 0 0 3px rgba(217, 48, 37, .15) !important;
-        }
+    .texto-privacidad a {
+      color: var(--brand);
+      text-decoration: none;
+    }
 
-        /* Texto de privacidad */
-        .texto-privacidad {
-            margin-top: var(--space-5);
-            font-size: 13px;
-            color: var(--muted);
-            text-align: left;
-        }
+    /* Botones */
+    .contenedor-boton {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: var(--space-4);
+    }
 
-        .texto-privacidad a {
-            color: var(--brand);
-            text-decoration: none;
-        }
+    button[type="submit"] {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: var(--brand);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      transition: background-color .15s ease;
+    }
 
-        /* Botones */
-        .contenedor-boton {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            margin-top: var(--space-4);
-        }
+    button[type="submit"]:hover {
+      background-color: var(--brand-hover);
+    }
+    
 
-        button[type="submit"] {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: var(--brand);
-            color: white;
-            font-weight: 600;
-            border: none;
-            border-radius: 6px;
-            width: 100%;
-            transition: background-color .15s ease;
-        }
+    /* =========================================
+       Spinner de carga
+       
+    ========================================== */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #spinner {
+      display: none;
+      position: fixed;
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    #spinner img {
+      width: 100px; 
+      height: auto; 
+      animation: spin 1s linear infinite;
+    }
+ 
+     /* Estilo del overlay del popup */
+    .modal {
+      display: none; /* Oculto por defecto */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      align-items: flex-start; /* Alinea arriba en vez de al centro */
+      padding-top: 20px; /* Espacio desde arriba */
+      padding-bottom: 20px; /* Espacio desde arriba */
+    }
 
-        button[type="submit"]:hover {
-            background-color: var(--brand-hover);
-        }
+    /* Caja del popup */
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 350px;
+      max-height: 95vh; /* Antes 80vh, ahora más alto */
+      overflow-y: auto;
+    }
+    
+    .list {
+      max-height: 80vh;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+ 
+    .list-item {
+      padding: 8px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
 
+    .list-item:hover {
+      background: #f0f0f0;
+    }    
+    
+    /* Compatibilidad con IDs existentes */
+    #listaDistritos, #listaAgencias {
+      max-height: 80vh;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    #listaDistritos li, #listaAgencias li {
+      padding: 8px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
 
-        /* =========================================
-           Spinner de carga
-        ========================================== */
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        #spinner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.85);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        #spinner img {
-            width: 100px;
-            height: auto;
-            animation: spin 1s linear infinite;
-        }
-
-        /* Estilo del overlay del popup */
-        .modal {
-            display: none;
-            /* Oculto por defecto */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            align-items: flex-start;
-            /* Alinea arriba en vez de al centro */
-            padding-top: 20px;
-            /* Espacio desde arriba */
-            padding-bottom: 20px;
-            /* Espacio desde arriba */
-        }
-
-        /* Caja del popup */
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 350px;
-            max-height: 95vh;
-            /* Antes 80vh, ahora más alto */
-            overflow-y: auto;
-        }
-
-        .list {
-            max-height: 80vh;
-            overflow-y: auto;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .list-item {
-            padding: 8px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-
-        .list-item:hover {
-            background: #f0f0f0;
-        }
-
-        /* Compatibilidad con IDs existentes */
-        #listaDistritos,
-        #listaAgencias {
-            max-height: 80vh;
-            overflow-y: auto;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #listaDistritos li,
-        #listaAgencias li {
-            padding: 8px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-
-        #listaDistritos li:hover,
-        #listaAgencias li:hover {
-            background: #f0f0f0;
-        }
-    </style>
+    #listaDistritos li:hover, #listaAgencias li:hover {
+      background: #f0f0f0;
+    }
+     
+    
+  </style>
 </head>
 <body>
 
-    <div style="text-align:center; margin-bottom: 0px;">
-        <img src="https://raw.githubusercontent.com/complicidad/form/main/Logo.png" alt="Logo Complicidad"
-            style="max-width: 200px; height: auto;">
+  <div style="text-align:center; margin-bottom: 0px;">
+  <img src="https://raw.githubusercontent.com/complicidad/form/main/Logo.png" alt="Logo Complicidad" style="max-width: 200px; height: auto;">
+  </div>
+
+  <main class="container">  
+  
+  <h2 style="margin: 5px 0px 5px; ">Agenda tu envío</h2>
+  
+  <form id="formulario" novalidate>
+    <label for="telefonoUsado">WhatsApp con el que compraste</label>
+    <input
+      type="text"
+      id="telefonoUsado"
+      name="telefonoUsado"
+      required
+      placeholder="Ingresa tu número"
+      pattern="\d{9}"
+      title="Ingresa un número de teléfono válido de 9 dígitos"
+    />
+
+    <label for="tipoAccion">Selecciona el tipo de servicio</label>
+    <select id="tipoAccion" name="tipoAccion" required>
+      <option value="" disabled selected>Elige una opción</option>
+      <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
+      <option value="shalom">Retiro en agencia Shalom</option>
+      <option value="recoger">Recoger en almacén</option>
+      <option value="usado">Usar mi dirección registrada</option>
+    </select>
+
+    <!-- Delivery -->
+    <fieldset id="camposDelivery" class="section section--delivery" hidden>
+       <legend>📦 Delivery</legend>
+       <p class="section-help">Datos de la persona que recibirá el pedido.</p>
+
+      <label for="nombreDelivery">Nombre:</label>
+      <input type="text" id="nombreDelivery" name="nombre" required />
+
+      <label for="telefonoDelivery">Teléfono:</label>
+      <input
+        type="text"
+        id="telefonoDelivery"
+        name="telefono"
+        required
+        pattern="\d{9}"
+        title="Ingresa un número de teléfono válido de 9 dígitos"
+      />
+
+      <label for="distrito">Distrito:</label>
+      <input type="text" id="distrito" name="distrito" required />
+
+      <label for="direccion">Dirección:</label>
+      <input type="text" id="direccion" name="direccion" required />
+
+      <label for="referencia">Referencia:</label>
+      <input type="text" id="referencia" name="referencia" required />
+      
+            <!-- Modal oculto -->
+      <div class="modal" id="modalDistrito">
+        <div class="modal-content">
+          <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
+          <div id="listaDistritos"></div>
+        </div>
+      </div>
+     </fieldset>
+    
+     <!-- Shalom -->
+     <fieldset id="camposShalom" class="section section--shalom" hidden>
+       <legend>📦 Shalom</legend>
+       <p class="section-help">Datos para retiro en agencia Shalom.</p>
+
+      <label for="nombreShalom">Nombre completo:</label>
+      <input type="text" id="nombreShalom" name="nombre" required />
+
+      <label for="telefonoShalom">Teléfono:</label>
+      <input
+        type="text"
+        id="telefonoShalom"
+        name="telefono"
+        required
+        pattern="\d{9}"
+        title="Ingresa un número de teléfono válido de 9 dígitos"
+      />
+
+      <label for="DNI">DNI/CE:</label>
+      <input type="text" id="DNI" name="DNI" required />
+
+      <label for="agencia">Agencia:</label>
+      <input type="text" id="agencia" name="agencia" required />
+      
+            <!-- Modal oculto -->
+      <div class="modal" id="modalAgencia">
+        <div class="modal-content">
+          <input type="text" id="buscadorAgencia" placeholder="Buscar agencia...">
+          <div id="listaAgencias"></div>
+        </div>
+      </div>          
+    </fieldset>
+   
+    <!-- Usado -->
+    <fieldset id="camposUsados" class="section section--usado" hidden>
+      <legend>📦 Dirección registrada</legend>
+      <p class="section-help">Usaremos tu dirección guardada.</p>
+    </fieldset>
+
+    <!-- Campo de fecha reutilizable -->
+    <div id="contenedorFecha" style="display: none;">
+      <label for="fecha">Fecha de envío:</label>
+      <select id="fecha" name="fecha" required></select>
     </div>
 
-    <main class="container">
-        <h2 style="margin: 5px 0px 5px; ">Agenda tu envío</h2>
-        <form id="formulario" novalidate>
-            <label for="telefonoUsado">WhatsApp con el que compraste</label>
-            <input type="text" id="telefonoUsado" name="telefonoUsado" required placeholder="Ingresa tu número"
-                pattern="\d{9}" title="Ingresa un número de teléfono válido de 9 dígitos" />
+    <div class="texto-privacidad">
+      Usaremos tus datos solo para procesar y entregar tu pedido.<br>
+      <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
+    </div>
 
-            <label for="tipoAccion">Selecciona el tipo de servicio</label>
-            <select id="tipoAccion" name="tipoAccion" required>
-                <option value="" disabled selected>Elige una opción</option>
-                <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
-                <option value="shalom">Retiro en agencia Shalom</option>
-                <option value="recoger">Recoger en almacén</option>
-                <option value="usado">Usar mi dirección registrada</option>
-            </select>
+    <div class="contenedor-boton">
+      <button type="submit">Confirmar y agendar envío</button>
+    </div>   
+    
+    
+  </form>
+  </main>
+  
+  
+<footer style="
+  background-color:#f4f4f4; 
+  padding:1px 1px;
+  text-align: center;
+  font-family: sans-serif;
+  margin-top: 30px;      
+               
+">
+  <div style="margin: 10px 0; display: flex; justify-content: center; gap: 16px;">
+    <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
+      <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
+    </a>
 
-            <fieldset id="camposDelivery" class="section section--delivery" hidden>
-                <legend>📦 Delivery</legend>
-                <p class="section-help">Datos de la persona que recibirá el pedido.</p>
+    <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
+      <img src="https://raw.githubusercontent.com/complicidad/form/main/tik-tok.png" alt="TikTok" width="28" height="28">
+    </a>
 
-                <label for="nombreDelivery">Nombre:</label>
-                <input type="text" id="nombreDelivery" name="nombre" required />
+    <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
+      <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
+    </a>
+  </div>
 
-                <label for="telefonoDelivery">Teléfono:</label>
-                <input type="text" id="telefonoDelivery" name="telefono" required pattern="\d{9}"
-                    title="Ingresa un número de teléfono válido de 9 dígitos" />
+  <p style="margin-top: 15px; font-size: 12px; color: #888;">
+    © 2025 Complicidad. Todos los derechos reservados.
+  </p>
+  
+  
+</footer>
 
-                <label for="distrito">Distrito:</label>
-                <input type="text" id="distrito" name="distrito" required />
-
-                <label for="direccion">Dirección:</label>
-                <input type="text" id="direccion" name="direccion" required />
-
-                <label for="referencia">Referencia:</label>
-                <input type="text" id="referencia" name="referencia" required />
-
-                <div class="modal" id="modalDistrito">
-                    <div class="modal-content">
-                        <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
-                        <div id="listaDistritos"></div>
-                    </div>
-                </div>
-            </fieldset>
-
-            <fieldset id="camposShalom" class="section section--shalom" hidden>
-                <legend>📦 Shalom</legend>
-                <p class="section-help">Datos para retiro en agencia Shalom.</p>
-
-                <label for="nombreShalom">Nombre completo:</label>
-                <input type="text" id="nombreShalom" name="nombre" required />
-
-                <label for="telefonoShalom">Teléfono:</label>
-                <input type="text" id="telefonoShalom" name="telefono" required pattern="\d{9}"
-                    title="Ingresa un número de teléfono válido de 9 dígitos" />
-
-                <label for="DNI">DNI/CE:</label>
-                <input type="text" id="DNI" name="DNI" required />
-
-                <label for="agencia">Agencia:</label>
-                <input type="text" id="agencia" name="agencia" required />
-
-                <div class="modal" id="modalAgencia">
-                    <div class="modal-content">
-                        <input type="text" id="buscadorAgencia" placeholder="Buscar agencia...">
-                        <div id="listaAgencias"></div>
-                    </div>
-                </div>
-            </fieldset>
-
-            <fieldset id="camposUsados" class="section section--usado" hidden>
-                <legend>📦 Dirección registrada</legend>
-                <p class="section-help">Usaremos tu dirección guardada.</p>
-            </fieldset>
-
-            <div id="contenedorFecha" style="display: none;">
-                <label for="fecha">Fecha de envío:</label>
-                <select id="fecha" name="fecha" required></select>
-            </div>
-
-            <div class="texto-privacidad">
-                Usaremos tus datos solo para procesar y entregar tu pedido.<br>
-                <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
-            </div>
-
-            <div class="contenedor-boton">
-                <button type="submit">Confirmar y agendar envío</button>
-            </div>
-        </form>
-    </main>
-
-    <footer style="
-        background-color:#f4f4f4;
-        padding:1px 1px;
-        text-align: center;
-        font-family: sans-serif;
-        margin-top: 30px;
-    ">
-        <div style="margin: 10px 0; display: flex; justify-content: center; gap: 16px;">
-            <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer"
-                style="display: inline-flex; align-items: center;">
-                <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28"
-                    height="28">
-            </a>
-
-            <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" rel="noopener noreferrer"
-                style="display: inline-flex; align-items: center;">
-                <img src="https://raw.githubusercontent.com/complicidad/form/main/tik-tok.png" alt="TikTok" width="28"
-                    height="28">
-            </a>
-
-            <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer"
-                style="display: inline-flex; align-items: center;">
-                <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28"
-                    height="28">
-            </a>
-        </div>
-
-        <p style="margin-top: 15px; font-size: 12px; color: #888;">
-            © 2025 Complicidad. Todos los derechos reservados.
-        </p>
-    </footer>
 
     <div id="spinner" style="
         display:none;
         position:fixed;
-        top:0; left:0;
+        top:0; left:0; 
         width:100%; height:100%;
         background:rgba(255,255,255,0.85);
         z-index:9999;
@@ -381,267 +393,350 @@
         align-items:center;
         flex-direction:column;
     ">
-        <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..."
-            style="width:150px; height:auto; animation:spin 2s linear infinite;">
+        <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..." style="width:150px; height:auto; animation:spin 2s linear infinite;">
         <p style="margin-top:15px; font-size:18px; color:#333;"></p>
     </div>
+  
+  <script>
+    
+// Conf para Distritos    
+const campoDistrito = document.getElementById("distrito");
+const overlay = document.getElementById("modalDistrito");
+const buscador = document.getElementById("buscadorDistrito");
+const listaDistritos = document.getElementById("listaDistritos");
+let distritos = [];
 
-    <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbzSqYVbDXoRSCvuUl-l-jAtiLauLj-h5KT99WJFxZQ4IBu1M_ErSj3foXqlrEoS3INuCA/exec";
+// Abrir popup al hacer click en el campo
+campoDistrito.addEventListener("click", () => {
+  overlay.style.display = "flex";
+  buscador.value = "";
+  mostrarDistritos(distritos);
+  buscador.focus();
+});
 
-        let telefonosRegistrados = [];
+// Cerrar popup si clic fuera de la caja
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) {
+    overlay.style.display = "none";
+  }
+});
 
-        // Funciones para manejo de listas de distritos y agencias
-        const campoDistrito = document.getElementById("distrito");
-        const overlay = document.getElementById("modalDistrito");
-        const buscador = document.getElementById("buscadorDistrito");
-        const listaDistritos = document.getElementById("listaDistritos");
-        let distritos = [];
+// Buscar distritos
+buscador.addEventListener("input", () => {
+  const filtro = buscador.value.toLowerCase();
+  const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
+  mostrarDistritos(filtrados);
+});
 
-        campoDistrito.addEventListener("click", () => {
-            overlay.style.display = "flex";
-            buscador.value = "";
-            mostrarDistritos(distritos);
-            buscador.focus();
+// Mostrar lista en el popup
+function mostrarDistritos(lista) {
+  listaDistritos.innerHTML = "";
+  lista.forEach(d => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.textContent = d;
+    div.addEventListener("click", () => {
+      campoDistrito.value = d;
+      overlay.style.display = "none";
+    });
+    listaDistritos.appendChild(div);
+  });
+}
+
+// Cargar JSON de distritos
+fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json")
+  .then(res => res.json())
+  .then(data => {
+    // El JSON puede ser un array de strings o de objetos
+    distritos = data.map(item => typeof item === "string" ? item : item.Distrito || item.nombre || "");
+    mostrarDistritos(distritos);
+  })
+  .catch(err => {
+    console.error("Error cargando distritos:", err);
+  });
+ 
+// Conf para Agencias
+const campoAgencia = document.getElementById("agencia");
+const overlayAgencia = document.getElementById("modalAgencia");
+const buscadorAgencia = document.getElementById("buscadorAgencia");
+const listaAgencias = document.getElementById("listaAgencias");
+let agencias = [];
+
+// Abrir popup al hacer click en el campo
+campoAgencia.addEventListener("click", () => {
+  overlayAgencia.style.display = "flex";
+  buscadorAgencia.value = "";
+  mostrarAgencias(agencias);
+  buscadorAgencia.focus();
+});
+
+// Cerrar popup si clic fuera de la caja
+overlayAgencia.addEventListener("click", (e) => {
+  if (e.target === overlayAgencia) {
+    overlayAgencia.style.display = "none";
+  }
+});
+
+// Buscar agencias
+buscadorAgencia.addEventListener("input", () => {
+  const filtro = buscadorAgencia.value.toLowerCase();
+  const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
+  mostrarAgencias(filtrados);
+});
+
+// Mostrar lista en el popup
+function mostrarAgencias(lista) {
+  listaAgencias.innerHTML = "";
+  lista.forEach(a => {
+    const [titulo, ...resto] = a.split("\n"); // Separar en partes
+    const div = document.createElement("div");
+    div.className = "list-item";
+    // Armamos el HTML con la primera línea en negrita
+    div.innerHTML = `<strong>${titulo}</strong>${resto.length ? "<br>" + resto.join("<br>") : ""}`;
+    div.addEventListener("click", () => {
+      campoAgencia.value = titulo; // Mantener el valor original con \n
+      overlayAgencia.style.display = "none";
+    });
+    listaAgencias.appendChild(div);
+  });
+}
+
+// Cargar JSON de agencias
+fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
+  .then(res => res.json())
+  .then(data => {
+    // El JSON puede ser un array de strings o de objetos
+    agencias = data.map(item => typeof item === "string" ? item : item.Shalom || item.nombre || "");
+    mostrarAgencias(agencias);
+  })
+  .catch(err => {
+    console.error("Error cargando agencias:", err);
+  });
+
+     
+    
+    $(document).ready(function () {
+
+      const scriptURL =
+        "https://script.google.com/macros/s/AKfycbzSqYVbDXoRSCvuUl-l-jAtiLauLj-h5KT99WJFxZQ4IBu1M_ErSj3foXqlrEoS3INuCA/exec";
+
+      let telefonosRegistrados = [];
+
+      /**
+       * Obtiene las fechas válidas para envío: martes y viernes,
+       * hasta dos semanas adelante y con horario de corte a las 10:00 a.m. del día anterior.
+       * @returns {Date[]} Array de fechas válidas
+       */
+      function obtenerFechasEnvio() {
+        const ahora = new Date();
+        const opciones = [];
+        const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
+        const horaCorte = 10; // 10:00 a.m.
+        const limite = new Date();
+        limite.setDate(ahora.getDate() + 14); // hasta 2 semanas adelante
+
+        let fecha = new Date();
+        fecha.setHours(0, 0, 0, 0); // normaliza la hora
+
+        while (fecha <= limite) {
+          const diaSemana = fecha.getDay();
+
+          if (diasPermitidos.includes(diaSemana)) {
+            // Día válido, chequeamos horario de corte (10 a.m. día anterior)
+            const fechaCorte = new Date(fecha);
+            fechaCorte.setDate(fecha.getDate() - 1);
+            fechaCorte.setHours(horaCorte, 0, 0, 0);
+
+            if (ahora < fechaCorte) {
+              opciones.push(new Date(fecha));
+            }
+          }
+          fecha.setDate(fecha.getDate() + 1);
+        }
+        return opciones;
+      }
+
+      /**
+       * Formatea una fecha a string en español, con día de semana, día, mes y año.
+       * Ejemplo: "martes, 15 de agosto de 2025"
+       * @param {Date} fecha
+       * @returns {string}
+       */
+      function formatearFecha(fecha) {
+        return fecha.toLocaleDateString("es-ES", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      // Carga las fechas en el select #fecha
+      const $selectFecha = $("#fecha");
+      const fechas = obtenerFechasEnvio();
+      fechas.forEach((f) => {
+        const option = $("<option>")
+          .val(f.toISOString().split("T")[0])
+          .text(formatearFecha(f));
+        $selectFecha.append(option);
+      });
+
+      // Cargar teléfonos registrados desde Google Sheets
+      const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
+        .done((data) => {
+          // Extrae y normaliza teléfonos de 9 dígitos
+          telefonosRegistrados = data.values
+            .map((row) => String(row[0]).replace(/\D/g, ""))
+            .filter((t) => t.length === 9);
+        })
+        .fail(() => {
+          alert("No se pudieron cargar los teléfonos registrados.");
         });
 
-        overlay.addEventListener("click", (e) => {
-            if (e.target === overlay) {
-                overlay.style.display = "none";
-            }
+      // Espera a que todo se cargue antes de continuar
+      Promise.all([cargarTelefonos]).catch(() =>
+        alert("Error al cargar datos necesarios para el formulario.")
+      );
+
+      /**
+       * Limpia inputs y selects dentro de un contenedor por ID
+       * @param {string} idContenedor
+       */
+      function limpiarCampos(idContenedor) {
+        const selector = `#${idContenedor} input, #${idContenedor} select`;
+        document.querySelectorAll(selector).forEach((campo) => {
+          if (campo.tagName === "SELECT") {
+            $(campo).val(null).trigger("change");
+          } else {
+            campo.value = "";
+          }
         });
+      }
 
-        buscador.addEventListener("input", () => {
-            const filtro = buscador.value.toLowerCase();
-            const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
-            mostrarDistritos(filtrados);
-        });
+      // Muestra/oculta bloques de campos según la opción seleccionada
+      $("#tipoAccion").on("change", function () {
+        limpiarCampos("camposDelivery");
+        limpiarCampos("camposShalom");
+        limpiarCampos("camposUsados");
 
-        function mostrarDistritos(lista) {
-            listaDistritos.innerHTML = "";
-            lista.forEach(d => {
-                const div = document.createElement("div");
-                div.className = "list-item";
-                div.textContent = d;
-                div.addEventListener("click", () => {
-                    campoDistrito.value = d;
-                    overlay.style.display = "none";
-                });
-                listaDistritos.appendChild(div);
-            });
+        // Oculta todos los bloques y deshabilita inputs/selects dentro
+        $("#camposDelivery, #camposShalom, #camposUsados")
+          .hide()
+          .find("input, select")
+          .prop("disabled", true);
+
+        const valor = $(this).val();
+
+        // Mostrar y habilitar bloque correspondiente
+        if (valor === "delivery") {
+          $("#camposDelivery").show().find("input, select").prop("disabled", false);
+        } else if (valor === "shalom") {
+          $("#camposShalom").show().find("input, select").prop("disabled", false);
+        } else if (valor === "usado") {
+          $("#camposUsados").show().find("input, select").prop("disabled", false);
         }
 
-        const campoAgencia = document.getElementById("agencia");
-        const overlayAgencia = document.getElementById("modalAgencia");
-        const buscadorAgencia = document.getElementById("buscadorAgencia");
-        const listaAgencias = document.getElementById("listaAgencias");
-        let agencias = [];
+        // Mover y mostrar campo fecha en el bloque correspondiente
+        const $contenedorFecha = $("#contenedorFecha");
+        $contenedorFecha.hide();
 
-        campoAgencia.addEventListener("click", () => {
-            overlayAgencia.style.display = "flex";
-            buscadorAgencia.value = "";
-            mostrarAgencias(agencias);
-            buscadorAgencia.focus();
-        });
-
-        overlayAgencia.addEventListener("click", (e) => {
-            if (e.target === overlayAgencia) {
-                overlayAgencia.style.display = "none";
-            }
-        });
-
-        buscadorAgencia.addEventListener("input", () => {
-            const filtro = buscadorAgencia.value.toLowerCase();
-            const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
-            mostrarAgencias(filtrados);
-        });
-
-        function mostrarAgencias(lista) {
-            listaAgencias.innerHTML = "";
-            lista.forEach(a => {
-                const [titulo, ...resto] = a.split("\n");
-                const div = document.createElement("div");
-                div.className = "list-item";
-                div.innerHTML = `<strong>${titulo}</strong>${resto.length ? "<br>" + resto.join("<br>") : ""}`;
-                div.addEventListener("click", () => {
-                    campoAgencia.value = titulo;
-                    overlayAgencia.style.display = "none";
-                });
-                listaAgencias.appendChild(div);
-            });
+        if (["delivery", "shalom", "usado"].includes(valor)) {
+          if (valor === "delivery") {
+            $("#camposDelivery").append($contenedorFecha);
+          } else if (valor === "shalom") {
+            $("#camposShalom").append($contenedorFecha);
+          } else {
+            $("#camposUsados").append($contenedorFecha);
+          }
+          $contenedorFecha.show();
+          $("#fecha").prop("disabled", false);
+        } else {
+          $("#fecha").prop("disabled", true);
         }
+      });
 
-        // Funciones para lógica principal
-        function obtenerFechasEnvio() {
-            const ahora = new Date();
-            const opciones = [];
-            const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
-            const horaCorte = 10; // 10:00 a.m.
-            const limite = new Date();
-            limite.setDate(ahora.getDate() + 14);
-
-            let fecha = new Date();
-            fecha.setHours(0, 0, 0, 0);
-
-            while (fecha <= limite) {
-                const diaSemana = fecha.getDay();
-                if (diasPermitidos.includes(diaSemana)) {
-                    const fechaCorte = new Date(fecha);
-                    fechaCorte.setDate(fecha.getDate() - 1);
-                    fechaCorte.setHours(horaCorte, 0, 0, 0);
-                    if (ahora < fechaCorte) {
-                        opciones.push(new Date(fecha));
-                    }
-                }
-                fecha.setDate(fecha.getDate() + 1);
-            }
-            return opciones;
-        }
-
-        function formatearFecha(fecha) {
-            return fecha.toLocaleDateString("es-ES", {
-                weekday: "long",
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-            });
-        }
-
-        function limpiarCampos(idContenedor) {
-            const selector = `#${idContenedor} input, #${idContenedor} select`;
-            document.querySelectorAll(selector).forEach((campo) => {
-                if (campo.tagName === "SELECT") {
-                    $(campo).val(null).trigger("change");
-                } else {
-                    campo.value = "";
-                }
-            });
-        }
-
-        function manejarCambioServicio() {
-            limpiarCampos("camposDelivery");
-            limpiarCampos("camposShalom");
-            limpiarCampos("camposUsados");
-
-            $("#camposDelivery, #camposShalom, #camposUsados")
-                .hide()
-                .find("input, select")
-                .prop("disabled", true);
-
-            const valor = $(this).val();
-            const $contenedorFecha = $("#contenedorFecha");
-            $contenedorFecha.hide();
-
-            if (valor === "delivery") {
-                $("#camposDelivery").show().find("input, select").prop("disabled", false);
-                $("#camposDelivery").append($contenedorFecha);
-                $contenedorFecha.show();
-                $("#fecha").prop("disabled", false);
-            } else if (valor === "shalom") {
-                $("#camposShalom").show().find("input, select").prop("disabled", false);
-                $("#camposShalom").append($contenedorFecha);
-                $contenedorFecha.show();
-                $("#fecha").prop("disabled", false);
-            } else if (valor === "usado") {
-                $("#camposUsados").show().find("input, select").prop("disabled", false);
-                $("#camposUsados").append($contenedorFecha);
-                $contenedorFecha.show();
-                $("#fecha").prop("disabled", false);
-            } else {
-                $("#fecha").prop("disabled", true);
-            }
-        }
-
-        async function manejarEnvioFormulario(e) {
-            e.preventDefault();
-
-            const tipoAccion = $("#tipoAccion").val();
-            if (tipoAccion === "usado") {
-                const telefonoIngresado = $("#telefonoUsado").val().replace(/\D/g, "");
-                if (!telefonoIngresado) {
-                    alert("Por favor, ingresa tu número registrado.");
-                    $("#telefonoUsado").focus();
-                    return;
-                }
-                if (!telefonosRegistrados.includes(telefonoIngresado)) {
-                    alert("El número ingresado no está registrado. Verifica e intenta nuevamente.");
-                    $("#telefonoUsado").focus();
-                    return;
-                }
-            }
-
-            if (!this.checkValidity()) {
-                this.reportValidity();
-                return;
-            }
-
-            $("#spinner").fadeIn(200);
-
-            try {
-                const formData = new FormData(this);
-                const response = await fetch(scriptURL, {
-                    method: "POST",
-                    body: formData,
-                });
-
-                if (response.ok) {
-                    alert("Datos enviados correctamente");
-                    $("#formulario")[0].reset();
-                    $(".select2").val(null).trigger("change");
-
-                    $("#camposDelivery, #camposShalom, #camposUsados")
-                        .hide()
-                        .find("input, select")
-                        .prop("disabled", true);
-
-                    $("#contenedorFecha").hide();
-                    $("#fecha").empty();
-                    const nuevasFechas = obtenerFechasEnvio();
-                    nuevasFechas.forEach(f => {
-                        $("#fecha").append(
-                            $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
-                        );
-                    });
-                } else {
-                    alert("Ocurrió un error al enviar tus datos.");
-                }
-            } catch (error) {
-                alert("Ocurrió un error de red o en el servidor.");
-                console.error("Error:", error);
-            } finally {
-                $("#spinner").fadeOut(200);
-            }
-        }
+      // Envío del formulario con validación extra para opción "usado"
+      $("#formulario").on("submit", function (e) {
+        e.preventDefault();
         
-        // Función principal de inicialización
-        $(document).ready(function () {
-            // Cargar datos al inicio
-            Promise.all([
-                $.getJSON("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json"),
-                $.getJSON("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json"),
-                $.getJSON(`${scriptURL}?sheet=Clientes`)
-            ]).then(([distritosData, agenciasData, telefonosData]) => {
-                distritos = distritosData.map(item => typeof item === "string" ? item : item.Distrito || item.nombre || "");
-                agencias = agenciasData.map(item => typeof item === "string" ? item : item.Shalom || item.nombre || "");
-                telefonosRegistrados = telefonosData.values.map(row => String(row[0]).replace(/\D/g, "")).filter(t => t.length === 9);
 
-                // Carga las fechas en el select
-                const $selectFecha = $("#fecha");
-                const fechas = obtenerFechasEnvio();
-                fechas.forEach((f) => {
-                    const option = $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f));
-                    $selectFecha.append(option);
-                });
+        
+        const tipoAccion = $("#tipoAccion").val();
 
-                // Inicializar los manejadores de eventos
-                $("#tipoAccion").on("change", manejarCambioServicio);
-                $("#formulario").on("submit", manejarEnvioFormulario);
+        // Validación personalizada para "usado"
+        if (tipoAccion === "usado") {
+          const telefonoIngresado = $("#telefonoUsado")
+            .val()
+            .replace(/\D/g, "");
 
-            }).catch(err => {
-                console.error("Error al cargar datos necesarios:", err);
-                alert("Error al cargar datos necesarios para el formulario. Por favor, recarga la página.");
+          if (!telefonoIngresado) {
+            alert("Por favor, ingresa tu número registrado.");
+            $("#telefonoUsado").focus();
+            return;
+          }
+
+          if (!telefonosRegistrados.includes(telefonoIngresado)) {
+            alert(
+              "El número ingresado no está registrado. Verifica e intenta nuevamente."
+            );
+            $("#telefonoUsado").focus();
+            return;
+          }
+        }
+
+        // Validación nativa HTML5 para campos visibles
+        if (!this.checkValidity()) {
+          // Esto activará mensajes nativos del navegador
+          this.reportValidity();
+          return;
+        }
+
+        // Mostrar spinner antes de enviar
+        $("#spinner").fadeIn(200);
+     
+        // Prepara FormData para enviar
+        const formData = new FormData(this);
+
+        // Envío AJAX
+        $.ajax({
+          url: scriptURL,
+          method: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: () => {
+            alert("Datos enviados correctamente");
+            // Resetea formulario y Select2
+            $("#formulario")[0].reset();
+            $(".select2").val(null).trigger("change");
+
+            // Oculta todos los bloques y deshabilita inputs
+            $("#camposDelivery, #camposShalom, #camposUsados")
+              .hide()
+              .find("input, select")
+              .prop("disabled", true);
+
+            // Oculta y limpia campo fecha
+            $("#contenedorFecha").hide();
+            $("#fecha").empty();
+            const nuevasFechas = obtenerFechasEnvio();
+            nuevasFechas.forEach(f => {
+              $("#fecha").append(
+                $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
+              );
             });
+          },
+          error: () => {
+            alert("Ocurrió un error al enviar tus datos");
+          },
+          complete: () => {
+            // Ocultar spinner siempre al finalizar
+            $("#spinner").fadeOut(200);
+          }
         });
-    </script>
+      });
+    });
+  </script>
+    
 </body>
 </html>
