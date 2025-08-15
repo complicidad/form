@@ -441,7 +441,7 @@ function mostrarAgencias(lista) {
     // Armamos el HTML con la primera línea en negrita
     div.innerHTML = `<strong>${titulo}</strong>${resto.length ? "<br>" + resto.join("<br>") : ""}`;
     div.addEventListener("click", () => {
-      campoAgencia.value = a; // Mantener el valor original con \n
+      campoAgencia.value = titulo; // Mantener el valor original con \n
       overlayAgencia.style.display = "none";
     });
     listaAgencias.appendChild(div);
