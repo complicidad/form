@@ -516,10 +516,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
      
     
     $(document).ready(function () {
-      const urlDistritos =
-        "https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json";
-      const urlShalom =
-        "https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json";
+
       const scriptURL =
         "https://script.google.com/macros/s/AKfycbzSqYVbDXoRSCvuUl-l-jAtiLauLj-h5KT99WJFxZQ4IBu1M_ErSj3foXqlrEoS3INuCA/exec";
 
@@ -584,36 +581,6 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
         $selectFecha.append(option);
       });
 
-      // Inicializar Select2 en distritos y agencias
-
-
-
-      // Cargar distritos desde JSON remoto
-      const cargarDistritos = $.getJSON(urlDistritos)
-        .done((data) => {
-          let opciones = '<option value=""></option>';
-          data.forEach((d) => {
-            opciones += `<option value="${d.Distrito}">${d.Distrito}</option>`;
-          });
-          $("#distrito").html(opciones).trigger("change");
-        })
-        .fail(() => {
-          alert("No se pudieron cargar los distritos.");
-        });
-
-      // Cargar agencias desde JSON remoto
-      const cargarAgencias = $.getJSON(urlShalom)
-        .done((data) => {
-          let opciones = '<option value=""></option>';
-          data.forEach((d) => {
-            opciones += `<option value="${d.Shalom}">${d.Shalom}</option>`;
-          });
-          $("#agencia").html(opciones).trigger("change");
-        })
-        .fail(() => {
-          alert("No se pudieron cargar las agencias.");
-        });
-
       // Cargar teléfonos registrados desde Google Sheets
       const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
         .done((data) => {
@@ -627,7 +594,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
         });
 
       // Espera a que todo se cargue antes de continuar
-      Promise.all([cargarDistritos, cargarAgencias, cargarTelefonos]).catch(() =>
+      Promise.all([cargarTelefonos]).catch(() =>
         alert("Error al cargar datos necesarios para el formulario.")
       );
 
