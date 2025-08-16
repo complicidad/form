@@ -10,6 +10,7 @@
   
   <!-- Estilos del sitio -->
   <style>
+       
     /* =========================================
        Tokens y base
     ========================================== */
@@ -28,14 +29,24 @@
       --space-4: 15px;
       --space-5: 20px;
     }
- 
-    /* Layout container principal */
-    .container {
-      padding: var(--space-5);
-      max-width: 640px;
-      margin: 0 auto;
-      font-family: Arial, sans-serif;
-      color: var(--text);
+    
+    /* =========================================
+       Estilos combinados para la estructura y el contenedor
+    ========================================== */
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    main.container {
+        flex: 1; /* Permite que crezca para empujar el footer */
+        padding: var(--space-5);
+        max-width: 900px; /* Aquí puedes ajustar el ancho que desees */
+        margin: 0 auto;
+        font-family: Arial, sans-serif;
+        color: var(--text);
     }
 
     /* Secciones de formulario */
@@ -234,7 +245,7 @@
 
   <main class="container">  
   
-  <h2 style="margin: 5px 0px 5px; ">Agenda tu envío</h2>
+  <h2 style="margin: -20px 0px 5px; ">Agenda tu envío</h2>
   
   <form id="formulario" novalidate>
     <label for="telefonoUsado">WhatsApp con el que compraste</label>
@@ -357,7 +368,7 @@
   padding:1px 1px;
   text-align: center;
   font-family: sans-serif;
-  margin-top: 30px;      
+  margin-top: 5px;      
                
 ">
   <div style="margin: 10px 0; display: flex; justify-content: center; gap: 16px;">
