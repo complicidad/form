@@ -38,6 +38,7 @@
         flex-direction: column;
         min-height: 100vh;
         margin: 0;
+        background: pink;
     }
 
     main.container {
@@ -105,7 +106,7 @@
 
     /* Texto de privacidad */
     .texto-privacidad {
-      margin-top: var(--space-5);
+      margin-top: var(--space-2);
       font-size: 13px;
       color: var(--muted);
       text-align: left;
@@ -349,15 +350,14 @@
       <select id="fecha" name="fecha" required></select>
     </div>
 
-    <div class="texto-privacidad">
-      Usaremos tus datos solo para procesar y entregar tu pedido.<br>
-      <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
-    </div>
-
     <div class="contenedor-boton">
       <button type="submit">Confirmar y agendar envío</button>
     </div>   
     
+     <div class="texto-privacidad">
+      Usaremos tus datos solo para procesar y entregar tu pedido.<br>
+      <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
+    </div>   
     
   </form>
   </main>
