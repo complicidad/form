@@ -23,7 +23,7 @@
       --bg-muted: #f4f4f4;
       --border: #e5e5e5;
       --danger: #d93025;
-      --radius: 8px;
+      --radius: 12px;
       --space-1: 5px;
       --space-2: 8px;
       --space-3: 12px;
@@ -39,7 +39,7 @@
         flex-direction: column;
         min-height: 93vh;
         margin: 0;
-        background: #FFF9C4;
+        background: #0;
     }
 
     main.container {
@@ -110,7 +110,7 @@
       margin-top: var(--space-2);
       font-size: 13px;
       color: var(--muted);
-      text-align: left;
+      text-align: center;
     }
 
     .texto-privacidad a {
@@ -134,7 +134,7 @@
       color: white;
       font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 12px;
       width: 100%;
       transition: background-color .15s ease;
     }
@@ -236,18 +236,23 @@
       background: #f0f0f0;
     }
      
+    .hint{font-size:12px;color:var(--muted);margin-bottom:8px; opacity:.5}
     
   </style>
 </head>
 <body>
 
   <div style="text-align:center; margin: 15px;">
-  <img src="https://raw.githubusercontent.com/complicidad/form/main/Logo.png" alt="Logo Complicidad" style="max-width: 200px; height: auto;">
+  <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" style="max-width: 70px; height: auto;">
   </div>
 
+
+  
+  
+  
   <main class="container">  
   
-  <h2 style="margin: -30px 0px 5px; ">Agenda tu envío</h2>
+  <h2 style="margin: -30px 0px 5px; text-align:center; ">Agenda tu envío</h2>
   
   <form id="formulario" novalidate>
     <label for="telefonoUsado">WhatsApp con el que compraste</label>
@@ -355,24 +360,15 @@
       <button type="submit">Confirmar y agendar envío</button>
     </div>   
     
+
+    
+    
      <div class="texto-privacidad">
-      Usaremos tus datos solo para procesar y entregar tu pedido.<br>
+      Usaremos tus datos solo para procesar y entregar tu pedido.
       <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
     </div>   
     
-  </form>
-  </main>
-  
-  
-<footer style="
-  background-color:#f4f4f4; 
-  padding:1px 1px;
-  text-align: center;
-  font-family: sans-serif;
-  margin-top: 5px;      
-               
-">
-  <div style="margin: 10px 0; display: flex; justify-content: center; gap: 16px;">
+          <div style="margin: 10px 0; display: flex; justify-content: center; gap: 16px;">
     <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
       <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
     </a>
@@ -384,12 +380,23 @@
     <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
       <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
     </a>
-  </div>
-
-  <p style="margin-top: 15px; font-size: 12px; color: #888;">
-    © 2025 Complicidad. Todos los derechos reservados.
-  </p>
+  </div>  
+    
+    
+  </form>
+  </main>
   
+  
+<footer style="
+  background-color:#0; 
+  padding:1px 1px;
+  text-align: center;
+  font-family: sans-serif;
+  margin-top: 5px;
+               
+">
+ 
+  <div class="hint">Powered by <strong>Agendalo</strong></div>
   
 </footer>
 
