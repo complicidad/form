@@ -250,19 +250,28 @@
     }
      
     .hint{font-size:12px;color:var(--muted);margin-bottom:8px; opacity:.5}
-    
+
+    .mensaje {
+      display: none;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-family: 'Nunito', sans-serif;
+    }
+    .mensaje.success { background: #dcfce7; color: #166534; }
+    .mensaje.error   { background: #fee2e2; color: #b91c1c; }
+
   </style>
 </head>
 <body>
-
+  
+  <div id="mensaje" class="mensaje"></div>
+  
   <div style="text-align:center; margin: 15px;">
   <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" style="max-width: 100px; height: auto;">
   </div>
 
-
-  
-  
-  
   <main class="container">  
   
   <h2 style="margin: -30px 0px 5px; text-align:center; ">Agenda tu envío</h2>
@@ -691,7 +700,13 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
       $("#formulario").on("submit", function (e) {
         e.preventDefault();
         
-
+      function mostrarMensajeTelefono(mensaje, tipo="success") {
+        $("#mensaje")
+          .removeClass()
+          .addClass("mensaje " + tipo)
+          .text(mensaje)
+          .slideDown();
+      }  
         
         const tipoAccion = $("#tipoAccion").val();
 
@@ -702,15 +717,13 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
             .replace(/\D/g, "");
 
           if (!telefonoIngresado) {
-            alert("Por favor, ingresa tu número registrado.");
+            mostrarMensajeTelefono("Por favor, ingresa tu número registrado", "error");
             $("#telefonoUsado").focus();
             return;
           }
 
           if (!telefonosRegistrados.includes(telefonoIngresado)) {
-            alert(
-              "El número ingresado no está registrado. Verifica e intenta nuevamente."
-            );
+            mostrarMensajeTelefono("❌ El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
             $("#telefonoUsado").focus();
             return;
           }
@@ -728,7 +741,15 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
      
         // Prepara FormData para enviar
         const formData = new FormData(this);
-
+        
+        function mostrarMensaje(mensaje, tipo="success") {
+          $("#mensaje")
+            .removeClass()
+            .addClass("mensaje " + tipo)
+            .text(mensaje)
+            .slideDown();
+        }   
+                
         // Envío AJAX
         $.ajax({
           url: scriptURL,
@@ -737,7 +758,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
           processData: false,
           contentType: false,
           success: () => {
-            alert("Datos enviados correctamente");
+            mostrarMensaje("✅ Datos enviados correctamente", "success");
             // Resetea formulario y Select2
             $("#formulario")[0].reset();
             $(".select2").val(null).trigger("change");
@@ -759,7 +780,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
             });
           },
           error: () => {
-            alert("Ocurrió un error al enviar tus datos");
+            mostrarMensaje("❌ Ocurrió un error al enviar tus datos", "error");
           },
           complete: () => {
             // Ocultar spinner siempre al finalizar
