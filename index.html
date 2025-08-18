@@ -723,7 +723,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
           }
 
           if (!telefonosRegistrados.includes(telefonoIngresado)) {
-            mostrarMensajeTelefono("❌ El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
+            mostrarMensajeTelefono("El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
             $("#telefonoUsado").focus();
             return;
           }
@@ -742,13 +742,18 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
         // Prepara FormData para enviar
         const formData = new FormData(this);
         
-        function mostrarMensaje(mensaje, tipo="success") {
-          $("#mensaje")
+        function mostrarMensaje(mensaje, tipo = "success") {
+          const $mensaje = $("#mensaje");
+          $mensaje
             .removeClass()
             .addClass("mensaje " + tipo)
             .text(mensaje)
             .slideDown();
-        }   
+        
+          setTimeout(() => {
+            $mensaje.removeClass("show").slideUp();
+          }, 10000);
+        }       
                 
         // Envío AJAX
         $.ajax({
@@ -758,7 +763,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
           processData: false,
           contentType: false,
           success: () => {
-            mostrarMensaje("✅ Datos enviados correctamente", "success");
+            mostrarMensaje("Datos enviados correctamente", "success");
             // Resetea formulario y Select2
             $("#formulario")[0].reset();
             $(".select2").val(null).trigger("change");
@@ -780,7 +785,7 @@ fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
             });
           },
           error: () => {
-            mostrarMensaje("❌ Ocurrió un error al enviar tus datos", "error");
+            mostrarMensaje("Ocurrió un error al enviar tus datos", "error");
           },
           complete: () => {
             // Ocultar spinner siempre al finalizar
