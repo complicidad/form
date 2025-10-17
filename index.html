@@ -80,8 +80,7 @@
     </script>
 </head>
 
-<!-- El cuerpo usa el fondo claro (brand-bg) y texto oscuro (brand-text) -->
-<body class="flex flex-col min-h-screen bg-brand-bg text-brand-text">
+<body class="flex flex-col bg-brand-bg text-brand-text">
 
     <!-- Contenedor principal del formulario (main) -->
     <main class="flex-grow p-5 max-w-xl mx-auto font-quicksand w-full">
@@ -258,8 +257,7 @@
         </div>
     </main>
 
-        <!-- Footer: Se eliminó la atribución visible para no distraer al cliente. -->
-        <footer class="mt-10 mb-5 text-center text-gray-500 text-xs">
+        <footer class="mt-8 mb-5 text-center text-gray-500 text-xs">
             <!-- La atribución a la herramienta ahora se omite en la vista del usuario final. -->
             <p>Hecho con ❤️ para tu emprendimiento.</p>
         </footer>
@@ -268,10 +266,11 @@
     <div class="toast fixed right-5 bottom-5 text-white p-3 rounded-xl shadow-xl shadow-brand-accent/25 opacity-0 translate-y-2 transition-all duration-300 z-50 max-w-sm" id="toast">Acción aplicada</div>
 
 
-    <!-- Spinner de carga -->
+    <!-- SPINNER DE CARGA CORREGIDO -->
+    <!-- Se añadieron 'inset-0' para cubrir toda la pantalla y 'justify-center items-center' para centrar el contenido. -->
     <div id="spinner" class="fixed inset-0 bg-brand-bg bg-opacity-85 z-50 flex justify-center items-center flex-col hidden">
         <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..." class="w-[150px] h-auto animate-spin-custom">
-        <p class="mt-4 text-lg text-brand-text"></p>
+        <p class="mt-4 text-lg text-brand-text">Cargando...</p>
     </div>
     
     <!-- Script para los modales de lista. -->
