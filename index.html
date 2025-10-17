@@ -1,799 +1,735 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Agenda tu envío</title>
-  
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda tu envío</title>
+
+    <!-- Meta Tags OGP y Twitter (se mantienen sin cambios) -->
     <meta property="og:title" content="Agenda tu envío" />
     <meta property="og:description" content="Agenda tu envío de manera simple, rápida y segura." />
     <meta property="og:image" content="https://complicidad.github.io/form/Spin.png" />
     <meta property="og:url" content="https://complicidad.github.io/form" />
     <meta property="og:type" content="website" />
-
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Agenda tu envío" />
     <meta name="twitter:description" content="Agenda tu envío de manera simple, rápida y segura." />
     <meta name="twitter:image" content="https://complicidad.github.io/form/Spin.png" />
-  
 
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-  
-  <!-- Estilos del sitio -->
-  <style>
-       
-    /* =========================================
-       Tokens y base// Ejemplo: setBrandColor("#e11d48"); // rosa fuerte
-    ========================================== */
-    :root {
-      --brand: #1a73e8;
-      --brand-hover: #1669c1;
-      --text: #222;
-      --muted: #555;
-      --bg-muted: #f4f4f4;
-      --border: #e5e5e5;
-      --danger: #d93025;
-      --radius: 12px;
-      --space-1: 5px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 15px;
-      --space-5: 20px;
-    }
-    
-    /* =========================================
-       Estilos combinados para la estructura y el contenedor
-    ========================================== */
-    body {
-        display: flex;
-        flex-direction: column;
-        min-height: 93vh;
-        margin: 0;
-        background: #0;
-    }
+    <!-- jQuery (se mantiene para la lógica existente) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    main.container {
-        flex: 1; /* Permite que crezca para empujar el footer */
-        padding: var(--space-5);
-        max-width: 900px; /* Aquí puedes ajustar el ancho que desees */
-        margin: 0 auto;
-        font-family: 'Nunito', sans-serif;
-        color: var(--text);
-    }
+    <!-- Fuente Quicksand (Alineada con tu landing page) -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 
-    /* Secciones de formulario */
-    .section {
-      margin-top: var(--space-4);
-    }
-
-    .section-help {
-      margin: var(--space-2) 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    /* Accesibilidad: oculto visualmente pero accesible */
-    .visually-hidden {
-      position: absolute !important;
-      height: 1px; width: 1px;
-      overflow: hidden;
-      clip: rect(1px, 1px, 1px, 1px);
-      white-space: nowrap;
-    }
-
-    /* Etiquetas y controles */
-    label {
-      display: block;
-      margin-top: var(--space-4);
-      font-weight: bold;
-    }
-
-    input, select, button {
-      font: inherit;
-    }
-
-    input, select {
-      width: 100%;
-      padding: var(--space-2);
-      margin-top: var(--space-1);
-      box-sizing: border-box;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: #fff;
-      outline: none;
-      transition: box-shadow .15s ease, border-color .15s ease;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
-    }
-
-    /* Estado de error básico para validación */
-    .is-invalid {
-      border-color: var(--danger) !important;
-      box-shadow: 0 0 0 3px rgba(217, 48, 37, .15) !important;
-    }
-
-    /* Texto de privacidad */
-    .texto-privacidad {
-      margin-top: var(--space-2);
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .texto-privacidad a {
-      color: var(--brand);
-      text-decoration: none;
-    }
-
-    /* Botones */
-    .contenedor-boton {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      margin-top: var(--space-4);
-    }
-
-    button[type="submit"] {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      background-color: var(--brand);
-      color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 12px;
-      width: 100%;
-      transition: background-color .15s ease;
-    }
-
-    button[type="submit"]:hover {
-      background-color: var(--brand-hover);
-    }
-    
-
-    /* =========================================
-       Spinner de carga
-       
-    ========================================== */
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    #spinner {
-      display: none;
-      position: fixed;
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%;
-      background: rgba(255, 255, 255, 0.85);
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    #spinner img {
-      width: 100px; 
-      height: auto; 
-      animation: spin 1s linear infinite;
-    }
- 
-     /* Estilo del overlay del popup */
-    .modal {
-      display: none; /* Oculto por defecto */
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-      align-items: flex-start; /* Alinea arriba en vez de al centro */
-      padding-top: 20px; /* Espacio desde arriba */
-      padding-bottom: 20px; /* Espacio desde arriba */
-    }
-
-    /* Caja del popup */
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      width: 350px;
-      max-height: 95vh; /* Antes 80vh, ahora más alto */
-      overflow-y: auto;
-    }
-    
-    .list {
-      max-height: 80vh;
-      overflow-y: auto;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
- 
-    .list-item {
-      padding: 8px;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
-    }
-
-    .list-item:hover {
-      background: #f0f0f0;
-    }    
-    
-    /* Compatibilidad con IDs existentes */
-    #listaDistritos, #listaAgencias {
-      max-height: 80vh;
-      overflow-y: auto;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    
-    #listaDistritos li, #listaAgencias li {
-      padding: 8px;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
-    }
-
-    #listaDistritos li:hover, #listaAgencias li:hover {
-      background: #f0f0f0;
-    }
-     
-    .hint{font-size:12px;color:var(--muted);margin-bottom:8px; opacity:.5}
-
-    .mensaje {
-      display: none;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      font-weight: 500;
-      font-family: 'Nunito', sans-serif;
-    }
-    .mensaje.success { background: #dcfce7; color: #166534; }
-    .mensaje.error   { background: #fee2e2; color: #b91c1c; }
-
-  </style>
-</head>
-<body>
-  
-  <div id="mensaje" class="mensaje"></div>
-  
-  <div style="text-align:center; margin: 15px;">
-  <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" style="max-width: 100px; height: auto;">
-  </div>
-
-  <main class="container">  
-  
-  <h2 style="margin: -30px 0px 5px; text-align:center; ">Agenda tu envío</h2>
-  
-  <form id="formulario" novalidate>
-    <label for="telefonoUsado">WhatsApp con el que compraste</label>
-    <input
-      type="text"
-      id="telefonoUsado"
-      name="telefonoUsado"
-      required
-      placeholder="Ingresa tu número"
-      pattern="^9\d{8}$"
-      title="Ingresa un número de teléfono válido de 9 dígitos"
-    />
-
-    <label for="tipoAccion">Selecciona el tipo de servicio</label>
-    <select id="tipoAccion" name="tipoAccion" required>
-      <option value="" disabled selected>Elige una opción</option>
-      <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
-      <option value="shalom">Retiro en agencia Shalom</option>
-      <option value="recoger">Recoger en almacén</option>
-      <option value="usado">Usar mi dirección registrada</option>
-    </select>
-
-    <!-- Delivery -->
-    <fieldset id="camposDelivery" class="section section--delivery" hidden>
-       <legend>📦 Delivery</legend>
-       <p class="section-help">Datos de la persona que recibirá el pedido.</p>
-
-      <label for="nombreDelivery">Nombre:</label>
-      <input type="text" id="nombreDelivery" name="nombre" required />
-
-      <label for="telefonoDelivery">Teléfono:</label>
-      <input
-        type="text"
-        id="telefonoDelivery"
-        name="telefono"
-        required
-        pattern="^9\d{8}$"
-        title="Ingresa un número de teléfono válido de 9 dígitos"
-      />
-
-      <label for="distrito">Distrito:</label>
-      <input type="text" id="distrito" name="distrito" required />
-
-      <label for="direccion">Dirección:</label>
-      <input type="text" id="direccion" name="direccion" required />
-
-      <label for="referencia">Referencia:</label>
-      <input type="text" id="referencia" name="referencia" required />
-      
-            <!-- Modal oculto -->
-      <div class="modal" id="modalDistrito">
-        <div class="modal-content">
-          <input type="text" id="buscadorDistrito" placeholder="Buscar distrito...">
-          <div id="listaDistritos"></div>
-        </div>
-      </div>
-     </fieldset>
-    
-     <!-- Shalom -->
-     <fieldset id="camposShalom" class="section section--shalom" hidden>
-       <legend>📦 Shalom</legend>
-       <p class="section-help">Datos para retiro en agencia Shalom.</p>
-
-      <label for="nombreShalom">Nombre completo:</label>
-      <input type="text" id="nombreShalom" name="nombre" required />
-
-      <label for="telefonoShalom">Teléfono:</label>
-      <input
-        type="text"
-        id="telefonoShalom"
-        name="telefono"
-        required
-        pattern="^9\d{8}$"
-        title="Ingresa un número de teléfono válido de 9 dígitos"
-      />
-
-      <label for="DNI">DNI/CE:</label>
-      <input type="text" id="DNI" name="DNI" required />
-
-      <label for="agencia">Agencia:</label>
-      <input type="text" id="agencia" name="agencia" required />
-      
-            <!-- Modal oculto -->
-      <div class="modal" id="modalAgencia">
-        <div class="modal-content">
-          <input type="text" id="buscadorAgencia" placeholder="Buscar agencia...">
-          <div id="listaAgencias"></div>
-        </div>
-      </div>          
-    </fieldset>
-   
-    <!-- Usado -->
-    <fieldset id="camposUsados" class="section section--usado" hidden>
-      <legend>📦 Dirección registrada</legend>
-      <p class="section-help">Usaremos tu dirección guardada.</p>
-    </fieldset>
-
-    <!-- Campo de fecha reutilizable -->
-    <div id="contenedorFecha" style="display: none;">
-      <label for="fecha">Fecha de envío:</label>
-      <select id="fecha" name="fecha" required></select>
-    </div>
-
-    <div class="contenedor-boton">
-      <button type="submit">Confirmar y agendar envío</button>
-    </div>   
-    
-
-    
-    
-     <div class="texto-privacidad">
-      Usaremos tus datos solo para procesar y entregar tu pedido.
-      <a href="https://complicidad.github.io/privacy/" target="_blank">Ver política de privacidad</a>
-    </div>   
-    
-          <div style="margin: 10px 0; display: flex; justify-content: center; gap: 16px;">
-    <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
-      <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
-    </a>
-
-    <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
-      <img src="https://raw.githubusercontent.com/complicidad/form/main/tik-tok.png" alt="TikTok" width="28" height="28">
-    </a>
-
-    <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center;">
-      <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
-    </a>
-  </div>  
-    
-    
-  </form>
-  </main>
-  
-  
-<footer style="
-  background-color:#0; 
-  padding:1px 1px;
-  text-align: center;
-  font-family: sans-serif;
-  margin-top: 5px;
-               
-">
- 
-  <div class="hint">Creado por <strong>Gestiónalo</strong></div>
-  
-</footer>
-
-
-    <div id="spinner" style="
-        display:none;
-        position:fixed;
-        top:0; left:0; 
-        width:100%; height:100%;
-        background:rgba(255,255,255,0.85);
-        z-index:9999;
-        justify-content:center;
-        align-items:center;
-        flex-direction:column;
-    ">
-        <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..." style="width:150px; height:auto; animation:spin 2s linear infinite;">
-        <p style="margin-top:15px; font-size:18px; color:#333;"></p>
-    </div>
-  
-  <script>
-    
-// Conf para Distritos    
-const campoDistrito = document.getElementById("distrito");
-const overlay = document.getElementById("modalDistrito");
-const buscador = document.getElementById("buscadorDistrito");
-const listaDistritos = document.getElementById("listaDistritos");
-let distritos = [];
-
-// Abrir popup al hacer click en el campo
-campoDistrito.addEventListener("click", () => {
-  overlay.style.display = "flex";
-  buscador.value = "";
-  mostrarDistritos(distritos);
-  buscador.focus();
-});
-
-// Cerrar popup si clic fuera de la caja
-overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) {
-    overlay.style.display = "none";
-  }
-});
-
-// Buscar distritos
-buscador.addEventListener("input", () => {
-  const filtro = buscador.value.toLowerCase();
-  const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
-  mostrarDistritos(filtrados);
-});
-
-// Mostrar lista en el popup
-function mostrarDistritos(lista) {
-  listaDistritos.innerHTML = "";
-  lista.forEach(d => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.textContent = d;
-    div.addEventListener("click", () => {
-      campoDistrito.value = d;
-      overlay.style.display = "none";
-    });
-    listaDistritos.appendChild(div);
-  });
-}
-
-// Cargar JSON de distritos
-fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json")
-  .then(res => res.json())
-  .then(data => {
-    // El JSON puede ser un array de strings o de objetos
-    distritos = data.map(item => typeof item === "string" ? item : item.Distrito || item.nombre || "");
-    mostrarDistritos(distritos);
-  })
-  .catch(err => {
-    console.error("Error cargando distritos:", err);
-  });
- 
-// Conf para Agencias
-const campoAgencia = document.getElementById("agencia");
-const overlayAgencia = document.getElementById("modalAgencia");
-const buscadorAgencia = document.getElementById("buscadorAgencia");
-const listaAgencias = document.getElementById("listaAgencias");
-let agencias = [];
-
-// Abrir popup al hacer click en el campo
-campoAgencia.addEventListener("click", () => {
-  overlayAgencia.style.display = "flex";
-  buscadorAgencia.value = "";
-  mostrarAgencias(agencias);
-  buscadorAgencia.focus();
-});
-
-// Cerrar popup si clic fuera de la caja
-overlayAgencia.addEventListener("click", (e) => {
-  if (e.target === overlayAgencia) {
-    overlayAgencia.style.display = "none";
-  }
-});
-
-// Buscar agencias
-buscadorAgencia.addEventListener("input", () => {
-  const filtro = buscadorAgencia.value.toLowerCase();
-  const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
-  mostrarAgencias(filtrados);
-});
-
-// Mostrar lista en el popup
-function mostrarAgencias(lista) {
-  listaAgencias.innerHTML = "";
-  lista.forEach(a => {
-    const [titulo, ...resto] = a.split("\n"); // Separar en partes
-    const div = document.createElement("div");
-    div.className = "list-item";
-    // Armamos el HTML con la primera línea en negrita
-    div.innerHTML = `<strong>${titulo}</strong>${resto.length ? "<br>" + resto.join("<br>") : ""}`;
-    div.addEventListener("click", () => {
-      campoAgencia.value = titulo; // Mantener el valor original con \n
-      overlayAgencia.style.display = "none";
-    });
-    listaAgencias.appendChild(div);
-  });
-}
-
-// Cargar JSON de agencias
-fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
-  .then(res => res.json())
-  .then(data => {
-    // El JSON puede ser un array de strings o de objetos
-    agencias = data.map(item => typeof item === "string" ? item : item.Shalom || item.nombre || "");
-    mostrarAgencias(agencias);
-  })
-  .catch(err => {
-    console.error("Error cargando agencias:", err);
-  });
-
-     
-    
-    $(document).ready(function () {
-
-      const scriptURL =
-        "https://script.google.com/macros/s/AKfycbzSqYVbDXoRSCvuUl-l-jAtiLauLj-h5KT99WJFxZQ4IBu1M_ErSj3foXqlrEoS3INuCA/exec";
-
-      let telefonosRegistrados = [];
-
-      /**
-       * Obtiene las fechas válidas para envío: martes y viernes,
-       * hasta dos semanas adelante y con horario de corte a las 10:00 a.m. del día anterior.
-       * @returns {Date[]} Array de fechas válidas
-       */
-      function obtenerFechasEnvio() {
-        const ahora = new Date();
-        const opciones = [];
-        const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
-        const horaCorte = 10; // 10:00 a.m.
-        const limite = new Date();
-        limite.setDate(ahora.getDate() + 14); // hasta 2 semanas adelante
-
-        let fecha = new Date();
-        fecha.setHours(0, 0, 0, 0); // normaliza la hora
-
-        while (fecha <= limite) {
-          const diaSemana = fecha.getDay();
-
-          if (diasPermitidos.includes(diaSemana)) {
-            // Día válido, chequeamos horario de corte (10 a.m. día anterior)
-            const fechaCorte = new Date(fecha);
-            fechaCorte.setDate(fecha.getDate() - 1);
-            fechaCorte.setHours(horaCorte, 0, 0, 0);
-
-            if (ahora < fechaCorte) {
-              opciones.push(new Date(fecha));
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configuración de Tailwind para usar la fuente Quicksand y colores de marca */
+        @layer base {
+            body {
+                font-family: 'Quicksand', sans-serif;
             }
-          }
-          fecha.setDate(fecha.getDate() + 1);
         }
-        return opciones;
-      }
-
-      /**
-       * Formatea una fecha a string en español, con día de semana, día, mes y año.
-       * Ejemplo: "martes, 15 de agosto de 2025"
-       * @param {Date} fecha
-       * @returns {string}
-       */
-      function formatearFecha(fecha) {
-        return fecha.toLocaleDateString("es-ES", {
-          weekday: "long",
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        });
-      }
-
-      // Carga las fechas en el select #fecha
-      const $selectFecha = $("#fecha");
-      const fechas = obtenerFechasEnvio();
-      fechas.forEach((f) => {
-        const option = $("<option>")
-          .val(f.toISOString().split("T")[0])
-          .text(formatearFecha(f));
-        $selectFecha.append(option);
-      });
-
-      // Cargar teléfonos registrados desde Google Sheets
-      const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
-        .done((data) => {
-          // Extrae y normaliza teléfonos de 9 dígitos
-          telefonosRegistrados = data.values
-            .map((row) => String(row[0]).replace(/\D/g, ""))
-            .filter((t) => t.length === 9);
-        })
-        .fail(() => {
-          alert("No se pudieron cargar los teléfonos registrados.");
-        });
-
-      // Espera a que todo se cargue antes de continuar
-      Promise.all([cargarTelefonos]).catch(() =>
-        alert("Error al cargar datos necesarios para el formulario.")
-      );
-
-      /**
-       * Limpia inputs y selects dentro de un contenedor por ID
-       * @param {string} idContenedor
-       */
-      function limpiarCampos(idContenedor) {
-        const selector = `#${idContenedor} input, #${idContenedor} select`;
-        document.querySelectorAll(selector).forEach((campo) => {
-          if (campo.tagName === "SELECT") {
-            $(campo).val(null).trigger("change");
-          } else {
-            campo.value = "";
-          }
-        });
-      }
-
-      // Muestra/oculta bloques de campos según la opción seleccionada
-      $("#tipoAccion").on("change", function () {
-        limpiarCampos("camposDelivery");
-        limpiarCampos("camposShalom");
-        limpiarCampos("camposUsados");
-
-        // Oculta todos los bloques y deshabilita inputs/selects dentro
-        $("#camposDelivery, #camposShalom, #camposUsados")
-          .hide()
-          .find("input, select")
-          .prop("disabled", true);
-
-        const valor = $(this).val();
-
-        // Mostrar y habilitar bloque correspondiente
-        if (valor === "delivery") {
-          $("#camposDelivery").show().find("input, select").prop("disabled", false);
-        } else if (valor === "shalom") {
-          $("#camposShalom").show().find("input, select").prop("disabled", false);
-        } else if (valor === "usado") {
-          $("#camposUsados").show().find("input, select").prop("disabled", false);
-        }
-
-        // Mover y mostrar campo fecha en el bloque correspondiente
-        const $contenedorFecha = $("#contenedorFecha");
-        $contenedorFecha.hide();
-
-        if (["delivery", "shalom", "usado"].includes(valor)) {
-          if (valor === "delivery") {
-            $("#camposDelivery").append($contenedorFecha);
-          } else if (valor === "shalom") {
-            $("#camposShalom").append($contenedorFecha);
-          } else {
-            $("#camposUsados").append($contenedorFecha);
-          }
-          $contenedorFecha.show();
-          $("#fecha").prop("disabled", false);
-        } else {
-          $("#fecha").prop("disabled", true);
-        }
-      });
-
-      // Envío del formulario con validación extra para opción "usado"
-      $("#formulario").on("submit", function (e) {
-        e.preventDefault();
         
-      function mostrarMensajeTelefono(mensaje, tipo="success") {
-        $("#mensaje")
-          .removeClass()
-          .addClass("mensaje " + tipo)
-          .text(mensaje)
-          .slideDown();
-      }  
+        /* Definición de colores de marca para su uso en clases personalizadas */
+        :root {
+            --brand-accent: #D96B4F;
+            --brand-accent-alt: #FF8B6A;
+            --danger-color: #d93025; 
+        }
         
-        const tipoAccion = $("#tipoAccion").val();
-
-        // Validación personalizada para "usado"
-        if (tipoAccion === "usado") {
-          const telefonoIngresado = $("#telefonoUsado")
-            .val()
-            .replace(/\D/g, "");
-
-          if (!telefonoIngresado) {
-            mostrarMensajeTelefono("Por favor, ingresa tu número registrado", "error");
-            $("#telefonoUsado").focus();
-            return;
-          }
-
-          if (!telefonosRegistrados.includes(telefonoIngresado)) {
-            mostrarMensajeTelefono("El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
-            $("#telefonoUsado").focus();
-            return;
-          }
+        /* Estilos personalizados para manejo de estados (Tailwind no permite `!important` en focus/invalid sin config extendida) */
+        .is-invalid {
+            border-color: var(--danger-color) !important;
+            box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.15) !important;
         }
 
-        // Validación nativa HTML5 para campos visibles
-        if (!this.checkValidity()) {
-          // Esto activará mensajes nativos del navegador
-          this.reportValidity();
-          return;
+        /* Keyframes para el spinner */
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-custom {
+          animation: spin 1s linear infinite;
         }
 
-        // Mostrar spinner antes de enviar
-        $("#spinner").fadeIn(200);
-     
-        // Prepara FormData para enviar
-        const formData = new FormData(this);
-        
-        function mostrarMensaje(mensaje, tipo = "success") {
-          const $mensaje = $("#mensaje");
-          $mensaje
-            .removeClass()
-            .addClass("mensaje " + tipo)
-            .text(mensaje)
-            .slideDown();
-        
-          setTimeout(() => {
-            $mensaje.removeClass("show").slideUp();
-          }, 10000);
-        }       
-                
-        // Envío AJAX
-        $.ajax({
-          url: scriptURL,
-          method: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: () => {
-            mostrarMensaje("Datos enviados correctamente", "success");
-            // Resetea formulario y Select2
-            $("#formulario")[0].reset();
-            $(".select2").val(null).trigger("change");
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-bg': '#fffaf6',
+                        'brand-card': '#ffffff',
+                        'brand-text': '#2b2b2b',
+                        'brand-muted': '#6b6b6b',
+                        'brand-accent': '#D96B4F', // Terracota principal
+                        'brand-accent-alt': '#FF8B6A', // Terracota claro para hover/sombra
+                        danger: '#d93025',
+                    },
+                    borderRadius: {
+                        'xl': '12px',
+                    },
+                    fontFamily: {
+                        'quicksand': ['Quicksand', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
 
-            // Oculta todos los bloques y deshabilita inputs
-            $("#camposDelivery, #camposShalom, #camposUsados")
-              .hide()
-              .find("input, select")
-              .prop("disabled", true);
+<!-- El cuerpo usa el fondo claro (brand-bg) y texto oscuro (brand-text) -->
+<body class="flex flex-col min-h-screen bg-brand-bg text-brand-text">
 
-            // Oculta y limpia campo fecha
-            $("#contenedorFecha").hide();
-            $("#fecha").empty();
-            const nuevasFechas = obtenerFechasEnvio();
-            nuevasFechas.forEach(f => {
-              $("#fecha").append(
-                $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
-              );
-            });
-          },
-          error: () => {
-            mostrarMensaje("Ocurrió un error al enviar tus datos", "error");
-          },
-          complete: () => {
-            // Ocultar spinner siempre al finalizar
-            $("#spinner").fadeOut(200);
-          }
-        });
-      });
-    });
-  </script>
+    <!-- Contenedor principal del formulario (main) -->
+    <main class="flex-grow p-5 max-w-xl mx-auto font-quicksand w-full">
+
+        <!-- La tarjeta usa el fondo blanco (brand-card) -->
+        <div class="bg-brand-card p-6 md:p-8 rounded-xl shadow-2xl">
+
+        <!-- Logo -->
+        <div class="text-center p-4">
+            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[100px] h-auto inline-block">
+        </div>
+
+            <h2 class="mt-[0px] mb-2 text-center text-2xl font-bold text-brand-text">Agenda tu envío</h2>
+
+            <form id="formulario" novalidate>
+                <!-- Campo 1: WhatsApp usado -->
+                <!-- UX: Se usa type="tel" para facilitar el input en móvil y se añade asterisco -->
+                <label for="telefonoUsado" class="block mt-4 font-semibold text-sm text-brand-text">WhatsApp con el que compraste <span class="text-danger">*</span></label>
+                <input
+                    type="tel"
+                    id="telefonoUsado"
+                    name="telefonoUsado"
+                    required
+                    placeholder="Ej. 9XXXXXXXX"
+                    pattern="^9\d{8}$"
+                    title="Ingresa un número de teléfono válido de 9 dígitos (debe empezar con 9)"
+                    class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                />
+
+                <!-- Campo 2: Tipo de servicio -->
+                <label for="tipoAccion" class="block mt-4 font-semibold text-sm text-brand-text">Selecciona el tipo de servicio <span class="text-danger">*</span></label>
+                <select id="tipoAccion" name="tipoAccion" required
+                    class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text">
+                    <option value="" disabled selected>Elige una opción</option>
+                    <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
+                    <option value="shalom">Retiro en agencia Shalom</option>
+                    <option value="recoger">Recoger en almacén</option>
+                    <option value="usado">Usar mi dirección registrada</option>
+                </select>
+
+                <!-- Fieldset: Delivery -->
+                <fieldset id="camposDelivery" class="mt-4 border-none p-0" hidden>
+                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Delivery</legend>
+                    <p class="text-sm text-brand-muted mb-3">Datos de la persona que recibirá el pedido.</p>
+
+                    <label for="nombreDelivery" class="block mt-4 font-semibold text-sm text-brand-text">Nombre: <span class="text-danger">*</span></label>
+                    <input type="text" id="nombreDelivery" name="nombre" required
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <label for="telefonoDelivery" class="block mt-4 font-semibold text-sm text-brand-text">Teléfono: <span class="text-danger">*</span></label>
+                    <input
+                        type="tel"
+                        id="telefonoDelivery"
+                        name="telefono"
+                        required
+                        pattern="^9\d{8}$"
+                        title="Ingresa un número de teléfono válido de 9 dígitos"
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                    />
+                    
+                    <!-- UX: Checkbox para usar el número de WhatsApp principal -->
+                    <div class="mt-1 flex items-center">
+                        <input type="checkbox" id="usarMismoTelefonoDelivery" class="h-4 w-4 text-brand-accent rounded border-gray-300 focus:ring-brand-accent-alt" />
+                        <label for="usarMismoTelefonoDelivery" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayDelivery" class="font-semibold"></span>)</label>
+                    </div>
+
+                    <label for="distrito" class="block mt-4 font-semibold text-sm text-brand-text">Distrito: <span class="text-danger">*</span></label>
+                    <input type="text" id="distrito" name="distrito" required readonly
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
+
+                    <label for="direccion" class="block mt-4 font-semibold text-sm text-brand-text">Dirección: <span class="text-danger">*</span></label>
+                    <input type="text" id="direccion" name="direccion" required
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <label for="referencia" class="block mt-4 font-semibold text-sm text-brand-text">Referencia: <span class="text-danger">*</span></label>
+                    <input type="text" id="referencia" name="referencia" required
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+                    
+                    <!-- Modal oculto para Distritos -->
+                    <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalDistrito">
+                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] overflow-y-auto shadow-2xl">
+                            <input type="text" id="buscadorDistrito" placeholder="Buscar distrito..."
+                                class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
+                            <div id="listaDistritos" class="list max-h-80vh overflow-y-auto list-none p-0 m-0 text-brand-text"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Fieldset: Shalom -->
+                <fieldset id="camposShalom" class="mt-4 border-none p-0" hidden>
+                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Shalom</legend>
+                    <p class="text-sm text-brand-muted mb-3">Datos para retiro en agencia Shalom.</p>
+
+                    <label for="nombreShalom" class="block mt-4 font-semibold text-sm text-brand-text">Nombre completo: <span class="text-danger">*</span></label>
+                    <input type="text" id="nombreShalom" name="nombre" required
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <label for="telefonoShalom" class="block mt-4 font-semibold text-sm text-brand-text">Teléfono: <span class="text-danger">*</span></label>
+                    <input
+                        type="tel"
+                        id="telefonoShalom"
+                        name="telefono"
+                        required
+                        pattern="^9\d{8}$"
+                        title="Ingresa un número de teléfono válido de 9 dígitos"
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                    />
+                    
+                    <!-- UX: Checkbox para usar el número de WhatsApp principal -->
+                    <div class="mt-1 flex items-center">
+                        <input type="checkbox" id="usarMismoTelefonoShalom" class="h-4 w-4 text-brand-accent rounded border-gray-300 focus:ring-brand-accent-alt" />
+                        <label for="usarMismoTelefonoShalom" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayShalom" class="font-semibold"></span>)</label>
+                    </div>
+
+                    <label for="DNI" class="block mt-4 font-semibold text-sm text-brand-text">DNI/CE: <span class="text-danger">*</span></label>
+                    <!-- UX: Se añade pattern para DNI (8 dígitos) o CE (5-15 alfanuméricos) -->
+                    <input type="text" id="DNI" name="DNI" required pattern="[A-Za-z0-9]{5,15}" title="Ingresa un DNI (8 dígitos) o CE válido (5-15 caracteres)"
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <label for="agencia" class="block mt-4 font-semibold text-sm text-brand-text">Agencia: <span class="text-danger">*</span></label>
+                    <input type="text" id="agencia" name="agencia" required readonly
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
+                    
+                    <!-- Modal oculto para Agencias -->
+                    <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalAgencia">
+                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] overflow-y-auto shadow-2xl">
+                            <input type="text" id="buscadorAgencia" placeholder="Buscar agencia..."
+                                class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
+                            <div id="listaAgencias" class="list max-h-80vh overflow-y-auto list-none p-0 m-0 text-brand-text"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Fieldset: Usado -->
+                <fieldset id="camposUsados" class="mt-4 border-none p-0" hidden>
+                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Dirección registrada</legend>
+                    <p class="text-sm text-brand-muted mb-3">Usaremos tu dirección guardada.</p>
+                </fieldset>
+
+                <!-- Campo de fecha reutilizable -->
+                <div id="contenedorFecha" class="mt-4" style="display: none;">
+                    <label for="fecha" class="block font-semibold text-sm text-brand-text">Fecha de envío: <span class="text-danger">*</span></label>
+                    <select id="fecha" name="fecha" required
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"></select>
+                </div>
+
+                <!-- Botón de envío, con el nuevo color de acento -->
+                <div class="flex justify-center w-full mt-6">
+                    <button type="submit"
+                        class="p-3 text-lg cursor-pointer bg-brand-accent text-white font-semibold border-none rounded-xl w-full transition duration-150 ease-in-out hover:bg-brand-accent-alt shadow-lg">
+                        Confirmar y agendar envío
+                    </button>
+                </div>
+
+                <!-- Texto de privacidad -->
+                <div class="mt-4 text-sm text-brand-muted text-center">
+                    Usaremos tus datos solo para procesar y entregar tu pedido.
+                    <a href="https://complicidad.github.io/privacy/" target="_blank" class="text-brand-accent hover:text-brand-accent-alt underline">Ver política de privacidad</a>
+                </div>
+
+                <!-- Redes sociales -->
+                <div class="mt-4 flex justify-center gap-4">
+                    <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
+                        <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
+                    </a>
+                    <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
+                        <img src="https://raw.githubusercontent.com/complicidad/form/main/tik-tok.png" alt="TikTok" width="28" height="28">
+                    </a>
+                    <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
+                        <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+        <!-- Footer: Se eliminó la atribución visible para no distraer al cliente. -->
+        <footer class="mt-10 mb-5 text-center text-gray-500 text-xs">
+            <!-- La atribución a la herramienta ahora se omite en la vista del usuario final. -->
+            <p>Hecho con ❤️ para tu emprendimiento.</p>
+        </footer>
+
+    <!-- Toast de Notificación (Nuevo estilo) -->
+    <div class="toast fixed right-5 bottom-5 text-white p-3 rounded-xl shadow-xl shadow-brand-accent/25 opacity-0 translate-y-2 transition-all duration-300 z-50 max-w-sm" id="toast">Acción aplicada</div>
+
+
+    <!-- Spinner de carga -->
+    <div id="spinner" class="fixed inset-0 bg-brand-bg bg-opacity-85 z-50 flex justify-center items-center flex-col hidden">
+        <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..." class="w-[150px] h-auto animate-spin-custom">
+        <p class="mt-4 text-lg text-brand-text"></p>
+    </div>
     
+    <!-- Script para los modales de lista. -->
+    <script>
+
+        // Se elimina la función updateMessageClasses antigua.
+        
+        // --- Lógica del modal de Distritos (Vanilla JS) ---
+        const campoDistrito = document.getElementById("distrito");
+        const overlay = document.getElementById("modalDistrito");
+        const buscador = document.getElementById("buscadorDistrito");
+        const listaDistritos = document.getElementById("listaDistritos");
+        let distritos = [];
+        
+        // Abrir popup al hacer click en el campo
+        campoDistrito.addEventListener("click", () => {
+          overlay.style.display = "flex";
+          buscador.value = "";
+          mostrarDistritos(distritos);
+          buscador.focus();
+        });
+        
+        // Cerrar popup si clic fuera de la caja
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) {
+            overlay.style.display = "none";
+          }
+        });
+        
+        // Buscar distritos
+        buscador.addEventListener("input", () => {
+          const filtro = buscador.value.toLowerCase();
+          const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
+          mostrarDistritos(filtrados);
+        });
+        
+        // Mostrar lista en el popup
+        function mostrarDistritos(lista) {
+          listaDistritos.innerHTML = "";
+          lista.forEach(d => {
+            const div = document.createElement("div");
+            // Clases de Tailwind para el item de la lista
+            div.className = "p-2 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition list-item";
+            div.textContent = d;
+            div.addEventListener("click", () => {
+              campoDistrito.value = d;
+              overlay.style.display = "none";
+            });
+            listaDistritos.appendChild(div);
+          });
+        }
+        
+        // Cargar JSON de distritos
+        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json")
+          .then(res => res.json())
+          .then(data => {
+            distritos = data.map(item => typeof item === "string" ? item : item.Distrito || item.nombre || "");
+            mostrarDistritos(distritos);
+          })
+          .catch(err => {
+            console.error("Error cargando distritos:", err);
+          });
+        
+        // --- Lógica del modal de Agencias (Vanilla JS) ---
+        const campoAgencia = document.getElementById("agencia");
+        const overlayAgencia = document.getElementById("modalAgencia");
+        const buscadorAgencia = document.getElementById("buscadorAgencia");
+        const listaAgencias = document.getElementById("listaAgencias");
+        let agencias = [];
+        
+        // Abrir popup al hacer click en el campo
+        campoAgencia.addEventListener("click", () => {
+          overlayAgencia.style.display = "flex";
+          buscadorAgencia.value = "";
+          mostrarAgencias(agencias);
+          buscadorAgencia.focus();
+        });
+        
+        // Cerrar popup si clic fuera de la caja
+        overlayAgencia.addEventListener("click", (e) => {
+          if (e.target === overlayAgencia) {
+            overlayAgencia.style.display = "none";
+          }
+        });
+        
+        // Buscar agencias
+        buscadorAgencia.addEventListener("input", () => {
+          const filtro = buscadorAgencia.value.toLowerCase();
+          const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
+          mostrarAgencias(filtrados);
+        });
+        
+        // Mostrar lista en el popup
+        function mostrarAgencias(lista) {
+          listaAgencias.innerHTML = "";
+          lista.forEach(a => {
+            const [titulo, ...resto] = a.split("\n"); // Separar en partes
+            const div = document.createElement("div");
+            // Clases de Tailwind para el item de la lista
+            div.className = "p-2 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition list-item";
+            // Armamos el HTML con la primera línea en negrita
+            div.innerHTML = `<span class="font-semibold">${titulo}</span>${resto.length ? "<br><span class='text-sm text-gray-600'>" + resto.join("<br>") + "</span>" : ""}`;
+            div.addEventListener("click", () => {
+              campoAgencia.value = titulo; // Mantener el valor original con \n
+              overlayAgencia.style.display = "none";
+            });
+            listaAgencias.appendChild(div);
+          });
+        }
+        
+        // Cargar JSON de agencias
+        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
+          .then(res => res.json())
+          .then(data => {
+            agencias = data.map(item => typeof item === "string" ? item : item.Shalom || item.nombre || "");
+            mostrarAgencias(agencias);
+          })
+          .catch(err => {
+            console.error("Error cargando agencias:", err);
+          });
+
+        // --- Lógica principal del formulario (jQuery) ---
+        $(document).ready(function () {
+
+            const scriptURL = "https://script.google.com/macros/s/AKfycbzSqYVbDXoRSCvuUl-l-jAtiLauLj-h5KT99WJFxZQ4IBu1M_ErSj3foXqlrEoS3INuCA/exec";
+
+            let telefonosRegistrados = [];
+            
+            // UX: Referencias a campos de teléfono para la nueva lógica
+            const $telefonoUsado = $("#telefonoUsado");
+            const $telefonoDelivery = $("#telefonoDelivery");
+            const $telefonoShalom = $("#telefonoShalom");
+            const $usarMismoTelefonoDelivery = $("#usarMismoTelefonoDelivery");
+            const $usarMismoTelefonoShalom = $("#usarMismoTelefonoShalom");
+            const $telefonoDisplayDelivery = $("#telefonoDisplayDelivery");
+            const $telefonoDisplayShalom = $("#telefonoDisplayShalom");
+            
+
+            function obtenerFechasEnvio() {
+                const ahora = new Date();
+                const opciones = [];
+                const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
+                const horaCorte = 10; // 10:00 a.m.
+                const limite = new Date();
+                limite.setDate(ahora.getDate() + 14);
+
+                let fecha = new Date();
+                fecha.setHours(0, 0, 0, 0);
+
+                while (fecha <= limite) {
+                    const diaSemana = fecha.getDay();
+
+                    if (diasPermitidos.includes(diaSemana)) {
+                        const fechaCorte = new Date(fecha);
+                        fechaCorte.setDate(fecha.getDate() - 1);
+                        fechaCorte.setHours(horaCorte, 0, 0, 0);
+
+                        if (ahora < fechaCorte) {
+                            opciones.push(new Date(fecha));
+                        }
+                    }
+                    fecha.setDate(fecha.getDate() + 1);
+                }
+                return opciones;
+            }
+
+            function formatearFecha(fecha) {
+                return fecha.toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                });
+            }
+
+            // Carga las fechas en el select #fecha
+            const $selectFecha = $("#fecha");
+            const fechas = obtenerFechasEnvio();
+            fechas.forEach((f) => {
+                const option = $("<option>")
+                    .val(f.toISOString().split("T")[0])
+                    .text(formatearFecha(f));
+                $selectFecha.append(option);
+            });
+
+            // Cargar teléfonos registrados desde Google Sheets
+            const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
+                .done((data) => {
+                    telefonosRegistrados = data.values
+                        .map((row) => String(row[0]).replace(/\D/g, ""))
+                        .filter((t) => t.length === 9);
+                })
+                .fail(() => {
+                    console.error("No se pudieron cargar los teléfonos registrados.");
+                });
+
+            Promise.all([cargarTelefonos]).catch(() =>
+                console.error("Error al cargar datos necesarios para el formulario.")
+            );
+
+            function limpiarCampos(idContenedor) {
+                const selector = `#${idContenedor} input, #${idContenedor} select`;
+                document.querySelectorAll(selector).forEach((campo) => {
+                    if (campo.tagName === "SELECT") {
+                        $(campo).val(null).trigger("change");
+                    } else {
+                        campo.value = "";
+                    }
+                    $(campo).removeClass("is-invalid"); // Limpia el estado de error
+                    
+                    // UX: Asegurar que los campos de teléfono estén habilitados/no readonly al limpiar
+                    if(campo.id === 'telefonoDelivery' || campo.id === 'telefonoShalom') {
+                        $(campo).prop('readonly', false).removeClass('bg-gray-100');
+                    }
+                });
+                
+                // UX: Desmarcar los checkboxes al limpiar
+                $usarMismoTelefonoDelivery.prop('checked', false);
+                $usarMismoTelefonoShalom.prop('checked', false);
+            }
+            
+            // FUNCIÓN ACTUALIZADA PARA USAR EL TOAST CON ESTILO GRADIENTE
+            function mostrarMensajeTelefono(mensaje, tipo = "success") {
+                const $toast = $("#toast");
+                
+                // Limpiar clases de gradiente y visibilidad
+                $toast.removeClass("bg-gradient-to-r from-brand-accent to-brand-accent-alt from-red-500 to-red-600 opacity-100 translate-y-0");
+                
+                // 1. Aplicar clases de color según el tipo (Terracota para éxito, Rojo para error)
+                if (tipo === "success") {
+                    $toast.addClass("bg-gradient-to-r from-brand-accent to-brand-accent-alt shadow-brand-accent/25");
+                } else {
+                    $toast.addClass("bg-gradient-to-r from-red-500 to-red-600 shadow-red-500/25");
+                }
+
+                // 2. Setear el texto
+                $toast.text(mensaje);
+                
+                // 3. Mostrar el toast (aplica la transición)
+                // Se hace en el siguiente tick del ciclo de eventos para asegurar la transición
+                setTimeout(() => {
+                    $toast.addClass("opacity-100 translate-y-0");
+                }, 50);
+
+                // 4. Set timeout para ocultar el toast después de 5 segundos
+                clearTimeout($toast.data('timer'));
+                const timer = setTimeout(() => {
+                    $toast.removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
+                    // Limpia las clases de color después de la animación de salida
+                    setTimeout(() => {
+                        $toast.removeClass("from-brand-accent to-brand-accent-alt from-red-500 to-red-600 shadow-brand-accent/25 shadow-red-500/25");
+                    }, 300); // 300ms es la duración de la transición
+                }, 5000); 
+
+                $toast.data('timer', timer);
+            }
+
+            // UX: Funciones y eventos para reutilizar el número de teléfono principal
+            function updateTelefonoDisplay() {
+                const val = $telefonoUsado.val() || 'N/A';
+                $telefonoDisplayDelivery.text(val);
+                $telefonoDisplayShalom.text(val);
+            }
+            
+            // Inicializar la visualización y actualizar en cada input del teléfono principal
+            updateTelefonoDisplay();
+            $telefonoUsado.on('input', function() {
+                updateTelefonoDisplay();
+                // Si el checkbox está marcado, también actualiza el campo de destino
+                if ($usarMismoTelefonoDelivery.is(':checked')) {
+                    $telefonoDelivery.val($(this).val());
+                }
+                if ($usarMismoTelefonoShalom.is(':checked')) {
+                    $telefonoShalom.val($(this).val());
+                }
+            });
+
+
+            // Toggle logic for Delivery phone number
+            $usarMismoTelefonoDelivery.on('change', function() {
+                const checked = $(this).is(':checked');
+                if (checked) {
+                    $telefonoDelivery.val($telefonoUsado.val());
+                    $telefonoDelivery.prop('readonly', true).removeClass('cursor-pointer').addClass('bg-gray-100');
+                    $telefonoDelivery.removeClass('is-invalid'); // Limpia estado de error
+                } else {
+                    $telefonoDelivery.val('');
+                    $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100').focus();
+                }
+            });
+
+            // Toggle logic for Shalom phone number
+            $usarMismoTelefonoShalom.on('change', function() {
+                const checked = $(this).is(':checked');
+                if (checked) {
+                    $telefonoShalom.val($telefonoUsado.val());
+                    $telefonoShalom.prop('readonly', true).removeClass('cursor-pointer').addClass('bg-gray-100');
+                    $telefonoShalom.removeClass('is-invalid'); // Limpia estado de error
+                } else {
+                    $telefonoShalom.val('');
+                    $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100').focus();
+                }
+            });
+
+            // Muestra/oculta bloques de campos según la opción seleccionada
+            $("#tipoAccion").on("change", function () {
+                limpiarCampos("camposDelivery");
+                limpiarCampos("camposShalom");
+                limpiarCampos("camposUsados");
+
+                // Oculta todos los bloques y deshabilita inputs/selects dentro
+                $("#camposDelivery, #camposShalom, #camposUsados")
+                    .attr("hidden", true)
+                    .find("input, select")
+                    .prop("disabled", true);
+                
+                // UX: Asegurar que los checkboxes estén desmarcados
+                $usarMismoTelefonoDelivery.prop('checked', false);
+                $usarMismoTelefonoShalom.prop('checked', false);
+
+
+                const valor = $(this).val();
+
+                // Mostrar y habilitar bloque correspondiente
+                if (valor === "delivery") {
+                    $("#camposDelivery").attr("hidden", false).find("input, select").prop("disabled", false);
+                } else if (valor === "shalom") {
+                    $("#camposShalom").attr("hidden", false).find("input, select").prop("disabled", false);
+                } else if (valor === "recoger") {
+                    // Recoger en almacén no requiere campos extra ni fecha de envío
+                } else if (valor === "usado") {
+                    $("#camposUsados").attr("hidden", false).find("input, select").prop("disabled", false);
+                }
+
+                // Mover y mostrar campo fecha en el bloque correspondiente
+                const $contenedorFecha = $("#contenedorFecha");
+                $contenedorFecha.hide();
+
+                if (["delivery", "shalom", "usado"].includes(valor)) {
+                    if (valor === "delivery") {
+                        $("#camposDelivery").append($contenedorFecha);
+                    } else if (valor === "shalom") {
+                        $("#camposShalom").append($contenedorFecha);
+                    } else {
+                        $("#camposUsados").append($contenedorFecha);
+                    }
+                    $contenedorFecha.show();
+                    $("#fecha").prop("disabled", false);
+                } else {
+                    $("#fecha").prop("disabled", true);
+                }
+            });
+
+            // Envío del formulario con validación extra para opción "usado"
+            $("#formulario").on("submit", function (e) {
+                e.preventDefault();
+
+                // Oculta el mensaje previo inmediatamente
+                $("#toast").removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
+                
+                function mostrarMensaje(mensaje, tipo = "success") {
+                    mostrarMensajeTelefono(mensaje, tipo);
+                }
+                
+                const tipoAccion = $("#tipoAccion").val();
+                
+                // Función para aplicar clase de error
+                function aplicarClaseError(id) {
+                    $(`#${id}`).addClass('is-invalid');
+                    $(`#${id}`).on('input change', function() {
+                        $(this).removeClass('is-invalid');
+                    });
+                }
+
+
+                // Validación personalizada para "usado"
+                if (tipoAccion === "usado") {
+                    const telefonoIngresado = $("#telefonoUsado")
+                        .val()
+                        .replace(/\D/g, "");
+
+                    if (!telefonoIngresado) {
+                        mostrarMensaje("Por favor, ingresa tu número registrado", "error");
+                        aplicarClaseError("telefonoUsado");
+                        $("#telefonoUsado").focus();
+                        return;
+                    }
+
+                    if (!telefonosRegistrados.includes(telefonoIngresado)) {
+                        mostrarMensaje("El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
+                        aplicarClaseError("telefonoUsado");
+                        $("#telefonoUsado").focus();
+                        return;
+                    }
+                }
+
+                // Validación nativa HTML5 para campos visibles
+                if (!this.checkValidity()) {
+                    // Si falla la validación nativa, aplicar la clase de error personalizada
+                    $(this).find(':invalid').each(function() {
+                        aplicarClaseError(this.id);
+                    });
+                    this.reportValidity(); // Muestra mensajes nativos
+                    return;
+                }
+
+                // Mostrar spinner antes de enviar
+                $("#spinner").fadeIn(200);
+
+                // Prepara FormData para enviar
+                const formData = new FormData(this);
+
+                // Envío AJAX
+                $.ajax({
+                    url: scriptURL,
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: () => {
+                        // UX: Mensaje de éxito más entusiasta
+                        mostrarMensaje("¡Envío agendado con éxito!", "success");
+                        // Resetea formulario
+                        $("#formulario")[0].reset();
+                        
+                        // Oculta todos los bloques
+                        $("#camposDelivery, #camposShalom, #camposUsados")
+                            .attr("hidden", true)
+                            .find("input, select")
+                            .prop("disabled", true);
+                        
+                        // Oculta y limpia campo fecha
+                        $("#contenedorFecha").hide();
+                        $("#fecha").empty();
+                        const nuevasFechas = obtenerFechasEnvio();
+                        nuevasFechas.forEach(f => {
+                            $("#fecha").append(
+                                $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
+                            );
+                        });
+                        
+                        // UX: Limpia el estado de los campos de teléfono duplicados
+                        $usarMismoTelefonoDelivery.prop('checked', false);
+                        $usarMismoTelefonoShalom.prop('checked', false);
+                        $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100');
+                        $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100');
+
+                    },
+                    error: () => {
+                        mostrarMensaje("Ocurrió un error al enviar tus datos", "error");
+                    },
+                    complete: () => {
+                        // Ocultar spinner siempre al finalizar
+                        $("#spinner").fadeOut(200);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
