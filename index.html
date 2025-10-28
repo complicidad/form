@@ -395,9 +395,10 @@
         // --- Lógica principal del formulario (jQuery) ---
         $(document).ready(function () {
 
-            const scriptURL = "https://script.google.com/macros/s/AKfycbzSqYVbDXoRSCvuUl-l-jAtiLauLj-h5KT99WJFxZQ4IBu1M_ErSj3foXqlrEoS3INuCA/exec";
+            const scriptURL = "https://script.google.com/macros/s/AKfycbyxwGl1CIA6g5ORqcgFP4pZyjPa3ovBHRwhY5BIWjkhpqkKgEBPIApN9E6Tv_7jJ5FT7Q/exec";
 
             let telefonosRegistrados = [];
+            let clientesRegistrados = [];
             
             // UX: Referencias a campos de teléfono para la nueva lógica
             const $telefonoUsado = $("#telefonoUsado");
@@ -457,11 +458,31 @@
             });
 
             // Cargar teléfonos registrados desde Google Sheets
-            const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Clientes`)
+            const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Formulario`)
                 .done((data) => {
-                    telefonosRegistrados = data.values
-                        .map((row) => String(row[0]).replace(/\D/g, ""))
+                    // --- DEPURACIÓN: Ver qué trae data.values ---
+                    console.log("Datos crudos de data.values:", data.values);
+
+                    // 1. Almacenamos todos los datos de los clientes
+                    clientesRegistrados = data.values; // El Apps Script YA omite el encabezado
+                    console.log("Datos asignados a clientesRegistrados:", clientesRegistrados);
+
+
+                    // 2. Creamos la lista de teléfonos a partir de los datos completos
+                    const telefonosMapeados = clientesRegistrados
+                        .map((row) => {
+                            const telefono = row[1]; // Columna B
+                            const telefonoString = String(telefono).replace(/\D/g, "");
+                            // --- DEPURACIÓN: Ver cada fila ---
+                            // console.log(`Fila: ${row[0]}, Tel crudo: ${telefono}, Tel limpiado: ${telefonoString}`); 
+                            return telefonoString;
+                        });
+                    console.log("Teléfonos después de map():", telefonosMapeados);
+
+                    telefonosRegistrados = telefonosMapeados
                         .filter((t) => t.length === 9);
+                    
+                    console.log("Teléfonos cargados para validar (después de filter):", telefonosRegistrados); // <-- ESTE ES EL FINAL
                 })
                 .fail(() => {
                     console.error("No se pudieron cargar los teléfonos registrados.");
@@ -683,6 +704,53 @@
                 // Prepara FormData para enviar
                 const formData = new FormData(this);
 
+                // =========== REEMPLAZA ESTE BLOQUE COMPLETAMENTE - INICIO ===========
+
+                // Verificamos si la opción es "usado"
+                if (tipoAccion === "usado") {
+                    const telefonoIngresado = $("#telefonoUsado").val().replace(/\D/g, "");
+
+                    // 1. Buscamos el *último* registro de ese cliente
+                    // Creamos una copia invertida del array y usamos .find()
+                    // Buscamos en row[1] (Columna B, que es el teléfono de WhatsApp)
+                    // (Esto asume que 'clientesRegistrados' ya se cargó desde la hoja "Formulario")
+                    const ultimoRegistro = [...clientesRegistrados].reverse().find(row => 
+                        String(row[1]).replace(/\D/g, "") === telefonoIngresado
+                    );
+
+                    console.log("Datos del último registro encontrado:", ultimoRegistro); // <-- Inspector
+
+                    if (ultimoRegistro) {
+                        // 2. Identificamos el tipo de envío de ese último registro
+                        // Asumimos que el Courier (delivery, shalom, etc.) está en la Columna C (índice 2)
+                        const tipoCourierAnterior = ultimoRegistro[2];
+
+                        // 3. Mapeamos las columnas según tu hoja "Formulario" (visto en tu imagen)
+                        // Col B (Índice 1) = Teléfono (WhatsApp)
+                        // Col C (Índice 2) = Courier
+                        // Col D (Índice 3) = Nombre
+                        // Col E (Índice 4) = Teléfono
+                        // Col F (Índice 5) = Distrito
+                        // Col G (Índice 6) = Dirección
+                        // Col H (Índice 7) = Referencia
+                        // Col I (Índice 8) = DNI/CE
+                        // Col J (Índice 9) = Agencia
+
+                        // Datos comunes (Nombre y Teléfono)
+                        // Usamos (valor || '') para asegurarnos de que no se envíe "undefined"
+                        formData.append('tipo', ultimoRegistro[2] || '');
+                        formData.append('nombre', ultimoRegistro[3] || '');
+                        formData.append('telefono', ultimoRegistro[4] || '');
+                        formData.append('distrito', ultimoRegistro[5] || '');
+                        formData.append('direccion', ultimoRegistro[6] || '');
+                        formData.append('referencia', ultimoRegistro[7] || '');
+                        formData.append('DNI', ultimoRegistro[8] || '');
+                        formData.append('agencia', ultimoRegistro[9] || '');
+
+                    }
+                }
+                // =========== REEMPLAZA ESTE BLOQUE COMPLETAMENTE - FIN =============
+
                 // Envío AJAX
                 $.ajax({
                     url: scriptURL,
@@ -732,3 +800,5 @@
     </script>
 </body>
 </html>
+
+
