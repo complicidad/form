@@ -395,7 +395,7 @@
         // --- Lógica principal del formulario (jQuery) ---
         $(document).ready(function () {
 
-            const scriptURL = "https://script.google.com/macros/s/AKfycbyxwGl1CIA6g5ORqcgFP4pZyjPa3ovBHRwhY5BIWjkhpqkKgEBPIApN9E6Tv_7jJ5FT7Q/exec";
+            const scriptURL = "https://script.google.com/macros/s/AKfycbwHDcl4biPOnyS9uF0Ej6ige8JaowVmI58oe9QQE9OM_C6fUTikK7bq0OF7g98PPByG/exec";
 
             let telefonosRegistrados = [];
             let clientesRegistrados = [];
@@ -458,32 +458,18 @@
             });
 
             // Cargar teléfonos registrados desde Google Sheets
-            const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Formulario`)
+            const cargarTelefonos = $.getJSON(`${scriptURL}?sheet=Formulario&action=getPhoneList`)
                 .done((data) => {
-                    // --- DEPURACIÓN: Ver qué trae data.values ---
-                    console.log("Datos crudos de data.values:", data.values);
-
-                    // 1. Almacenamos todos los datos de los clientes
-                    clientesRegistrados = data.values; // El Apps Script YA omite el encabezado
-                    console.log("Datos asignados a clientesRegistrados:", clientesRegistrados);
-
-
-                    // 2. Creamos la lista de teléfonos a partir de los datos completos
-                    const telefonosMapeados = clientesRegistrados
-                        .map((row) => {
-                            const telefono = row[1]; // Columna B
-                            const telefonoString = String(telefono).replace(/\D/g, "");
-                            // --- DEPURACIÓN: Ver cada fila ---
-                            // console.log(`Fila: ${row[0]}, Tel crudo: ${telefono}, Tel limpiado: ${telefonoString}`); 
-                            return telefonoString;
-                        });
-                    console.log("Teléfonos después de map():", telefonosMapeados);
-
-                    telefonosRegistrados = telefonosMapeados
-                        .filter((t) => t.length === 9);
-                    
-                    console.log("Teléfonos cargados para validar (después de filter):", telefonosRegistrados); // <-- ESTE ES EL FINAL
+                    console.log("Datos crudos de getPhoneList:", data);
+                    if (data && data.phoneList) {
+                        telefonosRegistrados = data.phoneList;
+                        console.log("Teléfonos cargados para validar:", telefonosRegistrados);
+                    } else {
+                        console.error("Respuesta inesperada al cargar teléfonos:", data);
+                        telefonosRegistrados = [];
+                    }
                 })
+
                 .fail(() => {
                     console.error("No se pudieron cargar los teléfonos registrados.");
                 });
@@ -646,7 +632,7 @@
             });
 
             // Envío del formulario con validación extra para opción "usado"
-            $("#formulario").on("submit", function (e) {
+            $("#formulario").on("submit", async function (e) { // <-- AÑADIDO 'async'
                 e.preventDefault();
 
                 // Oculta el mensaje previo inmediatamente
@@ -680,6 +666,15 @@
                         return;
                     }
 
+                    // (Insertar este bloque en la línea 599)
+                    try {
+                        await cargarTelefonos; // Espera a que la promesa $.getJSON termine
+                    } catch (err) {
+                        mostrarMensaje("Error al verificar teléfono. Recarga la página.", "error");
+                        return;
+                    }
+                    // (La línea 605 ahora será tu 'if (!telefonosRegistrados...')
+
                     if (!telefonosRegistrados.includes(telefonoIngresado)) {
                         mostrarMensaje("El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
                         aplicarClaseError("telefonoUsado");
@@ -704,52 +699,47 @@
                 // Prepara FormData para enviar
                 const formData = new FormData(this);
 
-                // =========== REEMPLAZA ESTE BLOQUE COMPLETAMENTE - INICIO ===========
+                // =========== LÓGICA DE ENVÍO OPTIMIZADA - INICIO ===========
 
                 // Verificamos si la opción es "usado"
                 if (tipoAccion === "usado") {
                     const telefonoIngresado = $("#telefonoUsado").val().replace(/\D/g, "");
 
-                    // 1. Buscamos el *último* registro de ese cliente
-                    // Creamos una copia invertida del array y usamos .find()
-                    // Buscamos en row[1] (Columna B, que es el teléfono de WhatsApp)
-                    // (Esto asume que 'clientesRegistrados' ya se cargó desde la hoja "Formulario")
-                    const ultimoRegistro = [...clientesRegistrados].reverse().find(row => 
-                        String(row[1]).replace(/\D/g, "") === telefonoIngresado
-                    );
+                    // --- NUEVA LÓGICA ASÍNCRONA ---
+                    try {
+                        // 1. Llamamos al script AHORA para obtener el último registro
+                        console.log(`Buscando último registro para: ${telefonoIngresado}`);
+                        const data = await $.getJSON(`${scriptURL}?sheet=Formulario&action=getLastRecord&phone=${telefonoIngresado}`);
 
-                    console.log("Datos del último registro encontrado:", ultimoRegistro); // <-- Inspector
+                        if (data && data.record) {
+                            const ultimoRegistro = data.record;
+                            console.log("Último registro encontrado:", ultimoRegistro);
 
-                    if (ultimoRegistro) {
-                        // 2. Identificamos el tipo de envío de ese último registro
-                        // Asumimos que el Courier (delivery, shalom, etc.) está en la Columna C (índice 2)
-                        const tipoCourierAnterior = ultimoRegistro[2];
+                            // 2. Mapeamos las columnas (índices del array)
+                            // Col B(1)=Tel, C(2)=Courier, D(3)=Nombre, E(4)=Tel, F(5)=Distrito, G(6)=Direccion, H(7)=Ref, I(8)=DNI, J(9)=Agencia
 
-                        // 3. Mapeamos las columnas según tu hoja "Formulario" (visto en tu imagen)
-                        // Col B (Índice 1) = Teléfono (WhatsApp)
-                        // Col C (Índice 2) = Courier
-                        // Col D (Índice 3) = Nombre
-                        // Col E (Índice 4) = Teléfono
-                        // Col F (Índice 5) = Distrito
-                        // Col G (Índice 6) = Dirección
-                        // Col H (Índice 7) = Referencia
-                        // Col I (Índice 8) = DNI/CE
-                        // Col J (Índice 9) = Agencia
+                            // 3. Añadimos los datos al formulario
+                            formData.append('tipo', ultimoRegistro[2] || ''); // El courier anterior
+                            formData.append('nombre', ultimoRegistro[3] || '');
+                            formData.append('telefono', ultimoRegistro[4] || '');
+                            formData.append('distrito', ultimoRegistro[5] || '');
+                            formData.append('direccion', ultimoRegistro[6] || '');
+                            formData.append('referencia', ultimoRegistro[7] || '');
+                            formData.append('DNI', ultimoRegistro[8] || '');
+                            formData.append('agencia', ultimoRegistro[9] || '');
 
-                        // Datos comunes (Nombre y Teléfono)
-                        // Usamos (valor || '') para asegurarnos de que no se envíe "undefined"
-                        formData.append('tipo', ultimoRegistro[2] || '');
-                        formData.append('nombre', ultimoRegistro[3] || '');
-                        formData.append('telefono', ultimoRegistro[4] || '');
-                        formData.append('distrito', ultimoRegistro[5] || '');
-                        formData.append('direccion', ultimoRegistro[6] || '');
-                        formData.append('referencia', ultimoRegistro[7] || '');
-                        formData.append('DNI', ultimoRegistro[8] || '');
-                        formData.append('agencia', ultimoRegistro[9] || '');
-
+                        } else {
+                            console.warn("Teléfono válido, pero no se encontró último registro:", data);
+                        }
+                    } catch (err) {
+                        console.error("Error al buscar último registro:", err);
+                        mostrarMensaje("Error al buscar tu dirección. Intenta de nuevo.", "error");
+                        $("#spinner").fadeOut(200);
+                        return; // Detener el envío
                     }
+                    // --- FIN DE LA NUEVA LÓGICA ---
                 }
-                // =========== REEMPLAZA ESTE BLOQUE COMPLETAMENTE - FIN =============
+                // =========== LÓGICA DE ENVÍO OPTIMIZADA - FIN =============
 
                 // Envío AJAX
                 $.ajax({
