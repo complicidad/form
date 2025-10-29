@@ -683,6 +683,24 @@
                     }
                 }
 
+                // --- VALIDACIÓN MANUAL PARA CAMPOS 'readonly' ---
+                if (tipoAccion === "delivery") {
+                    if (!$("#distrito").val()) {
+                        mostrarMensaje("Por favor, selecciona un distrito de la lista", "error");
+                        aplicarClaseError("distrito");
+                        return; // Detener el envío
+                    }
+                }
+
+                if (tipoAccion === "shalom") {
+                    if (!$("#agencia").val()) {
+                        mostrarMensaje("Por favor, selecciona una agencia de la lista", "error");
+                        aplicarClaseError("agencia");
+                        return; // Detener el envío
+                    }
+                }
+                // --- FIN DE LA VALIDACIÓN MANUAL ---
+                
                 // Validación nativa HTML5 para campos visibles
                 if (!this.checkValidity()) {
                     // Si falla la validación nativa, aplicar la clase de error personalizada
