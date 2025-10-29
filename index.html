@@ -90,7 +90,7 @@
 
         <!-- Logo -->
         <div class="text-center p-4">
-            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[200px] h-auto inline-block">
+            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[225px] h-auto inline-block">
         </div>      
             
             
@@ -163,10 +163,12 @@
                     
                     <!-- Modal oculto para Distritos -->
                     <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalDistrito">
-                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] overflow-y-auto shadow-2xl">
+                        <!-- CAMBIOS: Se quitó 'overflow-y-auto', se añadió 'flex flex-col overflow-hidden' -->
+                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] shadow-2xl flex flex-col overflow-hidden">
                             <input type="text" id="buscadorDistrito" placeholder="Buscar distrito..."
                                 class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
-                            <div id="listaDistritos" class="list max-h-80vh overflow-y-auto list-none p-0 m-0 text-brand-text"></div>
+                            <!-- CAMBIOS: Se quitó 'max-h-80vh', se añadió 'overflow-y-auto' para que esta lista sea la que scrollee -->
+                            <div id="listaDistritos" class="list list-none p-0 m-0 text-brand-text overflow-y-auto"></div>
                         </div>
                     </div>
                 </fieldset>
@@ -208,10 +210,12 @@
                     
                     <!-- Modal oculto para Agencias -->
                     <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalAgencia">
-                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] overflow-y-auto shadow-2xl">
+                        <!-- CAMBIOS: Se quitó 'overflow-y-auto', se añadió 'flex flex-col overflow-hidden' -->
+                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] shadow-2xl flex flex-col overflow-hidden">
                             <input type="text" id="buscadorAgencia" placeholder="Buscar agencia..."
                                 class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
-                            <div id="listaAgencias" class="list max-h-80vh overflow-y-auto list-none p-0 m-0 text-brand-text"></div>
+                            <!-- CAMBIOS: Se quitó 'max-h-80vh', se añadió 'overflow-y-auto' -->
+                            <div id="listaAgencias" class="list list-none p-0 m-0 text-brand-text overflow-y-auto"></div>
                         </div>
                     </div>
                 </fieldset>
@@ -836,3 +840,4 @@
     </script>
 </body>
 </html>
+
