@@ -693,8 +693,11 @@
                     return;
                 }
 
+                const spinnerOverlay = document.getElementById('spinner');
+
                 // Mostrar spinner antes de enviar
-                $("#spinner").fadeIn(200);
+                spinnerOverlay.classList.remove('hidden');
+                spinnerOverlay.classList.add('flex');
 
                 // Prepara FormData para enviar
                 const formData = new FormData(this);
@@ -734,7 +737,8 @@
                     } catch (err) {
                         console.error("Error al buscar último registro:", err);
                         mostrarMensaje("Error al buscar tu dirección. Intenta de nuevo.", "error");
-                        $("#spinner").fadeOut(200);
+                        spinnerOverlay.classList.remove('flex');
+                        spinnerOverlay.classList.add('hidden');
                         return; // Detener el envío
                     }
                     // --- FIN DE LA NUEVA LÓGICA ---
@@ -782,7 +786,8 @@
                     },
                     complete: () => {
                         // Ocultar spinner siempre al finalizar
-                        $("#spinner").fadeOut(200);
+                        spinnerOverlay.classList.remove('flex');
+                        spinnerOverlay.classList.add('hidden');
                     }
                 });
             });
@@ -790,5 +795,4 @@
     </script>
 </body>
 </html>
-
 
