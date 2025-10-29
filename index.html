@@ -90,12 +90,14 @@
 
         <!-- Logo -->
         <div class="text-center p-4">
-            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[200px] h-auto inline-block">
+            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[250px] h-auto inline-block">
         </div>      
             
-            <h2 class="mt-[0px] mb-2 text-center text-2xl font-bold text-brand-text">Agenda tu envío</h2>
-
+            
             <form id="formulario" novalidate>
+
+                <h2 class="mt-[0px] mb-2 text-center text-2xl font-bold text-brand-text">Agenda tu envío</h2>
+
                 <!-- Campo 1: WhatsApp usado -->
                 <!-- UX: Se usa type="tel" para facilitar el input en móvil y se añade asterisco -->
                 <label for="telefonoUsado" class="block mt-4 font-semibold text-sm text-brand-text">WhatsApp con el que compraste <span class="text-danger">*</span></label>
@@ -241,7 +243,19 @@
                     <a href="https://complicidad.github.io/privacy/" target="_blank" class="text-brand-accent hover:text-brand-accent-alt underline">Ver política de privacidad</a>
                 </div>
 
-                <!-- Redes sociales -->
+            </form>
+
+            <!-- =========== NUEVO BLOQUE DE ÉXITO - INICIO =========== -->
+            <div id="successMessage" class="hidden flex-col items-center justify-center p-4 text-center">
+                <!-- Icono de Check (SVG) -->
+                <svg class="w-16 h-16 text-brand-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <h2 class="mt-4 text-2xl font-bold text-brand-text">¡Envío agendado con éxito!</h2>
+                <p class="mt-2 text-brand-muted">Tu pedido ha sido registrado. Gracias por tu confianza.</p>
+
+                <!-- Redes sociales (MOVIDAS AQUÍ) -->
+                <p class="mt-6 font-semibold text-brand-text">Mientras esperas, ¡síguenos!</p>
                 <div class="mt-4 flex justify-center gap-4">
                     <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
                         <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
@@ -253,7 +267,10 @@
                         <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
                     </a>
                 </div>
-            </form>
+
+            </div>
+            <!-- =========== NUEVO BLOQUE DE ÉXITO - FIN =========== -->
+
         </div>
     </main>
 
@@ -700,7 +717,7 @@
                     }
                 }
                 // --- FIN DE LA VALIDACIÓN MANUAL ---
-                
+
                 // Validación nativa HTML5 para campos visibles
                 if (!this.checkValidity()) {
                     // Si falla la validación nativa, aplicar la clase de error personalizada
@@ -771,17 +788,22 @@
                     processData: false,
                     contentType: false,
                     success: () => {
-                        // UX: Mensaje de éxito más entusiasta
-                        mostrarMensaje("¡Envío agendado con éxito!", "success");
-                        // Resetea formulario
+                        // --- LÓGICA DE ÉXITO MODIFICADA ---
+                        // 1. Ocultar el formulario
+                        $("#formulario").hide();
+
+                        // 2. Mostrar el mensaje de éxito
+                        $("#successMessage").removeClass('hidden').addClass('flex');
+
+                        // 3. Resetea formulario (para la próxima vez)
                         $("#formulario")[0].reset();
-                        
+
                         // Oculta todos los bloques
                         $("#camposDelivery, #camposShalom, #camposUsados")
                             .attr("hidden", true)
                             .find("input, select")
                             .prop("disabled", true);
-                        
+
                         // Oculta y limpia campo fecha
                         $("#contenedorFecha").hide();
                         $("#fecha").empty();
@@ -791,14 +813,15 @@
                                 $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
                             );
                         });
-                        
+
                         // UX: Limpia el estado de los campos de teléfono duplicados
                         $usarMismoTelefonoDelivery.prop('checked', false);
                         $usarMismoTelefonoShalom.prop('checked', false);
                         $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100');
                         $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100');
+                        // --- FIN DE LA LÓGICA DE ÉXITO ---
+                    },       
 
-                    },
                     error: () => {
                         mostrarMensaje("Ocurrió un error al enviar tus datos", "error");
                     },
@@ -813,4 +836,3 @@
     </script>
 </body>
 </html>
-
