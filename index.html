@@ -119,7 +119,7 @@
                     <option value="" disabled selected>Elige una opción</option>
                     <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
                     <option value="shalom">Retiro en agencia Shalom</option>
-                    <option value="recoger">Recoger en almacén</option>
+                    <!-- <option value="recoger">Recoger en almacén</option> -->
                     <option value="usado">Usar mi dirección registrada</option>
                 </select>
 
@@ -416,7 +416,7 @@
         // --- Lógica principal del formulario (jQuery) ---
         $(document).ready(function () {
 
-            const scriptURL = "https://script.google.com/macros/s/AKfycbyL5-4oFAA5XCBNFdsNqqUd9drWGJu4tQD-OOHqtmRMXFZdGbEmxM6P0hTxQHJdH5xNJA/exec";
+            const scriptURL = "https://script.google.com/macros/s/AKfycbwrXNNxiPZHYdq1y3Ot4DS1z1L4iHXCqTm3bEuSY9jC-EC5ix2YSmzUHmL4KW4ygnrEqg/exec";
 
             let telefonosRegistrados = [];
             let clientesRegistrados = [];
@@ -795,7 +795,18 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: () => {
+                    dataType: "json",
+                    success: (data) => {
+                        // --- NUEVA VERIFICACIÓN DE ÉXITO ---
+                        // 'data' es la respuesta de tu Apps Script
+                        if (data.status !== "success") {
+                            // Si el script no dijo "success", trátalo como un error
+                            console.error("El servidor devolvió un error:", data.message);
+                            mostrarMensaje(data.message || "Ocurrió un error al guardar", "error");
+                            return; // IMPORTANTE: No mostrar la pantalla de éxito
+                        }
+                        // --- FIN DE LA VERIFICACIÓN ---
+
                         // --- LÓGICA DE ÉXITO MODIFICADA ---
                         // 1. Ocultar el formulario
                         $("#formulario").hide();
