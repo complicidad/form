@@ -16,6 +16,11 @@
     <meta name="twitter:description" content="Agenda tu envío de manera simple, rápida y segura." />
     <meta name="twitter:image" content="https://complicidad.github.io/form/Spin.png" />
 
+    <!-- SDKs de Firebase (CORREGIDOS A VERSIÓN 8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
     <!-- jQuery (se mantiene para la lógica existente) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -413,10 +418,36 @@
             console.error("Error cargando agencias:", err);
           });
 
+
+            // --- INICIALIZACIÓN DE FIREBASE ---
+
+            // 1. Pega tu objeto de configuración de Firebase aquí
+            const firebaseConfig = {
+            apiKey: "AIzaSyBrajHuHwjIASJA7Ar9ViprWw8ZUmXH6wc",
+            authDomain: "complicidad-envios.firebaseapp.com",
+            projectId: "complicidad-envios",
+            storageBucket: "complicidad-envios.firebasestorage.app",
+            messagingSenderId: "418888054311",
+            appId: "1:418888054311:web:2a08b637b7b96b2b6b4002"
+            };
+
+            // 2. Inicializar Firebase y los servicios
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // 3. Iniciar sesión anónimamente para cumplir las reglas de seguridad
+            auth.signInAnonymously().catch((error) => {
+            console.error("Error al iniciar sesión anónimamente:", error);
+            // Opcional: Mostrar un error al usuario si la autenticación falla
+            // mostrarMensajeTelefono("Error de conexión. Recarga la página.", "error");
+            });
+
+            // --- FIN DE FIREBASE ---
+
+
         // --- Lógica principal del formulario (jQuery) ---
         $(document).ready(function () {
-
-            const scriptURL = "https://script.google.com/macros/s/AKfycbwrXNNxiPZHYdq1y3Ot4DS1z1L4iHXCqTm3bEuSY9jC-EC5ix2YSmzUHmL4KW4ygnrEqg/exec";
 
             let telefonosRegistrados = [];
             let clientesRegistrados = [];
@@ -671,20 +702,20 @@
                 // --- AÑADIR ESTE BLOQUE - FIN ---
             });
 
-            // Envío del formulario con validación extra para opción "usado"
-            $("#formulario").on("submit", async function (e) { // <-- AÑADIDO 'async'
+            // Envío del formulario con validación y lógica de Firestore
+            $("#formulario").on("submit", async function (e) {
                 e.preventDefault();
 
                 // Oculta el mensaje previo inmediatamente
                 $("#toast").removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
-                
+
                 function mostrarMensaje(mensaje, tipo = "success") {
                     mostrarMensajeTelefono(mensaje, tipo);
                 }
-                
+
                 const tipoAccion = $("#tipoAccion").val();
-                
-                // Función para aplicar clase de error
+
+                // Función para aplicar clase de error (se mantiene igual)
                 function aplicarClaseError(id) {
                     $(`#${id}`).addClass('is-invalid');
                     $(`#${id}`).on('input change', function() {
@@ -692,167 +723,156 @@
                     });
                 }
 
-
-                // --- VALIDACIÓN MANUAL PARA CAMPOS 'readonly' ---
+                // Validaciones manuales para 'readonly' (se mantienen igual)
                 if (tipoAccion === "delivery") {
                     if (!$("#distrito").val()) {
                         mostrarMensaje("Por favor, selecciona un distrito de la lista", "error");
                         aplicarClaseError("distrito");
-                        return; // Detener el envío
+                        return;
                     }
                 }
-
                 if (tipoAccion === "shalom") {
                     if (!$("#agencia").val()) {
                         mostrarMensaje("Por favor, selecciona una agencia de la lista", "error");
                         aplicarClaseError("agencia");
-                        return; // Detener el envío
+                        return;
                     }
                 }
-                // --- FIN DE LA VALIDACIÓN MANUAL ---
 
-                // Validación nativa HTML5 para campos visibles
+                // Validación nativa HTML5 (se mantiene igual)
                 if (!this.checkValidity()) {
-                    // Si falla la validación nativa, aplicar la clase de error personalizada
                     $(this).find(':invalid').each(function() {
                         aplicarClaseError(this.id);
                     });
-                    this.reportValidity(); // Muestra mensajes nativos
+                    this.reportValidity();
                     return;
                 }
 
                 const spinnerOverlay = document.getElementById('spinner');
-
-                // Mostrar spinner antes de enviar
                 spinnerOverlay.classList.remove('hidden');
                 spinnerOverlay.classList.add('flex');
 
-                // Prepara FormData para enviar
-                const formData = new FormData(this);
-
-                // =========== LÓGICA DE ENVÍO OPTIMIZADA - INICIO ===========
-
-                // Verificamos si la opción es "usado"
-                if (tipoAccion === "usado") {
-
-                // =========== LÓGICA DE ENVÍO SEGURA - INICIO ===========
-
-                const telefonoIngresado = $("#telefonoUsado").val().replace(/\D/g, "");
-
-                // --- NUEVA LÓGICA DE VERIFICACIÓN ---
+                // --- INICIO DE LA NUEVA LÓGica DE FIRESTORE ---
                 try {
-                    // 1. Verificamos si el teléfono existe DE FORMA SEGURA
-                    console.log(`Verificando teléfono: ${telefonoIngresado}`);
-                    const checkData = await $.getJSON(`${scriptURL}?sheet=Formulario&action=checkPhone&phone=${telefonoIngresado}`);
+                    // 1. Preparar el documento base
+                    const docData = {
+                        fechaRegistro: new Date(), // Firestore usa objetos Date
+                        cliente: $("#telefonoUsado").val(),
+                        courier: tipoAccion.toUpperCase(),
+                        fechaEnvio: $("#fecha").val(),
+                        estado: "PENDIENTE",
+                    };
 
-                    if (!checkData || !checkData.exists) {
-                        // El script dijo que el teléfono NO existe
-                        mostrarMensaje("El número ingresado no está registrado. Verifica e intenta nuevamente", "error");
-                        aplicarClaseError("telefonoUsado");
-                        $("#telefonoUsado").focus();
-                        spinnerOverlay.classList.remove('flex'); // Oculta el spinner
-                        spinnerOverlay.classList.add('hidden');
-                        return; // Detener el envío
+                    // 2. Añadir datos específicos
+                    if (tipoAccion === "delivery") {
+                        docData.nombre = $("#nombreDelivery").val();
+                        docData.telefono = $("#telefonoDelivery").val();
+                        docData.distrito = $("#distrito").val();
+                        docData.direccion = $("#direccion").val();
+                        docData.referencia = $("#referencia").val();
+
+                    } else if (tipoAccion === "shalom") {
+                        docData.nombre = $("#nombreShalom").val();
+                        docData.telefono = $("#telefonoShalom").val();
+                        docData.DNI = $("#DNI").val();
+                        docData.agencia = $("#agencia").val();
+
+                    } else if (tipoAccion === "usado") {
+                        const telefonoIngresado = $("#telefonoUsado").val().replace(/\D/g, "");
+
+                        // 2a. (checkPhone) Verificar si el teléfono existe
+                        console.log(`Verificando teléfono: ${telefonoIngresado}`);
+                        const qCheck = db.collection("envios")
+                            .where("cliente", "==", telefonoIngresado)
+                            .limit(1);
+
+                        const checkSnapshot = await qCheck.get();
+
+                        if (checkSnapshot.empty) {
+                            mostrarMensaje("El número ingresado no está registrado.", "error");
+                            aplicarClaseError("telefonoUsado");
+                            $("#telefonoUsado").focus();
+                            spinnerOverlay.classList.remove('flex');
+                            spinnerOverlay.classList.add('hidden');
+                            return; // Detener
+                        }
+
+                        // 2b. (getLastRecord) Si existe, buscar el último registro
+                        console.log("Teléfono verificado. Buscando último registro...");
+                        const qRecord = db.collection("envios")
+                            .where("cliente", "==", telefonoIngresado)
+                            .orderBy("fechaRegistro", "desc") // 'desc' para el más reciente
+                            .limit(1);
+
+                        const recordSnapshot = await qRecord.get();
+
+                        if (!recordSnapshot.empty) {
+                            const ultimoRegistro = recordSnapshot.docs[0].data();
+                            console.log("Último registro encontrado:", ultimoRegistro);
+
+                            // 2c. Mapear y añadir los datos
+                            docData.courier = ultimoRegistro.courier || tipoAccion.toUpperCase(); // Copia el courier
+                            docData.nombre = ultimoRegistro.nombre || "";
+                            docData.telefono = ultimoRegistro.telefono || "";
+                            docData.distrito = ultimoRegistro.distrito || "";
+                            docData.direccion = ultimoRegistro.direccion || "";
+                            docData.referencia = ultimoRegistro.referencia || "";
+                            docData.DNI = ultimoRegistro.DNI || "";
+                            docData.agencia = ultimoRegistro.agencia || "";
+                        } else {
+                            console.warn("Teléfono válido, pero no se encontró último registro.");
+                        }
                     }
 
-                    // 2. Si existe, buscamos el último registro (esto ya es seguro)
-                    console.log(`Teléfono verificado. Buscando último registro...`);
-                    const recordData = await $.getJSON(`${scriptURL}?sheet=Formulario&action=getLastRecord&phone=${telefonoIngresado}`);
+                    // 3. Guardar el documento en Firestore
+                    console.log("Guardando documento:", docData);
+                    await db.collection("envios").add(docData);
 
-                    if (recordData && recordData.record) {
-                        const ultimoRegistro = recordData.record;
-                        console.log("Último registro encontrado:", ultimoRegistro);
+                    // 4. Lógica de Éxito (se mantiene igual)
+                    $("#formulario").hide();
+                    $("#successMessage").removeClass('hidden').addClass('flex');
+                    $("#formulario")[0].reset();
+                    // ... (resto del código de reseteo) ...
+                    $("#camposDelivery, #camposShalom, #camposUsados")
+                        .attr("hidden", true)
+                        .find("input, select")
+                        .prop("disabled", true);
+                    $("#contenedorFecha").hide();
+                    $("#fecha").empty();
 
-                        // 3. Mapeamos y añadimos los datos
-                        // Col B(1)=Tel, C(2)=Courier, D(3)=Nombre, E(4)=Tel, F(5)=Distrito, G(6)=Direccion, H(7)=Ref, I(8)=DNI, J(9)=Agencia
-                        formData.append('tipo', ultimoRegistro[2] || ''); // El courier anterior
-                        formData.append('nombre', ultimoRegistro[3] || '');
-                        formData.append('telefono', ultimoRegistro[4] || '');
-                        formData.append('distrito', ultimoRegistro[5] || '');
-                        formData.append('direccion', ultimoRegistro[6] || '');
-                        formData.append('referencia', ultimoRegistro[7] || '');
-                        formData.append('DNI', ultimoRegistro[8] || '');
-                        formData.append('agencia', ultimoRegistro[9] || '');
-
-                    } else {
-                        console.warn("Teléfono válido, pero no se encontró último registro:", recordData);
-                    }
+                    // --- RE-AÑADIR PLACEHOLDER A FECHA ---
+                    $("#fecha").append(
+                        $("<option>")
+                            .val("") 
+                            .text("Elige una fecha de envío...")
+                            .prop("disabled", true)
+                            .prop("selected", true)
+                    );
+                    const nuevasFechas = obtenerFechasEnvio();
+                    nuevasFechas.forEach(f => {
+                        $("#fecha").append(
+                            $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
+                        );
+                    });
+                    $usarMismoTelefonoDelivery.prop('checked', false);
+                    $usarMismoTelefonoShalom.prop('checked', false);
+                    $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100');
+                    $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100');
 
                 } catch (err) {
-                    console.error("Error en la validación o búsqueda del registro:", err);
-                    mostrarMensaje("Error al verificar tu dirección. Intenta de nuevo.", "error");
-                    spinnerOverlay.classList.remove('flex'); // Oculta el spinner
+                    // 5. Manejo de Errores
+                    console.error("Error al guardar en Firestore:", err);
+                    mostrarMensaje("Ocurrió un error al guardar tus datos", "error");
+                } finally {
+                    // 6. Ocultar el spinner
+                    spinnerOverlay.classList.remove('flex');
                     spinnerOverlay.classList.add('hidden');
-                    return; // Detener el envío
                 }
-                // --- FIN DE LA NUEVA LÓGICA DE VERIFICACIÓN ---
-            }
-                // =========== LÓGICA DE ENVÍO SEGURA - FIN =============
-                // Envío AJAX
-                $.ajax({
-                    url: scriptURL,
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: "json",
-                    success: (data) => {
-                        // --- NUEVA VERIFICACIÓN DE ÉXITO ---
-                        // 'data' es la respuesta de tu Apps Script
-                        if (data.status !== "success") {
-                            // Si el script no dijo "success", trátalo como un error
-                            console.error("El servidor devolvió un error:", data.message);
-                            mostrarMensaje(data.message || "Ocurrió un error al guardar", "error");
-                            return; // IMPORTANTE: No mostrar la pantalla de éxito
-                        }
-                        // --- FIN DE LA VERIFICACIÓN ---
-
-                        // --- LÓGICA DE ÉXITO MODIFICADA ---
-                        // 1. Ocultar el formulario
-                        $("#formulario").hide();
-
-                        // 2. Mostrar el mensaje de éxito
-                        $("#successMessage").removeClass('hidden').addClass('flex');
-
-                        // 3. Resetea formulario (para la próxima vez)
-                        $("#formulario")[0].reset();
-
-                        // Oculta todos los bloques
-                        $("#camposDelivery, #camposShalom, #camposUsados")
-                            .attr("hidden", true)
-                            .find("input, select")
-                            .prop("disabled", true);
-
-                        // Oculta y limpia campo fecha
-                        $("#contenedorFecha").hide();
-                        $("#fecha").empty();
-                        const nuevasFechas = obtenerFechasEnvio();
-                        nuevasFechas.forEach(f => {
-                            $("#fecha").append(
-                                $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
-                            );
-                        });
-
-                        // UX: Limpia el estado de los campos de teléfono duplicados
-                        $usarMismoTelefonoDelivery.prop('checked', false);
-                        $usarMismoTelefonoShalom.prop('checked', false);
-                        $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100');
-                        $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100');
-                        // --- FIN DE LA LÓGICA DE ÉXITO ---
-                    },       
-
-                    error: () => {
-                        mostrarMensaje("Ocurrió un error al enviar tus datos", "error");
-                    },
-                    complete: () => {
-                        // Ocultar spinner siempre al finalizar
-                        spinnerOverlay.classList.remove('flex');
-                        spinnerOverlay.classList.add('hidden');
-                    }
-                });
+                // --- FIN DE LA NUEVA LÓGica DE FIRESTORE ---
             });
         });
     </script>
 </body>
 </html>
+
 
