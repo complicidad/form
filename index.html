@@ -90,7 +90,7 @@
 
         <!-- Logo -->
         <div class="text-center p-4">
-            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[200px] h-auto inline-block">
+            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[225px] h-auto inline-block">
         </div>      
             
             
@@ -124,7 +124,7 @@
                 </select>
 
                 <!-- Fieldset: Delivery -->
-                <fieldset id="camposDelivery" class="mt-4 border-none p-0" hidden>
+                <fieldset id="camposDelivery" class="mt-8 border-none p-0" hidden>
                     <legend class="text-xl font-bold mb-1 text-brand-text">📦 Delivery</legend>
                     <p class="text-sm text-brand-muted mb-3">Datos de la persona que recibirá el pedido.</p>
 
@@ -174,7 +174,7 @@
                 </fieldset>
 
                 <!-- Fieldset: Shalom -->
-                <fieldset id="camposShalom" class="mt-4 border-none p-0" hidden>
+                <fieldset id="camposShalom" class="mt-8 border-none p-0" hidden>
                     <legend class="text-xl font-bold mb-1 text-brand-text">📦 Shalom</legend>
                     <p class="text-sm text-brand-muted mb-3">Datos para retiro en agencia Shalom.</p>
 
@@ -221,7 +221,7 @@
                 </fieldset>
 
                 <!-- Fieldset: Usado -->
-                <fieldset id="camposUsados" class="mt-4 border-none p-0" hidden>
+                <fieldset id="camposUsados" class="mt-8 border-none p-0" hidden>
                     <legend class="text-xl font-bold mb-1 text-brand-text">📦 Dirección registrada</legend>
                     <p class="text-sm text-brand-muted mb-3">Usaremos tu dirección guardada.</p>
                 </fieldset>
@@ -470,6 +470,18 @@
 
             // Carga las fechas en el select #fecha
             const $selectFecha = $("#fecha");
+
+            // --- AÑADIR ESTE BLOQUE - INICIO ---
+            // 1. Añadir la opción placeholder
+            $selectFecha.append(
+                $("<option>")
+                    .val("") // Valor vacío para la validación 'required'
+                    .text("Elige una fecha de envío...")
+                    .prop("disabled", true) // No se puede seleccionar
+                    .prop("selected", true) // Es la opción por defecto
+            );
+            // --- AÑADIR ESTE BLOQUE - FIN ---
+
             const fechas = obtenerFechasEnvio();
             fechas.forEach((f) => {
                 const option = $("<option>")
@@ -678,7 +690,6 @@
                     }, 100); 
                 }
                 // --- AÑADIR ESTE BLOQUE - FIN ---
-                
             });
 
             // Envío del formulario con validación extra para opción "usado"
