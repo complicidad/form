@@ -650,6 +650,35 @@
                 } else {
                     $("#fecha").prop("disabled", true);
                 }
+
+                // --- AÑADIR ESTE BLOQUE - INICIO ---
+                // UX: Mover el foco y el scroll al primer campo de la sección
+                
+                // La variable 'valor' ya existe en esta función, así que la reusamos.
+                let targetId = null; 
+                
+                if (valor === "delivery") {
+                    targetId = "nombreDelivery"; // ID del primer input en Delivery
+                } else if (valor === "shalom") {
+                    targetId = "nombreShalom"; // ID del primer input en Shalom
+                } else if (valor === "usado") {
+                    targetId = "fecha"; // ID del primer (y único) input en Usado
+                }
+
+                if (targetId) {
+                    // Se usa un pequeño retardo (100ms) para dar tiempo al navegador
+                    // a renderizar la sección antes de mover el foco.
+                    setTimeout(() => {
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.focus();
+                            // Opcional: Si focus() no es suficiente, puedes forzar un scroll más suave
+                            // targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100); 
+                }
+                // --- AÑADIR ESTE BLOQUE - FIN ---
+                
             });
 
             // Envío del formulario con validación extra para opción "usado"
