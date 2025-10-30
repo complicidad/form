@@ -423,12 +423,12 @@
 
             // 1. Pega tu objeto de configuración de Firebase aquí
             const firebaseConfig = {
-            apiKey: "AIzaSyBrajHuHwjIASJA7Ar9ViprWw8ZUmXH6wc",
-            authDomain: "complicidad-envios.firebaseapp.com",
-            projectId: "complicidad-envios",
-            storageBucket: "complicidad-envios.firebasestorage.app",
-            messagingSenderId: "418888054311",
-            appId: "1:418888054311:web:2a08b637b7b96b2b6b4002"
+            apiKey: "AIzaSyCzJ36uZ6Bh6DdZK3VBv5HMu2xcU4GqCMQ",
+            authDomain: "form-bedc2.firebaseapp.com",
+            projectId: "form-bedc2",
+            storageBucket: "form-bedc2.firebasestorage.app",
+            messagingSenderId: "942482653487",
+            appId: "1:942482653487:web:4193c16f078992659521da"
             };
 
             // 2. Inicializar Firebase y los servicios
@@ -437,13 +437,17 @@
             const db = firebase.firestore();
 
             // 3. Iniciar sesión anónimamente para cumplir las reglas de seguridad
-            auth.signInAnonymously().catch((error) => {
-            console.error("Error al iniciar sesión anónimamente:", error);
-            // Opcional: Mostrar un error al usuario si la autenticación falla
-            // mostrarMensajeTelefono("Error de conexión. Recarga la página.", "error");
+            // --- MODIFICADO: Convertido en una promesa que podemos 'await' ---
+            const authPromise = auth.signInAnonymously().catch((error) => {
+              console.error("Error al iniciar sesión anónimamente:", error);
+              // Re-lanzar el error para que el 'await' falle si la autenticación falla
+              throw new Error("Error de autenticación: " + error.message);
             });
-
-            // --- FIN DE FIREBASE ---
+            
+            authPromise.then(() => {
+                console.log("Autenticación anónima exitosa.");
+            });
+            // --- FIN DE LA MODIFICACIÓN DE AUTH ---
 
 
         // --- Lógica principal del formulario (jQuery) ---
@@ -754,79 +758,95 @@
 
                 // --- INICIO DE LA NUEVA LÓGica DE FIRESTORE ---
                 try {
-                    // 1. Preparar el documento base
-                    const docData = {
-                        fechaRegistro: new Date(), // Firestore usa objetos Date
-                        cliente: $("#telefonoUsado").val(),
+                    // --- AÑADIDO: AWAIT DE AUTENTICACIÓN ---
+                    // Asegurarse de que el inicio de sesión anónimo esté completo
+                    // ANTES de intentar cualquier operación de base de datos.
+                    // Esto soluciona la "condición de carrera".
+                    await authPromise;
+                    console.log("Autenticación confirmada. Procediendo con el envío.");
+                    // --- FIN DEL AWAIT ---
+
+                    const telefonoCliente = $("#telefonoUsado").val().replace(/\D/g, "");
+                    
+                    // --- INICIO DE LA NUEVA LÓGICA DE DATOS SEPARADOS ---
+
+                    // Definir las referencias a las colecciones
+                    const clienteRef = db.collection("clientes").doc(telefonoCliente);
+                    const enviosCollectionRef = db.collection("envios");
+
+                    // 1. Preparar el documento de ENVÍO (siempre se crea)
+                    const envioData = {
+                        fechaRegistro: new Date(),
+                        cliente: telefonoCliente, // Guardamos el teléfono como ID
                         courier: tipoAccion.toUpperCase(),
                         fechaEnvio: $("#fecha").val(),
                         estado: "PENDIENTE",
                     };
 
-                    // 2. Añadir datos específicos
+                    // 2. Preparar el documento de CLIENTE (solo para 'delivery' y 'shalom')
+                    let clienteData = {};
+                    let esEnvioNuevo = false;
+
                     if (tipoAccion === "delivery") {
-                        docData.nombre = $("#nombreDelivery").val();
-                        docData.telefono = $("#telefonoDelivery").val();
-                        docData.distrito = $("#distrito").val();
-                        docData.direccion = $("#direccion").val();
-                        docData.referencia = $("#referencia").val();
+                        clienteData.nombre = $("#nombreDelivery").val();
+                        clienteData.telefono = $("#telefonoDelivery").val();
+                        clienteData.distrito = $("#distrito").val();
+                        clienteData.direccion = $("#direccion").val();
+                        clienteData.referencia = $("#referencia").val();
+                        clienteData.tipoUltimoEnvio = "delivery"; // Para saber qué datos rellenar la prox. vez
+                        esEnvioNuevo = true;
 
                     } else if (tipoAccion === "shalom") {
-                        docData.nombre = $("#nombreShalom").val();
-                        docData.telefono = $("#telefonoShalom").val();
-                        docData.DNI = $("#DNI").val();
-                        docData.agencia = $("#agencia").val();
-
+                        clienteData.nombre = $("#nombreShalom").val();
+                        clienteData.telefono = $("#telefonoShalom").val();
+                        clienteData.DNI = $("#DNI").val();
+                        clienteData.agencia = $("#agencia").val();
+                        clienteData.tipoUltimoEnvio = "shalom"; // Para saber qué datos rellenar la prox. vez
+                        esEnvioNuevo = true;
+                    
                     } else if (tipoAccion === "usado") {
-                        const telefonoIngresado = $("#telefonoUsado").val().replace(/\D/g, "");
+                        // "Usar mi dirección" ya no usa la lógica de "debug"
+                        console.log(`(NUEVO) Iniciando 'getCliente' para: ${telefonoCliente}`);
+                        
+                        const clienteDoc = await clienteRef.get(); // Intenta leer el doc del cliente
 
-                        // 2a. (checkPhone) Verificar si el teléfono existe
-                        console.log(`Verificando teléfono: ${telefonoIngresado}`);
-                        const qCheck = db.collection("envios")
-                            .where("cliente", "==", telefonoIngresado)
-                            .limit(1);
-
-                        const checkSnapshot = await qCheck.get();
-
-                        if (checkSnapshot.empty) {
+                        if (!clienteDoc.exists) {
+                            console.log("(NUEVO) 'getCliente' completado: El cliente NO existe.");
                             mostrarMensaje("El número ingresado no está registrado.", "error");
                             aplicarClaseError("telefonoUsado");
                             $("#telefonoUsado").focus();
                             spinnerOverlay.classList.remove('flex');
                             spinnerOverlay.classList.add('hidden');
                             return; // Detener
-                        }
-
-                        // 2b. (getLastRecord) Si existe, buscar el último registro
-                        console.log("Teléfono verificado. Buscando último registro...");
-                        const qRecord = db.collection("envios")
-                            .where("cliente", "==", telefonoIngresado)
-                            .orderBy("fechaRegistro", "desc") // 'desc' para el más reciente
-                            .limit(1);
-
-                        const recordSnapshot = await qRecord.get();
-
-                        if (!recordSnapshot.empty) {
-                            const ultimoRegistro = recordSnapshot.docs[0].data();
-                            console.log("Último registro encontrado:", ultimoRegistro);
-
-                            // 2c. Mapear y añadir los datos
-                            docData.courier = ultimoRegistro.courier || tipoAccion.toUpperCase(); // Copia el courier
-                            docData.nombre = ultimoRegistro.nombre || "";
-                            docData.telefono = ultimoRegistro.telefono || "";
-                            docData.distrito = ultimoRegistro.distrito || "";
-                            docData.direccion = ultimoRegistro.direccion || "";
-                            docData.referencia = ultimoRegistro.referencia || "";
-                            docData.DNI = ultimoRegistro.DNI || "";
-                            docData.agencia = ultimoRegistro.agencia || "";
                         } else {
-                            console.warn("Teléfono válido, pero no se encontró último registro.");
+                            console.log("(NUEVO) 'getCliente' completado: ¡El cliente SÍ existe!");
+                            // Copia el courier anterior del cliente al envío
+                            const datosCliente = clienteDoc.data();
+                            if (datosCliente.tipoUltimoEnvio) {
+                                 envioData.courier = datosCliente.tipoUltimoEnvio.toUpperCase();
+                            }
                         }
                     }
 
-                    // 3. Guardar el documento en Firestore
-                    console.log("Guardando documento:", docData);
-                    await db.collection("envios").add(docData);
+                    // 3. Ejecutar las escrituras en la base de datos
+                    console.log("Iniciando transacción...");
+                    
+                    // Usamos una transacción para asegurar que ambas escrituras (si aplican) ocurran juntas
+                    await db.runTransaction(async (transaction) => {
+                        // 3a. Siempre crear el nuevo envío en la colección "envios"
+                        // Usamos .doc() para generar un ID automático
+                        transaction.set(enviosCollectionRef.doc(), envioData);
+                        
+                        // 3b. Si es un envío nuevo (Delivery/Shalom), crear/actualizar los datos del cliente
+                        if (esEnvioNuevo) {
+                            console.log("Guardando datos del cliente en 'clientes'");
+                            // { merge: true } crea el doc si no existe,
+                            // o actualiza solo estos campos si ya existe (ej. un cliente de Shalom ahora pide Delivery)
+                            transaction.set(clienteRef, clienteData, { merge: true });
+                        }
+                    });
+
+                    console.log("¡Transacción completada! Envío y/o cliente guardados.");
 
                     // 4. Lógica de Éxito (se mantiene igual)
                     $("#formulario").hide();
@@ -861,7 +881,7 @@
 
                 } catch (err) {
                     // 5. Manejo de Errores
-                    console.error("Error al guardar en Firestore:", err);
+                    console.error("Error al guardar en Firestore (Transacción):", err);
                     mostrarMensaje("Ocurrió un error al guardar tus datos", "error");
                 } finally {
                     // 6. Ocultar el spinner
