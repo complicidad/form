@@ -795,6 +795,7 @@
                         clienteData.referencia = $("#referencia").val();
                         clienteData.tipoUltimoEnvio = "delivery"; // Para saber qué datos rellenar la prox. vez
                         esEnvioNuevo = true;
+                        Object.assign(envioData, clienteData);
 
                     } else if (tipoAccion === "shalom") {
                         clienteData.nombre = $("#nombreShalom").val();
@@ -803,6 +804,7 @@
                         clienteData.agencia = $("#agencia").val();
                         clienteData.tipoUltimoEnvio = "shalom"; // Para saber qué datos rellenar la prox. vez
                         esEnvioNuevo = true;
+                        Object.assign(envioData, clienteData);
                     
                     } else if (tipoAccion === "usado") {
                         // "Usar mi dirección" ya no usa la lógica de "debug"
@@ -825,6 +827,18 @@
                             if (datosCliente.tipoUltimoEnvio) {
                                  envioData.courier = datosCliente.tipoUltimoEnvio.toUpperCase();
                             }
+                        
+                            // --- AÑADE ESTE BLOQUE ---
+                            // Copiar los datos personales del cliente al nuevo envío
+                            envioData.nombre = datosCliente.nombre || "";
+                            envioData.telefono = datosCliente.telefono || "";
+                            envioData.distrito = datosCliente.distrito || "";
+                            envioData.direccion = datosCliente.direccion || "";
+                            envioData.referencia = datosCliente.referencia || "";
+                            envioData.DNI = datosCliente.DNI || "";
+                            envioData.agencia = datosCliente.agencia || "";
+                            // --- FIN DEL BLOQUE ---
+
                         }
                     }
 
