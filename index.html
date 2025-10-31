@@ -350,10 +350,12 @@
         }
         
         // Cargar JSON de distritos
-        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDistritos.json")
+        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDinsides.json")
           .then(res => res.json())
           .then(data => {
-            distritos = data.map(item => typeof item === "string" ? item : item.Distrito || item.nombre || "");
+            // --- LÍNEA MODIFICADA ---
+            // Leemos las propiedades "Distrito" y "Precio" del nuevo JSON
+            distritos = data.map(item => `${item.Distrito} | ${item.Precio}`);
             mostrarDistritos(distritos);
           })
           .catch(err => {
@@ -411,7 +413,9 @@
         fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
           .then(res => res.json())
           .then(data => {
-            agencias = data.map(item => typeof item === "string" ? item : item.Shalom || item.nombre || "");
+            // --- LÍNEA MODIFICADA ---
+            // Leemos las propiedades "Agencia" y "Direccion" del nuevo JSON
+            agencias = data.map(item => `${item.Agencia}\n${item.Direccion}`);
             mostrarAgencias(agencias);
           })
           .catch(err => {
@@ -908,5 +912,6 @@
     </script>
 </body>
 </html>
+
 
 
