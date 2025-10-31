@@ -1,0 +1,270 @@
+[
+  {
+    "Distrito": "Ancón",
+    "Precio": "S/.17.00"
+  },
+  {
+    "Distrito": "Ate",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Barranco",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Bellavista",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Breña",
+    "Precio": "S/.8.00"
+  },
+  {
+    "Distrito": "Cajamarquilla",
+    "Precio": "S/.21.00"
+  },
+  {
+    "Distrito": "Callao",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Carabayllo",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Carmen de la Legua Reynoso",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Cercado de Lima",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Chaclacayo",
+    "Precio": "S/.17.00"
+  },
+  {
+    "Distrito": "Chorrillos",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Chosica",
+    "Precio": "S/.22.00"
+  },
+  {
+    "Distrito": "Cieneguilla",
+    "Precio": "S/.17.00"
+  },
+  {
+    "Distrito": "Comas",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "El Agustino",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "El Márquez - Callao",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Envío Agencia Marvisur",
+    "Precio": "S/.5.00"
+  },
+  {
+    "Distrito": "Envio Agencia Olva Courier",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Envío Agencia Shalom",
+    "Precio": "S/.5.00"
+  },
+  {
+    "Distrito": "Huachipa",
+    "Precio": "S/.14.00"
+  },
+  {
+    "Distrito": "Huaycan",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Independencia",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Jesús María",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Jicamarca - Anexo 22",
+    "Precio": "S/.14.00"
+  },
+  {
+    "Distrito": "Jicamarca - Anexo 8",
+    "Precio": "S/.21.00"
+  },
+  {
+    "Distrito": "La Molina",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "La Perla",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "La Punta",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "La Victoria",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Lince",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Los Olivos",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Lurigancho - Chosica",
+    "Precio": "S/.14.00"
+  },
+  {
+    "Distrito": "Lurin",
+    "Precio": "S/.14.00"
+  },
+  {
+    "Distrito": "Magdalena del Mar",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Manchay",
+    "Precio": "S/.17.00"
+  },
+  {
+    "Distrito": "Mi Perú",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Miraflores",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Pachacamac",
+    "Precio": "S/.19.00"
+  },
+  {
+    "Distrito": "Pucusana",
+    "Precio": "S/.28.00"
+  },
+  {
+    "Distrito": "Pueblo Libre",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Puente Piedra",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Punta Hermosa",
+    "Precio": "S/.17.00"
+  },
+  {
+    "Distrito": "Punta Negra",
+    "Precio": "S/.21.00"
+  },
+  {
+    "Distrito": "Retiro Sede Cercado (Av Arica 1702)",
+    "Precio": "S/.8.00"
+  },
+  {
+    "Distrito": "Retiro Sede Gamarra (Antonio Bazo 1218)",
+    "Precio": "S/.8.00"
+  },
+  {
+    "Distrito": "Ricardo Palma",
+    "Precio": "S/.25.00"
+  },
+  {
+    "Distrito": "Rímac",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Salamanca Ate",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "San Bartolo",
+    "Precio": "S/.22.00"
+  },
+  {
+    "Distrito": "San Borja",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "San Isidro",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "San Juan de Lurigancho",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "San Juan de Miraflores",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "San Luis",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "San Martín de Porres",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "San Miguel",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Santa Anita",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Santa Clara - Ate",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Santa Eulalia",
+    "Precio": "S/.25.00"
+  },
+  {
+    "Distrito": "Santa María del Mar",
+    "Precio": "S/.25.00"
+  },
+  {
+    "Distrito": "Santa Rosa",
+    "Precio": "S/.17.00"
+  },
+  {
+    "Distrito": "Santiago de Surco",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Surquillo",
+    "Precio": "S/.10.00"
+  },
+  {
+    "Distrito": "Ventanilla",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Villa El Salvador",
+    "Precio": "S/.12.00"
+  },
+  {
+    "Distrito": "Villa María del Triunfo",
+    "Precio": "S/.12.00"
+  }
+]
