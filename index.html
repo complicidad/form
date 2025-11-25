@@ -133,19 +133,18 @@
                     <legend class="text-xl font-bold mb-1 text-brand-text">📦 Delivery</legend>
                     <p class="text-sm text-brand-muted mb-3">Datos de la persona que recibirá el pedido.</p>
 
-                    <label for="nombreDelivery" class="block mt-4 font-semibold text-sm text-brand-text">Nombre: <span class="text-danger">*</span></label>
-                    <input type="text" id="nombreDelivery" name="nombre" required
+                    <input type="text" id="nombreDelivery" name="nombre" required placeholder="Nombre*"
                         class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
 
-                    <label for="telefonoDelivery" class="block mt-4 font-semibold text-sm text-brand-text">Teléfono: <span class="text-danger">*</span></label>
                     <input
                         type="tel"
                         id="telefonoDelivery"
                         name="telefono"
                         required
+                        placeholder="Telefono*"
                         pattern="^9\d{8}$"
                         title="Ingresa un número de teléfono válido de 9 dígitos"
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
                     />
                     
                     <!-- UX: Checkbox para usar el número de WhatsApp principal -->
@@ -154,17 +153,14 @@
                         <label for="usarMismoTelefonoDelivery" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayDelivery" class="font-semibold"></span>)</label>
                     </div>
 
-                    <label for="distrito" class="block mt-4 font-semibold text-sm text-brand-text">Distrito: <span class="text-danger">*</span></label>
-                    <input type="text" id="distrito" name="distrito" required readonly
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
+                    <input type="text" id="distrito" name="distrito" required placeholder="Distrito*" readonly
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
 
-                    <label for="direccion" class="block mt-4 font-semibold text-sm text-brand-text">Dirección: <span class="text-danger">*</span></label>
-                    <input type="text" id="direccion" name="direccion" required
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+                    <input type="text" id="direccion" name="direccion" required placeholder="Dirección*"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
 
-                    <label for="referencia" class="block mt-4 font-semibold text-sm text-brand-text">Referencia: <span class="text-danger">*</span></label>
-                    <input type="text" id="referencia" name="referencia" required
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+                    <input type="text" id="referencia" name="referencia" required placeholder="Referencia*"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
                     
                     <!-- Modal oculto para Distritos -->
                     <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalDistrito">
@@ -183,19 +179,18 @@
                     <legend class="text-xl font-bold mb-1 text-brand-text">📦 Shalom</legend>
                     <p class="text-sm text-brand-muted mb-3">Datos para retiro en agencia Shalom.</p>
 
-                    <label for="nombreShalom" class="block mt-4 font-semibold text-sm text-brand-text">Nombre completo: <span class="text-danger">*</span></label>
-                    <input type="text" id="nombreShalom" name="nombre" required
+                    <input type="text" id="nombreShalom" name="nombre" required placeholder="Nombre completo*"
                         class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
 
-                    <label for="telefonoShalom" class="block mt-4 font-semibold text-sm text-brand-text">Teléfono: <span class="text-danger">*</span></label>
                     <input
                         type="tel"
                         id="telefonoShalom"
                         name="telefono"
                         required
+                        placeholder="Telefono*"
                         pattern="^9\d{8}$"
                         title="Ingresa un número de teléfono válido de 9 dígitos"
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
                     />
                     
                     <!-- UX: Checkbox para usar el número de WhatsApp principal -->
@@ -204,14 +199,12 @@
                         <label for="usarMismoTelefonoShalom" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayShalom" class="font-semibold"></span>)</label>
                     </div>
 
-                    <label for="DNI" class="block mt-4 font-semibold text-sm text-brand-text">DNI/CE: <span class="text-danger">*</span></label>
                     <!-- UX: Se añade pattern para DNI (8 dígitos) o CE (5-15 alfanuméricos) -->
-                    <input type="text" id="DNI" name="DNI" required pattern="[A-Za-z0-9]{5,15}" title="Ingresa un DNI (8 dígitos) o CE válido (5-15 caracteres)"
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+                    <input type="text" id="DNI" name="DNI" required placeholder="DNI/CE*" pattern="[A-Za-z0-9]{5,15}" title="Ingresa un DNI (8 dígitos) o CE válido (5-15 caracteres)"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
 
-                    <label for="agencia" class="block mt-4 font-semibold text-sm text-brand-text">Agencia: <span class="text-danger">*</span></label>
-                    <input type="text" id="agencia" name="agencia" required readonly
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
+                    <input type="text" id="agencia" name="agencia" required placeholder="Agencia*" readonly
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
                     
                     <!-- Modal oculto para Agencias -->
                     <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalAgencia">
@@ -233,7 +226,6 @@
 
                 <!-- Campo de fecha reutilizable -->
                 <div id="contenedorFecha" class="mt-4" style="display: none;">
-                    <label for="fecha" class="block font-semibold text-sm text-brand-text">Fecha de envío: <span class="text-danger">*</span></label>
                     <select id="fecha" name="fecha" required
                         class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"></select>
                 </div>
@@ -260,8 +252,8 @@
                 <svg class="w-16 h-16 text-brand-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
-                <h2 class="mt-4 text-2xl font-bold text-brand-text">¡Envío agendado con éxito!</h2>
-                <p class="mt-2 text-brand-muted">Tu pedido ha sido registrado. Gracias por tu confianza.</p>
+                <h2 class="mt-4 text-2xl font-bold text-brand-text">¡Datos registrados correctamente!</h2>
+                <p class="mt-2 text-brand-muted">Solo falta un paso: Envía la confirmación por WhatsApp para finalizar.</p>
 
                 <!-- Redes sociales (MOVIDAS AQUÍ) -->
                 <p class="mt-6 font-semibold text-brand-text">Mientras esperas, ¡síguenos!</p>
@@ -284,8 +276,12 @@
     </main>
 
         <footer class="mt-0 mb-5 text-center text-gray-500 text-xs">
-            <!-- La atribución a la herramienta ahora se omite en la vista del usuario final. -->
-            <p>Hecho con ❤️ para tu emprendimiento.</p>
+          <p>
+              Creado por: 
+              <a href="https://www.latam5s.com" target="_blank" class="text-blue-500 font-bold hover:underline">
+                  www.latam5s.com
+              </a>
+          </p>
         </footer>
 
     <!-- Toast de Notificación (Nuevo estilo) -->
@@ -515,7 +511,7 @@
             $selectFecha.append(
                 $("<option>")
                     .val("") // Valor vacío para la validación 'required'
-                    .text("Elige una fecha de envío...")
+                    .text("Fecha de envío*")
                     .prop("disabled", true) // No se puede seleccionar
                     .prop("selected", true) // Es la opción por defecto
             );
@@ -912,6 +908,5 @@
     </script>
 </body>
 </html>
-
 
 
