@@ -1,507 +1,911 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Completar Pedido</title>
-    
-    <meta name="theme-color" content="#ffffff">
-    <meta name="robots" content="noindex"> <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda tu envío</title>
 
+    <!-- Meta Tags OGP y Twitter (se mantienen sin cambios) -->
+    <meta property="og:title" content="Agenda tu envío" />
+    <meta property="og:description" content="Agenda tu envío de manera simple, rápida y segura." />
+    <meta property="og:image" content="https://complicidad.github.io/form/Spin.png" />
+    <meta property="og:url" content="https://complicidad.github.io/form" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Agenda tu envío" />
+    <meta name="twitter:description" content="Agenda tu envío de manera simple, rápida y segura." />
+    <meta name="twitter:image" content="https://complicidad.github.io/form/Spin.png" />
+
+    <!-- SDKs de Firebase (CORREGIDOS A VERSIÓN 8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- jQuery (se mantiene para la lógica existente) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Fuente Quicksand (Alineada con tu landing page) -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configuración de Tailwind para usar la fuente Quicksand y colores de marca */
+        @layer base {
+            body {
+                font-family: 'Quicksand', sans-serif;
+            }
+        }
+        
+        /* Definición de colores de marca para su uso en clases personalizadas */
+        :root {
+            --brand-accent: #D96B4F;
+            --brand-accent-alt: #FF8B6A;
+            --danger-color: #d93025; 
+        }
+        
+        /* Estilos personalizados para manejo de estados (Tailwind no permite `!important` en focus/invalid sin config extendida) */
+        .is-invalid {
+            border-color: var(--danger-color) !important;
+            box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.15) !important;
+        }
+
+        /* Keyframes para el spinner */
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-custom {
+          animation: spin 1s linear infinite;
+        }
+
+    </style>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#3B82F6',
-                        secondary: '#10B981',
-                        slate: { 850: '#1e293b' }
+                        'brand-bg': '#fffaf6',
+                        'brand-card': '#ffffff',
+                        'brand-text': '#2b2b2b',
+                        'brand-muted': '#6b6b6b',
+                        'brand-accent': '#D96B4F', // Terracota principal
+                        'brand-accent-alt': '#FF8B6A', // Terracota claro para hover/sombra
+                        danger: '#d93025',
                     },
-                    fontFamily: { sans: ['Quicksand', 'sans-serif'] },
-                    animation: { 'fade-in': 'fadeIn 0.5s ease-out' },
-                    keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                    borderRadius: {
+                        'xl': '12px',
+                    },
+                    fontFamily: {
+                        'quicksand': ['Quicksand', 'sans-serif'],
+                    }
                 }
             }
         }
     </script>
-    <style>
-        /* Ocultar scrollbar pero permitir scroll */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { -webkit-tap-highlight-color: transparent; }
-    </style>
 </head>
-<body class="bg-gray-50 text-slate-800 min-h-[100dvh] flex flex-col">
 
-    <div id="loader" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-        <p class="text-sm font-bold text-slate-400 animate-pulse">Cargando tienda...</p>
-    </div>
+<body class="flex flex-col bg-brand-bg text-brand-text">
 
-    <div id="error-view" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
-        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
-            <i data-lucide="alert-triangle" class="w-8 h-8"></i>
-        </div>
-        <h1 class="text-xl font-bold text-slate-800 mb-2">Enlace no válido</h1>
-        <p class="text-slate-500 text-sm max-w-xs mx-auto">No hemos podido identificar la tienda. Asegúrate de usar el enlace completo compartido por el vendedor.</p>
-    </div>
+    <!-- Contenedor principal del formulario (main) -->
+    <main class="flex-grow p-5 max-w-xl mx-auto font-quicksand w-full">
 
-    <div id="main-app" class="hidden flex-1 flex flex-col w-full max-w-lg mx-auto bg-white shadow-xl min-h-[100dvh] relative animate-fade-in">
-        
-        <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
-                <i data-lucide="store" class="w-5 h-5"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-                <h1 id="store-name" class="font-bold text-lg leading-tight truncate text-slate-800">Cargando...</h1>
-                <p class="text-xs text-slate-400 font-medium">Formulario de Envío Seguro</p>
-            </div>
-        </header>
+        <!-- La tarjeta usa el fondo blanco (brand-card) -->
+        <div class="bg-brand-card p-6 md:p-8 rounded-xl shadow-2xl">
 
-        <div class="bg-orange-50 border-b border-orange-100 p-4 flex gap-3">
-            <div class="text-orange-500 mt-0.5"><i data-lucide="clock" class="w-5 h-5"></i></div>
-            <div>
-                <p class="text-xs font-bold text-orange-800 uppercase mb-0.5">Cierre de Pedidos</p>
-                <p class="text-sm text-orange-900 leading-snug">
-                    Registra tu envío antes de las <strong id="cut-time" class="bg-orange-200 px-1.5 rounded text-orange-950">--:--</strong> para despacho programado.
-                </p>
-            </div>
-        </div>
-
-        <form id="order-form" onsubmit="app.submit(event)" class="p-5 flex flex-col gap-6 pb-24">
+        <!-- Logo -->
+        <div class="text-center p-4">
+            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[200px] h-auto inline-block">
+        </div>      
             
-            <div class="space-y-4">
-                <div class="relative">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Tu Celular (WhatsApp)</label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">+51</span>
-                        <input type="tel" id="c-phone" required maxlength="9" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 pl-12 pr-4 font-bold text-lg outline-none focus:border-primary focus:ring-1 focus:ring-primary transition placeholder-slate-300" placeholder="900..." oninput="app.checkCache(this.value)">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Tu Nombre Completo</label>
-                    <input type="text" id="c-name" required class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-medium outline-none focus:border-primary focus:ring-1 focus:ring-primary transition placeholder-slate-300 capitalize" placeholder="Ej: Ana Pérez">
-                </div>
-            </div>
-
-            <div id="dynamic-section" class="space-y-6 pt-2 border-t border-gray-100">
-                
-                <div>
-                    <label class="block text-xs font-bold text-primary uppercase mb-2 ml-1">¿Cómo lo enviamos?</label>
-                    <div class="relative">
-                        <select id="c-courier" onchange="app.handleCourier(this.value)" class="w-full appearance-none bg-white border-2 border-primary/20 rounded-xl py-4 pl-4 pr-10 font-bold text-slate-700 outline-none focus:border-primary transition cursor-pointer">
-                            <option value="" disabled selected>Selecciona una opción...</option>
-                            </select>
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none">
-                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="fields-agency" class="hidden space-y-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Buscar Agencia</label>
-                        <div class="relative">
-                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                            <input id="c-agency" type="text" placeholder="Ej: Shalom Arequipa..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition" oninput="app.searchAgency(this.value)">
-                            <div id="agency-results" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">DNI Receptor</label>
-                        <input id="c-dni" type="tel" maxlength="12" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition font-mono" placeholder="DNI o CE">
-                    </div>
-                </div>
-
-                <div id="fields-home" class="hidden space-y-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Distrito / Ciudad</label>
-                        <div class="relative">
-                            <i data-lucide="map-pin" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                            <input id="c-district" type="text" placeholder="Buscar distrito..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition" oninput="app.searchDistrict(this.value)">
-                            <div id="district-results" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Dirección Exacta</label>
-                        <input id="c-address" type="text" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition" placeholder="Av, Calle, Nro...">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Referencia</label>
-                        <input id="c-ref" type="text" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-primary transition" placeholder="Color de casa, frente a...">
-                    </div>
-                </div>
-
-                <div id="date-wrapper" class="hidden">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Fecha de Despacho</label>
-                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-xl p-2">
-                        <div class="p-3 text-slate-400"><i data-lucide="calendar-clock" class="w-5 h-5"></i></div>
-                        <select id="c-date" required class="w-full bg-transparent font-bold text-slate-700 outline-none p-2 cursor-pointer">
-                            <option value="" disabled selected>Calculando fechas...</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-
-            <button type="submit" id="btn-submit" disabled class="mt-4 w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                <span>Confirmar Datos</span>
-                <i data-lucide="arrow-right" class="w-5 h-5"></i>
-            </button>
             
-            <p class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-4">Powered by Latam5S</p>
-        </form>
+            <form id="formulario" novalidate>
 
-        <div id="success-view" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
-            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/10">
-                <i data-lucide="check" class="w-10 h-10"></i>
+                <h2 class="mt-[0px] mb-2 text-center text-2xl font-bold text-brand-text">Agenda tu envío</h2>
+
+                <!-- Campo 1: WhatsApp usado -->
+                <!-- UX: Se usa type="tel" para facilitar el input en móvil y se añade asterisco -->
+                <label for="telefonoUsado" class="block mt-4 font-semibold text-sm text-brand-text">WhatsApp con el que compraste <span class="text-danger">*</span></label>
+                <input
+                    type="tel"
+                    id="telefonoUsado"
+                    name="telefonoUsado"
+                    required
+                    placeholder="Ej. 9XXXXXXXX"
+                    pattern="^9\d{8}$"
+                    title="Ingresa un número de teléfono válido de 9 dígitos (debe empezar con 9)"
+                    class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                />
+
+                <!-- Campo 2: Tipo de servicio -->
+                <label for="tipoAccion" class="block mt-4 font-semibold text-sm text-brand-text">Selecciona el tipo de servicio <span class="text-danger">*</span></label>
+                <select id="tipoAccion" name="tipoAccion" required
+                    class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text">
+                    <option value="" disabled selected>Elige una opción</option>
+                    <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
+                    <option value="shalom">Retiro en agencia Shalom</option>
+                    <!-- <option value="recoger">Recoger en almacén</option> -->
+                    <option value="usado">Usar mi dirección registrada</option>
+                </select>
+
+                <!-- Fieldset: Delivery -->
+                <fieldset id="camposDelivery" class="mt-8 border-none p-0" hidden>
+                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Delivery</legend>
+                    <p class="text-sm text-brand-muted mb-3">Datos de la persona que recibirá el pedido.</p>
+
+                    <input type="text" id="nombreDelivery" name="nombre" required placeholder="Nombre*"
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <input
+                        type="tel"
+                        id="telefonoDelivery"
+                        name="telefono"
+                        required
+                        placeholder="Telefono*"
+                        pattern="^9\d{8}$"
+                        title="Ingresa un número de teléfono válido de 9 dígitos"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                    />
+                    
+                    <!-- UX: Checkbox para usar el número de WhatsApp principal -->
+                    <div class="mt-1 flex items-center">
+                        <input type="checkbox" id="usarMismoTelefonoDelivery" class="h-4 w-4 text-brand-accent rounded border-gray-300 focus:ring-brand-accent-alt" />
+                        <label for="usarMismoTelefonoDelivery" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayDelivery" class="font-semibold"></span>)</label>
+                    </div>
+
+                    <input type="text" id="distrito" name="distrito" required placeholder="Distrito*" readonly
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
+
+                    <input type="text" id="direccion" name="direccion" required placeholder="Dirección*"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <input type="text" id="referencia" name="referencia" required placeholder="Referencia*"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+                    
+                    <!-- Modal oculto para Distritos -->
+                    <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalDistrito">
+                        <!-- CAMBIOS: Se quitó 'overflow-y-auto', se añadió 'flex flex-col overflow-hidden' -->
+                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] shadow-2xl flex flex-col overflow-hidden">
+                            <input type="text" id="buscadorDistrito" placeholder="Buscar distrito..."
+                                class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
+                            <!-- CAMBIOS: Se quitó 'max-h-80vh', se añadió 'overflow-y-auto' para que esta lista sea la que scrollee -->
+                            <div id="listaDistritos" class="list list-none p-0 m-0 text-brand-text overflow-y-auto"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Fieldset: Shalom -->
+                <fieldset id="camposShalom" class="mt-8 border-none p-0" hidden>
+                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Shalom</legend>
+                    <p class="text-sm text-brand-muted mb-3">Datos para retiro en agencia Shalom.</p>
+
+                    <input type="text" id="nombreShalom" name="nombre" required placeholder="Nombre completo*"
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <input
+                        type="tel"
+                        id="telefonoShalom"
+                        name="telefono"
+                        required
+                        placeholder="Telefono*"
+                        pattern="^9\d{8}$"
+                        title="Ingresa un número de teléfono válido de 9 dígitos"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
+                    />
+                    
+                    <!-- UX: Checkbox para usar el número de WhatsApp principal -->
+                    <div class="mt-1 flex items-center">
+                        <input type="checkbox" id="usarMismoTelefonoShalom" class="h-4 w-4 text-brand-accent rounded border-gray-300 focus:ring-brand-accent-alt" />
+                        <label for="usarMismoTelefonoShalom" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayShalom" class="font-semibold"></span>)</label>
+                    </div>
+
+                    <!-- UX: Se añade pattern para DNI (8 dígitos) o CE (5-15 alfanuméricos) -->
+                    <input type="text" id="DNI" name="DNI" required placeholder="DNI/CE*" pattern="[A-Za-z0-9]{5,15}" title="Ingresa un DNI (8 dígitos) o CE válido (5-15 caracteres)"
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
+
+                    <input type="text" id="agencia" name="agencia" required placeholder="Agencia*" readonly
+                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
+                    
+                    <!-- Modal oculto para Agencias -->
+                    <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalAgencia">
+                        <!-- CAMBIOS: Se quitó 'overflow-y-auto', se añadió 'flex flex-col overflow-hidden' -->
+                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] shadow-2xl flex flex-col overflow-hidden">
+                            <input type="text" id="buscadorAgencia" placeholder="Buscar agencia..."
+                                class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
+                            <!-- CAMBIOS: Se quitó 'max-h-80vh', se añadió 'overflow-y-auto' -->
+                            <div id="listaAgencias" class="list list-none p-0 m-0 text-brand-text overflow-y-auto"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Fieldset: Usado -->
+                <fieldset id="camposUsados" class="mt-8 border-none p-0" hidden>
+                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Dirección registrada</legend>
+                    <p class="text-sm text-brand-muted mb-3">Usaremos tu dirección guardada.</p>
+                </fieldset>
+
+                <!-- Campo de fecha reutilizable -->
+                <div id="contenedorFecha" class="mt-4" style="display: none;">
+                    <select id="fecha" name="fecha" required
+                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"></select>
+                </div>
+
+                <!-- Botón de envío, con el nuevo color de acento -->
+                <div class="flex justify-center w-full mt-6">
+                    <button type="submit"
+                        class="p-3 text-lg cursor-pointer bg-brand-accent text-white font-semibold border-none rounded-xl w-full transition duration-150 ease-in-out hover:bg-brand-accent-alt shadow-lg">
+                        Confirmar y agendar envío
+                    </button>
+                </div>
+
+                <!-- Texto de privacidad -->
+                <div class="mt-4 text-sm text-brand-muted text-center">
+                    Usaremos tus datos solo para procesar y entregar tu pedido.
+                    <a href="https://complicidad.github.io/privacy/" target="_blank" class="text-brand-accent hover:text-brand-accent-alt underline">Ver política de privacidad</a>
+                </div>
+
+            </form>
+
+            <!-- =========== NUEVO BLOQUE DE ÉXITO - INICIO =========== -->
+            <div id="successMessage" class="hidden flex-col items-center justify-center p-4 text-center">
+                <!-- Icono de Check (SVG) -->
+                <svg class="w-16 h-16 text-brand-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <h2 class="mt-4 text-2xl font-bold text-brand-text">¡Datos registrados correctamente!</h2>
+                <p class="mt-2 text-brand-muted">Solo falta un paso: Envía la confirmación por WhatsApp para finalizar.</p>
+
+                <!-- Redes sociales (MOVIDAS AQUÍ) -->
+                <p class="mt-6 font-semibold text-brand-text">Mientras esperas, ¡síguenos!</p>
+                <div class="mt-4 flex justify-center gap-4">
+                    <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
+                        <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
+                    </a>
+                    <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
+                        <img src="https://raw.githubusercontent.com/complicidad/form/main/tik-tok.png" alt="TikTok" width="28" height="28">
+                    </a>
+                    <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
+                        <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
+                    </a>
+                </div>
+
             </div>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">¡Todo Listo!</h2>
-            <p class="text-slate-500 mb-8 max-w-xs mx-auto">Te estamos redirigiendo a WhatsApp para finalizar tu pedido.</p>
-            <button onclick="window.location.reload()" class="text-primary font-bold text-sm hover:underline">Crear otro pedido</button>
+            <!-- =========== NUEVO BLOQUE DE ÉXITO - FIN =========== -->
+
         </div>
-    </div>
+    </main>
 
-    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 -translate-y-20 opacity-0 z-[70]">
-        <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
-        <span id="toast-msg" class="text-xs font-bold">Notificación</span>
-    </div>
+        <footer class="mt-0 mb-5 text-center text-gray-500 text-xs">
+          <p>
+              Creado por: 
+              <a href="https://www.latam5s.com" target="_blank" class="text-blue-500 font-bold hover:underline">
+                  www.latam5s.com
+              </a>
+          </p>
+        </footer>
 
+    <!-- Toast de Notificación (Nuevo estilo) -->
+    <div class="toast fixed right-5 top-5 text-white p-3 rounded-xl shadow-xl shadow-brand-accent/25 opacity-0 translate-y-2 transition-all duration-300 z-50 max-w-sm" id="toast">Acción aplicada</div>
+
+
+    <!-- SPINNER DE CARGA CORREGIDO -->
+    <!-- Se añadieron 'inset-0' para cubrir toda la pantalla y 'justify-center items-center' para centrar el contenido. -->
+    <div id="spinner" class="fixed inset-0 bg-brand-bg bg-opacity-85 z-50 flex justify-center items-center flex-col hidden">
+        <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..." class="w-[150px] h-auto animate-spin-custom">
+        <p class="mt-4 text-lg text-brand-text">Cargando...</p>
+    </div>
+    
+    <!-- Script para los modales de lista. -->
     <script>
-        // CONFIGURACIÓN CENTRAL
-        // Asegúrate de que esta URL sea la correcta
-        const API_URL = "https://script.google.com/macros/s/AKfycbyJlJR9Yb-ZjG0bXQYAEFv1J3ZofaWy59vIERIiLipt03XCSxTEMGI8VHtY3QZ60-NuKw/exec";
+
+        // Se elimina la función updateMessageClasses antigua.
         
-        // URLS de Recursos (Github Raw)
-        const URLS = {
-            districts: "lstDistritos.json",
-            agency: {
-                "Shalom": "lstShalom.json",
-                "Olva Courier": "lstOlvaCourier.json",
-                "Marvisur": "lstMarvisur.json"
-            }
-        };
+        // --- Lógica del modal de Distritos (Vanilla JS) ---
+        const campoDistrito = document.getElementById("distrito");
+        const overlay = document.getElementById("modalDistrito");
+        const buscador = document.getElementById("buscadorDistrito");
+        const listaDistritos = document.getElementById("listaDistritos");
+        let distritos = [];
+        
+        // Abrir popup al hacer click en el campo
+        campoDistrito.addEventListener("click", () => {
+          overlay.style.display = "flex";
+          buscador.value = "";
+          mostrarDistritos(distritos);
+          buscador.focus();
+        });
+        
+        // Cerrar popup si clic fuera de la caja
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) {
+            overlay.style.display = "none";
+          }
+        });
+        
+        // Buscar distritos
+        buscador.addEventListener("input", () => {
+          const filtro = buscador.value.toLowerCase();
+          const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
+          mostrarDistritos(filtrados);
+        });
+        
+        // Mostrar lista en el popup
+        function mostrarDistritos(lista) {
+          listaDistritos.innerHTML = "";
+          lista.forEach(d => {
+            const div = document.createElement("div");
+            // Clases de Tailwind para el item de la lista
+            div.className = "p-2 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition list-item";
+            div.textContent = d;
+            div.addEventListener("click", () => {
+              campoDistrito.value = d;
+              overlay.style.display = "none";
+            });
+            listaDistritos.appendChild(div);
+          });
+        }
+        
+        // Cargar JSON de distritos
+        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDinsides.json")
+          .then(res => res.json())
+          .then(data => {
+            // --- LÍNEA MODIFICADA ---
+            // Leemos las propiedades "Distrito" y "Precio" del nuevo JSON
+            distritos = data.map(item => `${item.Distrito} | ${item.Precio}`);
+            mostrarDistritos(distritos);
+          })
+          .catch(err => {
+            console.error("Error cargando distritos:", err);
+          });
+        
+        // --- Lógica del modal de Agencias (Vanilla JS) ---
+        const campoAgencia = document.getElementById("agencia");
+        const overlayAgencia = document.getElementById("modalAgencia");
+        const buscadorAgencia = document.getElementById("buscadorAgencia");
+        const listaAgencias = document.getElementById("listaAgencias");
+        let agencias = [];
+        
+        // Abrir popup al hacer click en el campo
+        campoAgencia.addEventListener("click", () => {
+          overlayAgencia.style.display = "flex";
+          buscadorAgencia.value = "";
+          mostrarAgencias(agencias);
+          buscadorAgencia.focus();
+        });
+        
+        // Cerrar popup si clic fuera de la caja
+        overlayAgencia.addEventListener("click", (e) => {
+          if (e.target === overlayAgencia) {
+            overlayAgencia.style.display = "none";
+          }
+        });
+        
+        // Buscar agencias
+        buscadorAgencia.addEventListener("input", () => {
+          const filtro = buscadorAgencia.value.toLowerCase();
+          const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
+          mostrarAgencias(filtrados);
+        });
+        
+        // Mostrar lista en el popup
+        function mostrarAgencias(lista) {
+          listaAgencias.innerHTML = "";
+          lista.forEach(a => {
+            const [titulo, ...resto] = a.split("\n"); // Separar en partes
+            const div = document.createElement("div");
+            // Clases de Tailwind para el item de la lista
+            div.className = "p-2 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition list-item";
+            // Armamos el HTML con la primera línea en negrita
+            div.innerHTML = `<span class="font-semibold">${titulo}</span>${resto.length ? "<br><span class='text-sm text-gray-600'>" + resto.join("<br>") + "</span>" : ""}`;
+            div.addEventListener("click", () => {
+              campoAgencia.value = titulo; // Mantener el valor original con \n
+              overlayAgencia.style.display = "none";
+            });
+            listaAgencias.appendChild(div);
+          });
+        }
+        
+        // Cargar JSON de agencias
+        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
+          .then(res => res.json())
+          .then(data => {
+            // --- LÍNEA MODIFICADA ---
+            // Leemos las propiedades "Agencia" y "Direccion" del nuevo JSON
+            agencias = data.map(item => `${item.Agencia}\n${item.Direccion}`);
+            mostrarAgencias(agencias);
+          })
+          .catch(err => {
+            console.error("Error cargando agencias:", err);
+          });
 
-        // Estado de la Aplicación
-        const state = {
-            merchantId: null,
-            config: {},
-            externalData: { agencies: [], districts: [] },
-            courierType: null
-        };
 
-        const app = {
-            init: async () => {
-                // 1. Obtener ID de la URL (?merchant=UID)
-                const params = new URLSearchParams(window.location.search);
-                state.merchantId = params.get('merchant');
+            // --- INICIALIZACIÓN DE FIREBASE ---
 
-                if (!state.merchantId) {
-                    app.toggleLoader(false);
-                    document.getElementById('error-view').classList.remove('hidden');
-                    return;
-                }
+            // 1. Pega tu objeto de configuración de Firebase aquí
+            const firebaseConfig = {
+            apiKey: "AIzaSyCzJ36uZ6Bh6DdZK3VBv5HMu2xcU4GqCMQ",
+            authDomain: "form-bedc2.firebaseapp.com",
+            projectId: "form-bedc2",
+            storageBucket: "form-bedc2.firebasestorage.app",
+            messagingSenderId: "942482653487",
+            appId: "1:942482653487:web:4193c16f078992659521da"
+            };
 
-                // 2. Cargar Configuración del Vendedor
-                try {
-                    // Acción getConfig
-                    const res = await fetch(`${API_URL}?action=getConfig&merchantId=${state.merchantId}`);
-                    const json = await res.json();
-                    
-                    if (!json.data || !json.data.merchantName) throw new Error("Configuración vacía");
-                    
-                    state.config = json.data;
-                    app.renderUI();
-                } catch (e) {
-                    console.error(e);
-                    alert("Error cargando la tienda. Intenta recargar.");
-                } finally {
-                    app.toggleLoader(false);
-                }
-            },
+            // 2. Inicializar Firebase y los servicios
+            const app = firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-            toggleLoader: (show) => {
-                const el = document.getElementById('loader');
-                if(!show) { el.classList.add('opacity-0', 'pointer-events-none'); setTimeout(()=> el.classList.add('hidden'), 500); }
-            },
-
-            renderUI: () => {
-                // Mostrar App
-                document.getElementById('main-app').classList.remove('hidden');
-                
-                // 1. Nombre Tienda
-                document.getElementById('store-name').innerText = state.config.merchantName;
-                document.title = `Envío - ${state.config.merchantName}`;
-
-                // 2. Hora de Corte
-                document.getElementById('cut-time').innerText = state.config.updateTime || "18:00";
-
-                // 3. Llenar Couriers
-                const select = document.getElementById('c-courier');
-                select.innerHTML = '<option value="" disabled selected>Selecciona una opción...</option>';
-                (state.config.couriers || []).forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c;
-                    opt.innerText = c;
-                    select.appendChild(opt);
-                });
-
-                // 4. Precargar Distritos (Ligero)
-                app.loadDistricts();
-
-                lucide.createIcons();
-            },
-
-            handleCourier: (courier) => {
-                // Determinar Tipo
-                const isAgency = ["Shalom", "Olva Courier", "Marvisur"].includes(courier);
-                state.courierType = isAgency ? "agency" : "home";
-                
-                // UI Toggle
-                const agencyDiv = document.getElementById('fields-agency');
-                const homeDiv = document.getElementById('fields-home');
-                const dateWrap = document.getElementById('date-wrapper');
-
-                if (isAgency) {
-                    agencyDiv.classList.remove('hidden');
-                    homeDiv.classList.add('hidden');
-                    app.loadAgencies(courier); // Carga diferida de JSON pesado
-                    
-                    // Requirements
-                    document.getElementById('c-dni').required = true;
-                    document.getElementById('c-agency').required = true;
-                    document.getElementById('c-address').required = false;
-                    document.getElementById('c-district').required = false;
-                } else {
-                    agencyDiv.classList.add('hidden');
-                    homeDiv.classList.remove('hidden');
-                    
-                    document.getElementById('c-dni').required = false;
-                    document.getElementById('c-agency').required = false;
-                    document.getElementById('c-address').required = true;
-                    document.getElementById('c-district').required = true;
-                }
-
-                // Generar fechas dinámicas y mostrar
-                app.generateDates();
-                dateWrap.classList.remove('hidden');
-                
-                // Habilitar botón si todo ok
-                document.getElementById('btn-submit').disabled = false;
-            },
-
-            generateDates: () => {
-                const select = document.getElementById('c-date');
-                select.innerHTML = '';
-                
-                const daysMap = { "Dom":0, "Lun":1, "Mar":2, "Mié":3, "Jue":4, "Vie":5, "Sáb":6 };
-                const allowedDays = state.config.shippingDays || [];
-                const gap = parseInt(state.config.updateGap || 0);
-                const [cutH, cutM] = (state.config.updateTime || "18:00").split(':');
-                
-                const now = new Date();
-                const cutDate = new Date();
-                cutDate.setHours(cutH, cutM, 0, 0);
-
-                // Si pasamos la hora de corte, sumamos un día extra al gap
-                let startOffset = gap;
-                if (now > cutDate) startOffset += 1;
-
-                let added = 0;
-                // Generar opciones para los próximos 14 días
-                for(let i = startOffset; i < 21; i++) {
-                    const d = new Date();
-                    d.setDate(d.getDate() + i);
-                    const dayName = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"][d.getDay()];
-                    
-                    if (allowedDays.includes(dayName)) {
-                        const opt = document.createElement('option');
-                        const niceDate = `${dayName} ${d.getDate()}/${d.getMonth()+1}`;
-                        opt.value = niceDate;
-                        opt.innerText = niceDate;
-                        select.appendChild(opt);
-                        added++;
-                    }
-                }
-
-                if(added === 0) {
-                    const opt = document.createElement('option');
-                    opt.innerText = "No hay fechas disponibles";
-                    select.appendChild(opt);
-                    document.getElementById('btn-submit').disabled = true;
-                }
-            },
-
-            // --- LÓGICA DE BÚSQUEDA ---
-            loadDistricts: async () => {
-                if(state.externalData.districts.length) return;
-                try {
-                    const res = await fetch(URLS.districts);
-                    const data = await res.json();
-                    state.externalData.districts = data.map(d => d.Distrito || d.nombre);
-                } catch(e) {}
-            },
+            // 3. Iniciar sesión anónimamente para cumplir las reglas de seguridad
+            // --- MODIFICADO: Convertido en una promesa que podemos 'await' ---
+            const authPromise = auth.signInAnonymously().catch((error) => {
+              console.error("Error al iniciar sesión anónimamente:", error);
+              // Re-lanzar el error para que el 'await' falle si la autenticación falla
+              throw new Error("Error de autenticación: " + error.message);
+            });
             
-            loadAgencies: async (courier) => {
-                const url = URLS.agency[courier];
-                if(!url) return;
-                
-                document.getElementById('c-agency').placeholder = `Cargando sedes de ${courier}...`;
-                try {
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    state.externalData.agencies = data.map(i => ({
-                        val: `${i.Agencia || i.nombre} - ${i.Direccion || i.direccion}`,
-                        lbl: i.Agencia || i.nombre
-                    }));
-                    document.getElementById('c-agency').placeholder = `Buscar sede ${courier}...`;
-                } catch(e) {
-                    console.error(e);
+            authPromise.then(() => {
+                console.log("Autenticación anónima exitosa.");
+            });
+            // --- FIN DE LA MODIFICACIÓN DE AUTH ---
+
+
+        // --- Lógica principal del formulario (jQuery) ---
+        $(document).ready(function () {
+
+            let telefonosRegistrados = [];
+            let clientesRegistrados = [];
+            
+            // UX: Referencias a campos de teléfono para la nueva lógica
+            const $telefonoUsado = $("#telefonoUsado");
+            const $telefonoDelivery = $("#telefonoDelivery");
+            const $telefonoShalom = $("#telefonoShalom");
+            const $usarMismoTelefonoDelivery = $("#usarMismoTelefonoDelivery");
+            const $usarMismoTelefonoShalom = $("#usarMismoTelefonoShalom");
+            const $telefonoDisplayDelivery = $("#telefonoDisplayDelivery");
+            const $telefonoDisplayShalom = $("#telefonoDisplayShalom");
+            
+
+            function obtenerFechasEnvio() {
+                const ahora = new Date();
+                const opciones = [];
+                const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
+                const horaCorte = 10; // 10:00 a.m.
+                const limite = new Date();
+                limite.setDate(ahora.getDate() + 14);
+
+                let fecha = new Date();
+                fecha.setHours(0, 0, 0, 0);
+
+                while (fecha <= limite) {
+                    const diaSemana = fecha.getDay();
+
+                    if (diasPermitidos.includes(diaSemana)) {
+                        const fechaCorte = new Date(fecha);
+                        fechaCorte.setDate(fecha.getDate() - 1);
+                        fechaCorte.setHours(horaCorte, 0, 0, 0);
+
+                        if (ahora < fechaCorte) {
+                            opciones.push(new Date(fecha));
+                        }
+                    }
+                    fecha.setDate(fecha.getDate() + 1);
                 }
-            },
+                return opciones;
+            }
 
-            searchAgency: (q) => {
-                const list = document.getElementById('agency-results');
-                if(q.length < 2) { list.classList.add('hidden'); return; }
-                
-                const matches = state.externalData.agencies
-                    .filter(a => a.val.toLowerCase().includes(q.toLowerCase()))
-                    .slice(0, 20);
-                
-                list.innerHTML = matches.map(m => 
-                    `<div onclick="app.setVal('c-agency', '${m.val.replace(/'/g,"")}')" class="p-3 border-b text-sm hover:bg-gray-50 cursor-pointer">
-                        <strong>${m.lbl}</strong><br><span class="text-xs text-gray-400">${m.val}</span>
-                    </div>`
-                ).join('');
-                list.classList.remove('hidden');
-            },
+            function formatearFecha(fecha) {
+                return fecha.toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                });
+            }
 
-            searchDistrict: (q) => {
-                const list = document.getElementById('district-results');
-                if(q.length < 2) { list.classList.add('hidden'); return; }
-                
-                const matches = state.externalData.districts
-                    .filter(d => d.toLowerCase().includes(q.toLowerCase()))
-                    .slice(0, 10);
-                
-                list.innerHTML = matches.map(d => 
-                    `<div onclick="app.setVal('c-district', '${d}')" class="p-3 border-b text-sm font-bold hover:bg-gray-50 cursor-pointer">${d}</div>`
-                ).join('');
-                list.classList.remove('hidden');
-            },
+            // Carga las fechas en el select #fecha
+            const $selectFecha = $("#fecha");
 
-            setVal: (id, val) => {
-                document.getElementById(id).value = val;
-                document.getElementById(id === 'c-agency' ? 'agency-results' : 'district-results').classList.add('hidden');
-            },
+            // --- AÑADIR ESTE BLOQUE - INICIO ---
+            // 1. Añadir la opción placeholder
+            $selectFecha.append(
+                $("<option>")
+                    .val("") // Valor vacío para la validación 'required'
+                    .text("Fecha de envío*")
+                    .prop("disabled", true) // No se puede seleccionar
+                    .prop("selected", true) // Es la opción por defecto
+            );
+            // --- AÑADIR ESTE BLOQUE - FIN ---
 
-            // --- CACHÉ LOCAL DEL CLIENTE ---
-            checkCache: (phone) => {
-                if (phone.length === 9) {
-                    const cache = JSON.parse(localStorage.getItem('latam5s_user_cache') || '{}');
-                    const user = cache[phone];
-                    if (user) {
-                        document.getElementById('c-name').value = user.name || '';
-                        app.showToast("¡Hola de nuevo! Cargamos tus datos.");
+            const fechas = obtenerFechasEnvio();
+            fechas.forEach((f) => {
+                const option = $("<option>")
+                    .val(f.toISOString().split("T")[0])
+                    .text(formatearFecha(f));
+                $selectFecha.append(option);
+            });
+
+            function limpiarCampos(idContenedor) {
+                const selector = `#${idContenedor} input, #${idContenedor} select`;
+                document.querySelectorAll(selector).forEach((campo) => {
+                    if (campo.tagName === "SELECT") {
+                        $(campo).val(null).trigger("change");
+                    } else {
+                        campo.value = "";
+                    }
+                    $(campo).removeClass("is-invalid"); // Limpia el estado de error
+                    
+                    // UX: Asegurar que los campos de teléfono estén habilitados/no readonly al limpiar
+                    if(campo.id === 'telefonoDelivery' || campo.id === 'telefonoShalom') {
+                        $(campo).prop('readonly', false).removeClass('bg-gray-100');
+                    }
+                });
+                
+                // UX: Desmarcar los checkboxes al limpiar
+                $usarMismoTelefonoDelivery.prop('checked', false);
+                $usarMismoTelefonoShalom.prop('checked', false);
+            }
+            
+            // FUNCIÓN ACTUALIZADA PARA USAR EL TOAST CON ESTILO GRADIENTE
+            function mostrarMensajeTelefono(mensaje, tipo = "success") {
+                const $toast = $("#toast");
+                
+                // Limpiar clases de gradiente y visibilidad
+                $toast.removeClass("bg-gradient-to-r from-brand-accent to-brand-accent-alt from-red-500 to-red-600 opacity-100 translate-y-0");
+                
+                // 1. Aplicar clases de color según el tipo (Terracota para éxito, Rojo para error)
+                if (tipo === "success") {
+                    $toast.addClass("bg-gradient-to-r from-brand-accent to-brand-accent-alt shadow-brand-accent/25");
+                } else {
+                    $toast.addClass("bg-gradient-to-r from-red-500 to-red-600 shadow-red-500/25");
+                }
+
+                // 2. Setear el texto
+                $toast.text(mensaje);
+                
+                // 3. Mostrar el toast (aplica la transición)
+                // Se hace en el siguiente tick del ciclo de eventos para asegurar la transición
+                setTimeout(() => {
+                    $toast.addClass("opacity-100 translate-y-0");
+                }, 50);
+
+                // 4. Set timeout para ocultar el toast después de 5 segundos
+                clearTimeout($toast.data('timer'));
+                const timer = setTimeout(() => {
+                    $toast.removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
+                    // Limpia las clases de color después de la animación de salida
+                    setTimeout(() => {
+                        $toast.removeClass("from-brand-accent to-brand-accent-alt from-red-500 to-red-600 shadow-brand-accent/25 shadow-red-500/25");
+                    }, 300); // 300ms es la duración de la transición
+                }, 5000); 
+
+                $toast.data('timer', timer);
+            }
+
+            // UX: Funciones y eventos para reutilizar el número de teléfono principal
+            function updateTelefonoDisplay() {
+                const val = $telefonoUsado.val() || 'N/A';
+                $telefonoDisplayDelivery.text(val);
+                $telefonoDisplayShalom.text(val);
+            }
+            
+            // Inicializar la visualización y actualizar en cada input del teléfono principal
+            updateTelefonoDisplay();
+            $telefonoUsado.on('input', function() {
+                updateTelefonoDisplay();
+                // Si el checkbox está marcado, también actualiza el campo de destino
+                if ($usarMismoTelefonoDelivery.is(':checked')) {
+                    $telefonoDelivery.val($(this).val());
+                }
+                if ($usarMismoTelefonoShalom.is(':checked')) {
+                    $telefonoShalom.val($(this).val());
+                }
+            });
+
+
+            // Toggle logic for Delivery phone number
+            $usarMismoTelefonoDelivery.on('change', function() {
+                const checked = $(this).is(':checked');
+                if (checked) {
+                    $telefonoDelivery.val($telefonoUsado.val());
+                    $telefonoDelivery.prop('readonly', true).removeClass('cursor-pointer').addClass('bg-gray-100');
+                    $telefonoDelivery.removeClass('is-invalid'); // Limpia estado de error
+                } else {
+                    $telefonoDelivery.val('');
+                    $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100').focus();
+                }
+            });
+
+            // Toggle logic for Shalom phone number
+            $usarMismoTelefonoShalom.on('change', function() {
+                const checked = $(this).is(':checked');
+                if (checked) {
+                    $telefonoShalom.val($telefonoUsado.val());
+                    $telefonoShalom.prop('readonly', true).removeClass('cursor-pointer').addClass('bg-gray-100');
+                    $telefonoShalom.removeClass('is-invalid'); // Limpia estado de error
+                } else {
+                    $telefonoShalom.val('');
+                    $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100').focus();
+                }
+            });
+
+            // Muestra/oculta bloques de campos según la opción seleccionada
+            $("#tipoAccion").on("change", function () {
+                limpiarCampos("camposDelivery");
+                limpiarCampos("camposShalom");
+                limpiarCampos("camposUsados");
+
+                // Oculta todos los bloques y deshabilita inputs/selects dentro
+                $("#camposDelivery, #camposShalom, #camposUsados")
+                    .attr("hidden", true)
+                    .find("input, select")
+                    .prop("disabled", true);
+                
+                // UX: Asegurar que los checkboxes estén desmarcados
+                $usarMismoTelefonoDelivery.prop('checked', false);
+                $usarMismoTelefonoShalom.prop('checked', false);
+
+
+                const valor = $(this).val();
+
+                // Mostrar y habilitar bloque correspondiente
+                if (valor === "delivery") {
+                    $("#camposDelivery").attr("hidden", false).find("input, select").prop("disabled", false);
+                } else if (valor === "shalom") {
+                    $("#camposShalom").attr("hidden", false).find("input, select").prop("disabled", false);
+                } else if (valor === "recoger") {
+                    // Recoger en almacén no requiere campos extra ni fecha de envío
+                } else if (valor === "usado") {
+                    $("#camposUsados").attr("hidden", false).find("input, select").prop("disabled", false);
+                }
+
+                // Mover y mostrar campo fecha en el bloque correspondiente
+                const $contenedorFecha = $("#contenedorFecha");
+                $contenedorFecha.hide();
+
+                if (["delivery", "shalom", "usado"].includes(valor)) {
+                    if (valor === "delivery") {
+                        $("#camposDelivery").append($contenedorFecha);
+                    } else if (valor === "shalom") {
+                        $("#camposShalom").append($contenedorFecha);
+                    } else {
+                        $("#camposUsados").append($contenedorFecha);
+                    }
+                    $contenedorFecha.show();
+                    $("#fecha").prop("disabled", false);
+                } else {
+                    $("#fecha").prop("disabled", true);
+                }
+
+                // --- AÑADIR ESTE BLOQUE - INICIO ---
+                // UX: Mover el foco y el scroll al primer campo de la sección
+                
+                // La variable 'valor' ya existe en esta función, así que la reusamos.
+                let targetId = null; 
+                
+                if (valor === "delivery") {
+                    targetId = "nombreDelivery"; // ID del primer input en Delivery
+                } else if (valor === "shalom") {
+                    targetId = "nombreShalom"; // ID del primer input en Shalom
+                } else if (valor === "usado") {
+                    targetId = "fecha"; // ID del primer (y único) input en Usado
+                }
+
+                if (targetId) {
+                    // Se usa un pequeño retardo (100ms) para dar tiempo al navegador
+                    // a renderizar la sección antes de mover el foco.
+                    setTimeout(() => {
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // Opcional: Si focus() no es suficiente, puedes forzar un scroll más suave
+                            // targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100); 
+                }
+                // --- AÑADIR ESTE BLOQUE - FIN ---
+            });
+
+            // Envío del formulario con validación y lógica de Firestore
+            $("#formulario").on("submit", async function (e) {
+                e.preventDefault();
+
+                // Oculta el mensaje previo inmediatamente
+                $("#toast").removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
+
+                function mostrarMensaje(mensaje, tipo = "success") {
+                    mostrarMensajeTelefono(mensaje, tipo);
+                }
+
+                const tipoAccion = $("#tipoAccion").val();
+
+                // Función para aplicar clase de error (se mantiene igual)
+                function aplicarClaseError(id) {
+                    $(`#${id}`).addClass('is-invalid');
+                    $(`#${id}`).on('input change', function() {
+                        $(this).removeClass('is-invalid');
+                    });
+                }
+
+                // Validaciones manuales para 'readonly' (se mantienen igual)
+                if (tipoAccion === "delivery") {
+                    if (!$("#distrito").val()) {
+                        mostrarMensaje("Por favor, selecciona un distrito de la lista", "error");
+                        aplicarClaseError("distrito");
+                        return;
                     }
                 }
-            },
+                if (tipoAccion === "shalom") {
+                    if (!$("#agencia").val()) {
+                        mostrarMensaje("Por favor, selecciona una agencia de la lista", "error");
+                        aplicarClaseError("agencia");
+                        return;
+                    }
+                }
 
-            // --- ENVÍO ---
-            submit: async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('btn-submit');
-                btn.disabled = true;
-                btn.innerHTML = `<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Enviando...`;
-
-                // Recolección de Datos
-                const form = {
-                    clientName: document.getElementById('c-name').value.trim(),
-                    clientPhone: document.getElementById('c-phone').value.trim(),
-                    courier: document.getElementById('c-courier').value,
-                    shippingDate: document.getElementById('c-date').value,
-                    createdAt: Date.now()
-                };
-
-                // Validación básica
-                if (!/^9\d{8}$/.test(form.clientPhone)) {
-                    app.showToast("El celular debe tener 9 dígitos");
-                    btn.disabled = false; btn.innerText = "Confirmar Datos";
+                // Validación nativa HTML5 (se mantiene igual)
+                if (!this.checkValidity()) {
+                    $(this).find(':invalid').each(function() {
+                        aplicarClaseError(this.id);
+                    });
+                    this.reportValidity();
                     return;
                 }
 
-                let waText = "";
+                const spinnerOverlay = document.getElementById('spinner');
+                spinnerOverlay.classList.remove('hidden');
+                spinnerOverlay.classList.add('flex');
 
-                if (state.courierType === 'agency') {
-                    form.clientDni = document.getElementById('c-dni').value.trim();
-                    form.clientAgency = document.getElementById('c-agency').value.trim();
-                    
-                    waText = `📦 *PEDIDO CONFIRMADO*\n\n` +
-                             `👤 ${form.clientName}\n` +
-                             `📱 ${form.clientPhone}\n` +
-                             `🆔 DNI: ${form.clientDni}\n` +
-                             `🏢 Agencia: ${form.clientAgency}\n` +
-                             `🚚 Courier: ${form.courier}\n` +
-                             `📅 Fecha: ${form.shippingDate}`;
-                } else {
-                    form.clientDistrict = document.getElementById('c-district').value.trim();
-                    form.clientAddress = document.getElementById('c-address').value.trim();
-                    form.clientRef = document.getElementById('c-ref').value.trim();
-                    
-                    waText = `📦 *PEDIDO CONFIRMADO*\n\n` +
-                             `👤 ${form.clientName}\n` +
-                             `📱 ${form.clientPhone}\n` +
-                             `📍 Destino: ${form.clientDistrict}\n` +
-                             `🏠 Dirección: ${form.clientAddress}\n` +
-                             `🗺️ Ref: ${form.clientRef}\n` +
-                             `🚚 Courier: ${form.courier}\n` +
-                             `📅 Fecha: ${form.shippingDate}`;
-                }
-
-                // Guardar Caché
-                const cache = JSON.parse(localStorage.getItem('latam5s_user_cache') || '{}');
-                cache[form.clientPhone] = { name: form.clientName };
-                localStorage.setItem('latam5s_user_cache', JSON.stringify(cache));
-
-                // 1. Enviar a Backend (Silent)
+                // --- INICIO DE LA NUEVA LÓGica DE FIRESTORE ---
                 try {
-                    // Action saveOrder
-                    fetch(API_URL, {
-                        method: "POST",
-                        body: JSON.stringify({
-                            action: "saveOrder",
-                            merchantId: state.merchantId,
-                            data: form
-                        })
-                    }).catch(err => console.error("Error guardando backup", err));
-                } catch(e) {}
+                    // --- AÑADIDO: AWAIT DE AUTENTICACIÓN ---
+                    // Asegurarse de que el inicio de sesión anónimo esté completo
+                    // ANTES de intentar cualquier operación de base de datos.
+                    // Esto soluciona la "condición de carrera".
+                    await authPromise;
+                    console.log("Autenticación confirmada. Procediendo con el envío.");
+                    // --- FIN DEL AWAIT ---
 
-                // 2. Abrir WhatsApp y Mostrar Éxito
-                const waLink = `https://wa.me/51${state.config.whatsapp}?text=${encodeURIComponent(waText)}`;
-                
-                setTimeout(() => {
-                    window.open(waLink, '_blank');
-                    document.getElementById('order-form').classList.add('hidden');
-                    document.getElementById('success-view').classList.remove('hidden');
-                    // Confetti o feedback visual opcional aquí
-                }, 800);
-            },
+                    const telefonoCliente = $("#telefonoUsado").val().replace(/\D/g, "");
+                    
+                    // --- INICIO DE LA NUEVA LÓGICA DE DATOS SEPARADOS ---
 
-            showToast: (msg) => {
-                const t = document.getElementById('toast');
-                document.getElementById('toast-msg').innerText = msg;
-                t.classList.remove('opacity-0', '-translate-y-20');
-                setTimeout(() => t.classList.add('opacity-0', '-translate-y-20'), 3000);
-            }
-        };
+                    // Definir las referencias a las colecciones
+                    const clienteRef = db.collection("clientes").doc(telefonoCliente);
+                    const enviosCollectionRef = db.collection("envios");
 
-        // Iniciar
-        app.init();
+                    // 1. Preparar el documento de ENVÍO (siempre se crea)
+                    const envioData = {
+                        fechaRegistro: new Date(),
+                        cliente: telefonoCliente, // Guardamos el teléfono como ID
+                        courier: tipoAccion.toUpperCase(),
+                        fechaEnvio: $("#fecha").val(),
+                        estado: "PENDIENTE",
+                    };
+
+                    // 2. Preparar el documento de CLIENTE (solo para 'delivery' y 'shalom')
+                    let clienteData = {};
+                    let esEnvioNuevo = false;
+
+                    if (tipoAccion === "delivery") {
+                        clienteData.nombre = $("#nombreDelivery").val();
+                        clienteData.telefono = $("#telefonoDelivery").val();
+                        clienteData.distrito = $("#distrito").val();
+                        clienteData.direccion = $("#direccion").val();
+                        clienteData.referencia = $("#referencia").val();
+                        clienteData.tipoUltimoEnvio = "delivery"; // Para saber qué datos rellenar la prox. vez
+                        esEnvioNuevo = true;
+                        Object.assign(envioData, clienteData);
+
+                    } else if (tipoAccion === "shalom") {
+                        clienteData.nombre = $("#nombreShalom").val();
+                        clienteData.telefono = $("#telefonoShalom").val();
+                        clienteData.DNI = $("#DNI").val();
+                        clienteData.agencia = $("#agencia").val();
+                        clienteData.tipoUltimoEnvio = "shalom"; // Para saber qué datos rellenar la prox. vez
+                        esEnvioNuevo = true;
+                        Object.assign(envioData, clienteData);
+                    
+                    } else if (tipoAccion === "usado") {
+                        // "Usar mi dirección" ya no usa la lógica de "debug"
+                        console.log(`(NUEVO) Iniciando 'getCliente' para: ${telefonoCliente}`);
+                        
+                        const clienteDoc = await clienteRef.get(); // Intenta leer el doc del cliente
+
+                        if (!clienteDoc.exists) {
+                            console.log("(NUEVO) 'getCliente' completado: El cliente NO existe.");
+                            mostrarMensaje("El número ingresado no está registrado.", "error");
+                            aplicarClaseError("telefonoUsado");
+                            $("#telefonoUsado").focus();
+                            spinnerOverlay.classList.remove('flex');
+                            spinnerOverlay.classList.add('hidden');
+                            return; // Detener
+                        } else {
+                            console.log("(NUEVO) 'getCliente' completado: ¡El cliente SÍ existe!");
+                            // Copia el courier anterior del cliente al envío
+                            const datosCliente = clienteDoc.data();
+                            if (datosCliente.tipoUltimoEnvio) {
+                                 envioData.courier = datosCliente.tipoUltimoEnvio.toUpperCase();
+                            }
+                        
+                            // --- AÑADE ESTE BLOQUE ---
+                            // Copiar los datos personales del cliente al nuevo envío
+                            envioData.nombre = datosCliente.nombre || "";
+                            envioData.telefono = datosCliente.telefono || "";
+                            envioData.distrito = datosCliente.distrito || "";
+                            envioData.direccion = datosCliente.direccion || "";
+                            envioData.referencia = datosCliente.referencia || "";
+                            envioData.DNI = datosCliente.DNI || "";
+                            envioData.agencia = datosCliente.agencia || "";
+                            // --- FIN DEL BLOQUE ---
+
+                        }
+                    }
+
+                    // 3. Ejecutar las escrituras en la base de datos
+                    console.log("Iniciando transacción...");
+                    
+                    // Usamos una transacción para asegurar que ambas escrituras (si aplican) ocurran juntas
+                    await db.runTransaction(async (transaction) => {
+                        // 3a. Siempre crear el nuevo envío en la colección "envios"
+                        // Usamos .doc() para generar un ID automático
+                        transaction.set(enviosCollectionRef.doc(), envioData);
+                        
+                        // 3b. Si es un envío nuevo (Delivery/Shalom), crear/actualizar los datos del cliente
+                        if (esEnvioNuevo) {
+                            console.log("Guardando datos del cliente en 'clientes'");
+                            // { merge: true } crea el doc si no existe,
+                            // o actualiza solo estos campos si ya existe (ej. un cliente de Shalom ahora pide Delivery)
+                            transaction.set(clienteRef, clienteData, { merge: true });
+                        }
+                    });
+
+                    console.log("¡Transacción completada! Envío y/o cliente guardados.");
+
+                    // 4. Lógica de Éxito (se mantiene igual)
+                    $("#formulario").hide();
+                    $("#successMessage").removeClass('hidden').addClass('flex');
+                    $("#formulario")[0].reset();
+                    // ... (resto del código de reseteo) ...
+                    $("#camposDelivery, #camposShalom, #camposUsados")
+                        .attr("hidden", true)
+                        .find("input, select")
+                        .prop("disabled", true);
+                    $("#contenedorFecha").hide();
+                    $("#fecha").empty();
+
+                    // --- RE-AÑADIR PLACEHOLDER A FECHA ---
+                    $("#fecha").append(
+                        $("<option>")
+                            .val("") 
+                            .text("Elige una fecha de envío...")
+                            .prop("disabled", true)
+                            .prop("selected", true)
+                    );
+                    const nuevasFechas = obtenerFechasEnvio();
+                    nuevasFechas.forEach(f => {
+                        $("#fecha").append(
+                            $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
+                        );
+                    });
+                    $usarMismoTelefonoDelivery.prop('checked', false);
+                    $usarMismoTelefonoShalom.prop('checked', false);
+                    $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100');
+                    $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100');
+
+                } catch (err) {
+                    // 5. Manejo de Errores
+                    console.error("Error al guardar en Firestore (Transacción):", err);
+                    mostrarMensaje("Ocurrió un error al guardar tus datos", "error");
+                } finally {
+                    // 6. Ocultar el spinner
+                    spinnerOverlay.classList.remove('flex');
+                    spinnerOverlay.classList.add('hidden');
+                }
+                // --- FIN DE LA NUEVA LÓGica DE FIRESTORE ---
+            });
+        });
     </script>
 </body>
 </html>
+
