@@ -436,15 +436,14 @@
             
             if(isAdminView) {
                 body.classList.replace('bg-slate-100', 'bg-[#f8fafc]');
-                document.getElementById('nav-desktop').classList.remove('hidden');
-                document.getElementById('nav-desktop').classList.add('md:flex');
+                document.getElementById('nav-desktop').classList.add('hidden', 'md:flex'); // Oculto en móvil, visible en escritorio
                 document.getElementById('nav-mobile').classList.remove('hidden');
                 main.classList.add('pb-24', 'md:pb-8');
                 main.classList.remove('p-0');
             } else {
                 body.classList.replace('bg-[#f8fafc]', 'bg-slate-100');
                 document.getElementById('nav-desktop').classList.add('hidden');
-                document.getElementById('nav-desktop').classList.remove('md:flex');
+                document.getElementById('nav-desktop').classList.remove('md:flex'); // Completamente oculto
                 document.getElementById('nav-mobile').classList.add('hidden');
                 main.classList.remove('pb-24', 'md:pb-8');
                 main.classList.add('p-0');
