@@ -13,7 +13,6 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none !important; }
         
         /* Estilos específicos para la impresión del contrato físico */
         @media print {
@@ -42,41 +41,89 @@
 <body class="bg-[#f8fafc] text-slate-900 flex flex-col md:flex-row min-h-screen transition-colors duration-300" id="body-container">
 
     <!-- ========================================================= -->
-    <!-- ================= NAV DESKTOP (ADMIN) =================== -->
+    <!-- ================= NAV DESKTOP (LATAM5S STYLE) =========== -->
     <!-- ========================================================= -->
-    <aside id="nav-desktop" class="hidden md:flex w-64 bg-slate-900 text-white flex-col min-h-screen p-6 shadow-2xl sticky top-0 z-10">
-        <div class="flex items-center gap-3 mb-10 border-b border-slate-800 pb-6">
-            <div class="bg-rose-600 p-2.5 rounded-xl shadow-lg shadow-rose-900/50 flex-shrink-0">
-                <i data-lucide="chef-hat" class="w-6 h-6"></i>
+    <aside id="nav-desktop" class="hidden md:flex w-72 bg-[#090E17] text-white flex-col min-h-screen border-r border-[#1e293b] sticky top-0 z-10 transition-all">
+        <!-- Header -->
+        <div class="flex items-center gap-3 p-6 mb-2">
+            <div class="bg-[#059669] p-2.5 rounded-xl flex-shrink-0 border border-[#047857]">
+                <i data-lucide="package" class="w-6 h-6 text-white"></i>
             </div>
             <div>
-                <span class="font-black text-xl tracking-tighter block leading-none">NIDOS</span>
-                <span class="text-rose-500 font-bold text-[10px] tracking-widest uppercase">Chickens</span>
+                <span class="font-bold text-[17px] tracking-tight block leading-none">Mi Panel</span>
+                <span class="text-slate-400 text-xs font-medium mt-1 block">Nidos Chickens</span>
             </div>
         </div>
-        <nav class="flex-1 space-y-3">
-            <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30">
-                <i data-lucide="clipboard-list" class="w-5 h-5"></i> Mis Ventas
+
+        <!-- Nav -->
+        <nav class="space-y-1.5 px-4 mt-2">
+            <!-- Ajustes -->
+            <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
+                <i data-lucide="settings" class="w-5 h-5"></i> <span class="text-[14px]">Configurar</span>
             </button>
-            <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400">
-                <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
+            <!-- Crear (Compartir) -->
+            <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
+                <i data-lucide="share-2" class="w-5 h-5"></i> <span class="text-[14px]">Nuevo Contrato</span>
             </button>
-            <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400">
-                <i data-lucide="settings" class="w-5 h-5"></i> Ajustes Legales
+            <!-- Ventas (Envíos) -->
+            <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#111827] text-blue-500 font-medium transition-all">
+                <i data-lucide="truck" class="w-5 h-5"></i> <span class="text-[14px]">Envíos / Ventas</span>
             </button>
         </nav>
+
+        <!-- Resumen -->
+        <div class="mt-8 px-4">
+            <div class="bg-[#0F172A] border border-[#1e293b] rounded-[1.25rem] p-5">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Resumen de Envíos</h4>
+                <div class="space-y-3.5">
+                    <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
+                        <span>DELIVERY</span>
+                        <span id="sum-delivery" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
+                        <span>EN SITIO</span>
+                        <span id="sum-onsite" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
+                        <span>RETIRO EN TIENDA</span>
+                        <span id="sum-pickup" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                    </div>
+                </div>
+                <div class="mt-5 pt-4 border-t border-[#1e293b] flex justify-between items-center text-sm font-black text-white">
+                    <span>TOTAL</span>
+                    <span id="sum-total">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-auto border-t border-[#1e293b] p-6 flex flex-col">
+            <div class="flex items-center gap-4 w-full mb-6">
+                <div class="bg-[#1e293b] p-3 rounded-full border border-[#334155]">
+                    <i data-lucide="phone" class="w-5 h-5 text-slate-300"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-white block text-sm tracking-wide" id="sidebar-phone">904774275</span>
+                    <span class="bg-[#0F172A] text-blue-500 text-[9px] font-black px-2 py-0.5 rounded uppercase border border-[#1e293b] mt-1 inline-block">Plan Pro</span>
+                </div>
+            </div>
+            <button class="text-[#ef4444] font-bold text-sm mb-8 hover:text-red-400 transition-colors text-center">
+                Cerrar Sesión
+            </button>
+            <span class="text-[9px] font-black text-slate-500 tracking-[0.2em] uppercase text-center w-full block">Powered by Latam5S</span>
+        </div>
     </aside>
 
     <!-- ========================================================= -->
     <!-- ================= NAV MOBILE (ADMIN) ==================== -->
     <!-- ========================================================= -->
-    <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 text-white flex justify-around items-center p-2 pb-safe border-t border-slate-800 z-40">
-        <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-rose-500 transition-colors w-20">
-            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold">Ventas</span>
+    <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 bg-[#090E17] text-white flex justify-around items-center p-2 pb-safe border-t border-slate-800 z-40">
+        <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-blue-500 transition-colors w-20">
+            <i data-lucide="truck" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold">Envíos</span>
         </button>
-        <button onclick="switchView('admin-create')" id="btn-mob-create" class="flex flex-col items-center gap-1 p-2 -mt-8 bg-rose-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-rose-900/50 border-4 border-[#f8fafc] text-white transition-all z-10">
-            <i data-lucide="plus" class="w-6 h-6"></i>
+        <button onclick="switchView('admin-create')" id="btn-mob-create" class="flex flex-col items-center gap-1 p-2 -mt-8 bg-blue-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-blue-900/50 border-4 border-[#f8fafc] text-white transition-all z-10">
+            <i data-lucide="share-2" class="w-6 h-6"></i>
         </button>
         <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20">
             <i data-lucide="settings" class="w-5 h-5"></i>
@@ -93,11 +140,11 @@
         <section id="view-admin-dashboard" class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in">
             <header class="flex justify-between items-end">
                 <div>
-                    <h1 class="text-3xl md:text-4xl font-black tracking-tight">Mis Ventas</h1>
+                    <h1 class="text-3xl md:text-4xl font-black tracking-tight">Ventas y Envíos</h1>
                     <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Genera PDFs y envía resúmenes por WhatsApp.</p>
                 </div>
-                <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all text-sm">
-                    <i data-lucide="plus" class="w-5 h-5"></i> Crear Contrato
+                <button onclick="switchView('admin-create')" class="hidden md:flex bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all text-sm">
+                    <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
                 </button>
             </header>
 
@@ -128,7 +175,7 @@
                     <h1 class="text-3xl font-black">Nuevo Contrato</h1>
                     <p class="text-slate-500 text-sm font-medium">Arma el pedido oficial del cliente.</p>
                 </div>
-                <div class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl font-black text-xl border border-rose-100" id="create-next-id">
+                <div class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-black text-xl border border-blue-100" id="create-next-id">
                     #826
                 </div>
             </header>
@@ -140,19 +187,19 @@
                     <div class="space-y-6">
                         <!-- Sección 1: Cliente -->
                         <div class="space-y-4 border-b border-slate-100 pb-6">
-                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> 1. Datos del Comprador</h3>
-                            <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
+                            <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> 1. Datos del Comprador</h3>
+                            <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
                             <div class="grid grid-cols-2 gap-3">
-                                <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
-                                <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
+                                <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
                             </div>
                         </div>
 
                         <!-- Sección 2: Productos -->
                         <div class="space-y-4 border-b border-slate-100 pb-6">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> 2. Platos a Preparar</h3>
-                                <button onclick="addItem()" class="text-[10px] font-black uppercase text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-all">+ Añadir Plato</button>
+                                <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> 2. Platos a Preparar</h3>
+                                <button onclick="addItem()" class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">+ Añadir Plato</button>
                             </div>
                             
                             <div id="items-container" class="space-y-2">
@@ -162,11 +209,11 @@
 
                         <!-- Sección 3: Logística -->
                         <div class="space-y-4">
-                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 3. Logística del Evento</h3>
+                            <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 3. Logística del Evento</h3>
                             
                             <div class="flex bg-slate-100 p-1 rounded-xl" id="srv-buttons">
                                 <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Recojo</button>
-                                <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-rose-600">Delivery</button>
+                                <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-blue-600">Delivery</button>
                                 <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Sitio</button>
                             </div>
 
@@ -197,7 +244,7 @@
                                     <span>Total Platos (<span id="preview-total-qty">0</span>)</span>
                                     <span>S/ <span id="preview-subtotal">0.00</span></span>
                                 </div>
-                                <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-rose-400">
+                                <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-blue-400">
                                     <span>Cargo Adicional (Delivery/Otros)</span>
                                     <span>S/ <span id="preview-fee">0.00</span></span>
                                 </div>
@@ -221,7 +268,7 @@
                             <button id="btn-preview" onclick="openPreview()" disabled class="col-span-1 bg-slate-100 disabled:opacity-50 text-slate-700 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed border border-slate-200">
                                 <i data-lucide="eye" class="w-4 h-4"></i> Vista Previa
                             </button>
-                            <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-rose-600 disabled:opacity-50 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
+                            <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-blue-600 disabled:opacity-50 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
                                 <i data-lucide="save" class="w-4 h-4"></i> Guardar
                             </button>
                         </div>
@@ -311,7 +358,7 @@
             <!-- Header (Solo en pantalla) -->
             <div class="no-print bg-slate-100 flex justify-between items-center p-4 border-b border-slate-200">
                <h3 class="font-black text-slate-800 flex items-center gap-2" id="modal-title">
-                   <i data-lucide="file-text" class="w-5 h-5 text-rose-600"></i> Vista Previa del Documento
+                   <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i> Vista Previa del Documento
                </h3>
                <button onclick="closeContractModal()" class="p-1.5 bg-slate-200 rounded-full hover:bg-slate-300 transition-colors">
                  <i data-lucide="x" class="w-5 h-5"></i>
@@ -459,30 +506,35 @@
             });
             document.getElementById('view-' + viewName).classList.remove('hidden');
 
+            const activeClass = "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#111827] text-blue-500 font-medium transition-all";
+            const inactiveClass = "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all";
+
             // Actualizar colores de navegación (Desktop & Mobile)
             ['dash', 'create', 'set'].forEach(btn => {
                 let elD = document.getElementById('btn-nav-' + btn);
-                if(elD) elD.className = `w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400`;
+                if(elD) elD.className = inactiveClass;
                 let elM = document.getElementById('btn-mob-' + btn);
                 if(elM && btn !== 'create') elM.className = `flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20`;
             });
             
-            if(viewName === 'admin-dashboard') {
-                document.getElementById('btn-nav-dash').classList.replace('hover:bg-slate-800', 'bg-rose-600');
-                document.getElementById('btn-nav-dash').classList.replace('text-slate-400', 'shadow-lg');
-                document.getElementById('btn-mob-dash').classList.replace('text-slate-400', 'text-rose-500');
-                renderDashboard();
+            if(viewName === 'admin-dashboard' || viewName === 'success') {
+                let dashBtn = document.getElementById('btn-nav-dash');
+                if(dashBtn) dashBtn.className = activeClass;
+                let mobDash = document.getElementById('btn-mob-dash');
+                if(mobDash) mobDash.classList.replace('text-slate-400', 'text-blue-500');
+                if(viewName === 'admin-dashboard') renderDashboard();
             }
             if(viewName === 'admin-create') {
-                document.getElementById('btn-nav-create').classList.replace('hover:bg-slate-800', 'bg-rose-600');
-                document.getElementById('btn-nav-create').classList.replace('text-slate-400', 'shadow-lg');
+                let createBtn = document.getElementById('btn-nav-create');
+                if(createBtn) createBtn.className = activeClass;
                 document.getElementById('create-next-id').innerText = '#' + rules.nextContractNumber;
                 resetCreateForm();
             }
             if(viewName === 'admin-settings') {
-                document.getElementById('btn-nav-set').classList.replace('hover:bg-slate-800', 'bg-rose-600');
-                document.getElementById('btn-nav-set').classList.replace('text-slate-400', 'shadow-lg');
-                document.getElementById('btn-mob-set').classList.replace('text-slate-400', 'text-rose-500');
+                let setBtn = document.getElementById('btn-nav-set');
+                if(setBtn) setBtn.className = activeClass;
+                let mobSet = document.getElementById('btn-mob-set');
+                if(mobSet) mobSet.classList.replace('text-slate-400', 'text-blue-500');
                 loadSettings();
             }
             
@@ -491,7 +543,25 @@
         }
 
         // --- DASHBOARD (TABLA) ---
+        function updateSummaryCard() {
+            let countDelivery = 0;
+            let countOnsite = 0;
+            let countPickup = 0;
+            
+            submissions.forEach(s => {
+                if(s.serviceType === 'delivery') countDelivery++;
+                if(s.serviceType === 'onsite') countOnsite++;
+                if(s.serviceType === 'pickup') countPickup++;
+            });
+
+            document.getElementById('sum-delivery').innerText = countDelivery;
+            document.getElementById('sum-onsite').innerText = countOnsite;
+            document.getElementById('sum-pickup').innerText = countPickup;
+            document.getElementById('sum-total').innerText = submissions.length;
+        }
+
         function renderDashboard() {
+            updateSummaryCard();
             let tbody = '';
             submissions.forEach(s => {
                 let badgeClass = s.status === 'Emitido' ? 'bg-amber-50 text-amber-600 border-amber-200' :
@@ -528,7 +598,7 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="openPrintModal(${s.id})" title="Ver o Imprimir PDF" class="bg-rose-100 text-rose-700 p-2 rounded-xl hover:bg-rose-200 transition-all border border-rose-200">
+                                <button onclick="openPrintModal(${s.id})" title="Ver o Imprimir PDF" class="bg-blue-50 text-blue-700 p-2 rounded-xl hover:bg-blue-100 transition-all border border-blue-200 shadow-sm">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
                                 </button>
                                 <button onclick="shareWhatsApp(${s.id})" title="Avisar por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
@@ -541,6 +611,7 @@
             });
             document.getElementById('table-body').innerHTML = tbody;
             lucide.createIcons();
+            document.getElementById('sidebar-phone').innerText = rules.whatsappNumber || "Sin Teléfono";
         }
 
         function updateStatus(id, newStatus) {
@@ -598,12 +669,12 @@
             currentItems.forEach((item) => {
                 html += `
                 <div class="flex items-center gap-2 animate-fade-in">
-                    <select onchange="updateItem(${item.id}, 'product', this.value)" class="flex-[3] px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none focus:ring-2 focus:ring-rose-500/20 text-slate-700">
+                    <select onchange="updateItem(${item.id}, 'product', this.value)" class="flex-[3] px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700">
                         <option value="Pollada" ${item.product==='Pollada'?'selected':''}>Pollada</option>
                         <option value="Chuleta" ${item.product==='Chuleta'?'selected':''}>Chuleta</option>
                         <option value="Parrilla" ${item.product==='Parrilla'?'selected':''}>Parrilla</option>
                     </select>
-                    <input type="number" oninput="updateItem(${item.id}, 'qty', this.value); validateCreateForm()" value="${item.qty}" placeholder="Cant." class="flex-[2] px-2 py-3 rounded-xl bg-rose-50 border border-rose-200 font-black text-rose-700 text-xs outline-none text-center">
+                    <input type="number" oninput="updateItem(${item.id}, 'qty', this.value); validateCreateForm()" value="${item.qty}" placeholder="Cant." class="flex-[2] px-2 py-3 rounded-xl bg-blue-50 border border-blue-200 font-black text-blue-700 text-xs outline-none text-center">
                     <div class="flex-[2] relative">
                         <span class="absolute left-2 top-3 text-[10px] font-bold text-slate-400">S/</span>
                         <input type="number" step="0.1" oninput="updateItem(${item.id}, 'price', this.value)" value="${item.price}" class="w-full pl-6 pr-2 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none">
@@ -638,7 +709,7 @@
             ['pickup', 'delivery', 'onsite'].forEach(t => {
                 document.getElementById('btn-adm-' + t).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400 hover:bg-slate-200";
             });
-            document.getElementById('btn-adm-' + type).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-md text-rose-600 border border-slate-200";
+            document.getElementById('btn-adm-' + type).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-md text-blue-600 border border-slate-200";
             
             if(type === 'pickup') {
                 document.getElementById('adm-location-fields').classList.add('hidden');
@@ -748,7 +819,7 @@
             const tempOrder = getFormDataAsOrder();
             populateContractModal(tempOrder);
             
-            document.getElementById('modal-title').innerHTML = '<i data-lucide="eye" class="w-5 h-5 text-rose-600"></i> Vista Previa (No Guardado)';
+            document.getElementById('modal-title').innerHTML = '<i data-lucide="eye" class="w-5 h-5 text-blue-600"></i> Vista Previa (No Guardado)';
             document.getElementById('btn-modal-print').classList.add('hidden');
             document.getElementById('btn-modal-save').classList.remove('hidden');
             
@@ -859,7 +930,7 @@
             const order = submissions.find(s => s.id === id);
             populateContractModal(order);
             
-            document.getElementById('modal-title').innerHTML = '<i data-lucide="file-text" class="w-5 h-5 text-rose-600"></i> Documento Legal';
+            document.getElementById('modal-title').innerHTML = '<i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i> Documento Legal';
             document.getElementById('btn-modal-save').classList.add('hidden');
             document.getElementById('btn-modal-print').classList.remove('hidden');
             
@@ -873,6 +944,11 @@
 
         // --- INICIO ---
         switchView('admin-dashboard');
+        
+        // Inicializar el número de teléfono en el Sidebar si está presente
+        if(document.getElementById('sidebar-phone')){
+           document.getElementById('sidebar-phone').innerText = rules.whatsappNumber;
+        }
     </script>
 </body>
 </html>
