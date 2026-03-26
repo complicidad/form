@@ -81,7 +81,7 @@
             <header class="flex justify-between items-end">
                 <div>
                     <h1 class="text-3xl md:text-4xl font-black tracking-tight">Mis Ventas</h1>
-                    <p class="text-slate-500 font-medium mt-1">Genera PDFs y envía resúmenes por WhatsApp.</p>
+                    <p class="text-slate-500 font-medium mt-1">Genera PDFs y envía recordatorios de pago por WhatsApp.</p>
                 </div>
                 <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all">
                     <i data-lucide="plus" class="w-5 h-5"></i> Crear Contrato
@@ -133,6 +133,15 @@
                                 <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
                                 <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
                             </div>
+                        </div>
+                        
+                        <div class="space-y-4 border-b border-slate-100 pb-5">
+                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> Tipo de Producto</h3>
+                            <select id="adm-product" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
+                                <option value="Pollada">Pollada</option>
+                                <option value="Chuleta">Chuleta</option>
+                                <option value="Parrilla">Parrilla</option>
+                            </select>
                         </div>
 
                         <div class="space-y-4">
@@ -274,7 +283,7 @@
             <tbody>
                 <tr>
                     <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b id="pr-qty"></b></td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;">Pollada - Modalidad: <span id="pr-type"></span></td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><span id="pr-product"></span> - Modalidad: <span id="pr-type"></span></td>
                     <td style="border: 1px solid #000; padding: 8px; text-align: center;" id="pr-unit"></td>
                     <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b id="pr-total"></b></td>
                 </tr>
@@ -320,7 +329,7 @@
             id: 825, clientName: 'Julio Geldres Montoya', clientDni: '41607475', clientPhone: '987654321',
             serviceType: 'onsite', eventDate: '2026-03-27', district: 'Lince',
             eventLocation: 'Jirón Mariscal Miller 2411', reference: 'Altura 23 y 24 de Arenales',
-            startTime: '12:00', guestCount: 200, total: 2000, deposit: 800, submittedAt: '26/02/2026', status: 'Aceptado'
+            startTime: '12:00', guestCount: 200, productType: 'Pollada', total: 2000, deposit: 800, submittedAt: '26/02/2026', status: 'Aceptado'
         }];
 
         // --- ESTADO ---
@@ -384,7 +393,7 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="text-xs font-black text-slate-700 uppercase">${s.serviceType}</div>
-                            <div class="text-[10px] font-bold text-rose-500 mt-0.5">${s.guestCount} Platos • ${s.eventDate}</div>
+                            <div class="text-[10px] font-bold text-rose-500 mt-0.5">${s.guestCount} Platos de ${s.productType || 'Pollada'} • ${s.eventDate}</div>
                         </td>
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="font-black text-slate-900 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
@@ -395,7 +404,7 @@
                                 <button onclick="printContract(${s.id})" title="1. Descargar/Imprimir Contrato PDF" class="bg-rose-100 text-rose-700 p-2 rounded-xl hover:bg-rose-200 transition-all border border-rose-200">
                                     <i data-lucide="printer" class="w-5 h-5"></i>
                                 </button>
-                                <button onclick="shareWhatsApp(${s.id})" title="2. Enviar mensaje por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
+                                <button onclick="shareWhatsApp(${s.id})" title="2. Recordatorio de Pago por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
                                     <i data-lucide="smartphone" class="w-5 h-5"></i>
                                 </button>
                             </div>
@@ -416,8 +425,8 @@
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
             
-            // Nuevo Mensaje Optimizado para Adjuntar el PDF
-            const msg = `Hola *${s.clientName}*, un placer atenderte.\n\nTe escribimos de parte de *${rules.companyName}*. Aquí te adjuntamos tu *CONTRATO OFICIAL #${s.id}* en formato PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${s.guestCount}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nPor favor, revísalo y envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
+            // Mensaje Optimizado para Adjuntar el PDF
+            const msg = `Hola *${s.clientName}*, te acabo de enviar el PDF con tu contrato oficial #${s.id}.\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nQuedo atento a la foto de tu voucher para validar tu reserva. ¡Gracias!`;
             
             // Limpiar el número
             let phone = s.clientPhone.replace(/\D/g, '');
@@ -500,6 +509,7 @@
                 clientName: document.getElementById('adm-name').value,
                 clientDni: document.getElementById('adm-dni').value,
                 clientPhone: document.getElementById('adm-phone').value,
+                productType: document.getElementById('adm-product').value || 'Pollada',
                 serviceType: adminServiceType,
                 eventDate: document.getElementById('adm-date').value,
                 district: document.getElementById('adm-district').value,
@@ -524,6 +534,7 @@
             document.getElementById('adm-dni').value = '';
             document.getElementById('adm-phone').value = '';
             document.getElementById('adm-count').value = '';
+            document.getElementById('adm-product').value = 'Pollada';
             
             // Ir a pantalla de éxito
             switchView('success');
@@ -564,6 +575,7 @@
             document.getElementById('pr-ref').innerText = order.reference;
             document.getElementById('pr-time').innerText = order.startTime;
             document.getElementById('pr-qty').innerText = order.guestCount;
+            document.getElementById('pr-product').innerText = order.productType || 'Pollada';
             document.getElementById('pr-type').innerText = order.serviceType.toUpperCase();
             document.getElementById('pr-unit').innerText = 'S/ ' + (order.total / order.guestCount).toFixed(2);
             document.getElementById('pr-total').innerText = 'S/ ' + Number(order.total).toFixed(2);
