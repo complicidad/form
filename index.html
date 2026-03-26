@@ -1,911 +1,748 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda tu envío</title>
-
-    <!-- Meta Tags OGP y Twitter (se mantienen sin cambios) -->
-    <meta property="og:title" content="Agenda tu envío" />
-    <meta property="og:description" content="Agenda tu envío de manera simple, rápida y segura." />
-    <meta property="og:image" content="https://complicidad.github.io/form/Spin.png" />
-    <meta property="og:url" content="https://complicidad.github.io/form" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Agenda tu envío" />
-    <meta name="twitter:description" content="Agenda tu envío de manera simple, rápida y segura." />
-    <meta name="twitter:image" content="https://complicidad.github.io/form/Spin.png" />
-
-    <!-- SDKs de Firebase (CORREGIDOS A VERSIÓN 8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-    <!-- jQuery (se mantiene para la lógica existente) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Fuente Quicksand (Alineada con tu landing page) -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS CDN -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nidos Chickens - Venta Asistida</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        /* Configuración de Tailwind para usar la fuente Quicksand y colores de marca */
-        @layer base {
-            body {
-                font-family: 'Quicksand', sans-serif;
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none !important; }
+        
+        /* Estilos específicos para la impresión del contrato físico */
+        @media print {
+            body * { visibility: hidden; }
+            #printable-contract, #printable-contract * { visibility: visible; }
+            #printable-contract { 
+                position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
+                padding: 2cm !important; margin: 0; 
+                font-family: 'Times New Roman', serif; color: #000; 
+                font-size: 11pt; line-height: 1.5; background: white;
             }
+            .no-print { display: none !important; }
         }
-        
-        /* Definición de colores de marca para su uso en clases personalizadas */
-        :root {
-            --brand-accent: #D96B4F;
-            --brand-accent-alt: #FF8B6A;
-            --danger-color: #d93025; 
-        }
-        
-        /* Estilos personalizados para manejo de estados (Tailwind no permite `!important` en focus/invalid sin config extendida) */
-        .is-invalid {
-            border-color: var(--danger-color) !important;
-            box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.15) !important;
-        }
-
-        /* Keyframes para el spinner */
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-custom {
-          animation: spin 1s linear infinite;
-        }
-
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-bg': '#fffaf6',
-                        'brand-card': '#ffffff',
-                        'brand-text': '#2b2b2b',
-                        'brand-muted': '#6b6b6b',
-                        'brand-accent': '#D96B4F', // Terracota principal
-                        'brand-accent-alt': '#FF8B6A', // Terracota claro para hover/sombra
-                        danger: '#d93025',
-                    },
-                    borderRadius: {
-                        'xl': '12px',
-                    },
-                    fontFamily: {
-                        'quicksand': ['Quicksand', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
 </head>
+<body class="bg-[#f8fafc] text-slate-900 flex flex-col md:flex-row min-h-screen transition-colors duration-300" id="body-container">
 
-<body class="flex flex-col bg-brand-bg text-brand-text">
-
-    <!-- Contenedor principal del formulario (main) -->
-    <main class="flex-grow p-5 max-w-xl mx-auto font-quicksand w-full">
-
-        <!-- La tarjeta usa el fondo blanco (brand-card) -->
-        <div class="bg-brand-card p-6 md:p-8 rounded-xl shadow-2xl">
-
-        <!-- Logo -->
-        <div class="text-center p-4">
-            <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Logo Complicidad" class="max-w-[200px] h-auto inline-block">
-        </div>      
-            
-            
-            <form id="formulario" novalidate>
-
-                <h2 class="mt-[0px] mb-2 text-center text-2xl font-bold text-brand-text">Agenda tu envío</h2>
-
-                <!-- Campo 1: WhatsApp usado -->
-                <!-- UX: Se usa type="tel" para facilitar el input en móvil y se añade asterisco -->
-                <label for="telefonoUsado" class="block mt-4 font-semibold text-sm text-brand-text">WhatsApp con el que compraste <span class="text-danger">*</span></label>
-                <input
-                    type="tel"
-                    id="telefonoUsado"
-                    name="telefonoUsado"
-                    required
-                    placeholder="Ej. 9XXXXXXXX"
-                    pattern="^9\d{8}$"
-                    title="Ingresa un número de teléfono válido de 9 dígitos (debe empezar con 9)"
-                    class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
-                />
-
-                <!-- Campo 2: Tipo de servicio -->
-                <label for="tipoAccion" class="block mt-4 font-semibold text-sm text-brand-text">Selecciona el tipo de servicio <span class="text-danger">*</span></label>
-                <select id="tipoAccion" name="tipoAccion" required
-                    class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text">
-                    <option value="" disabled selected>Elige una opción</option>
-                    <option value="delivery">Envío a domicilio/trabajo (Delivery)</option>
-                    <option value="shalom">Retiro en agencia Shalom</option>
-                    <!-- <option value="recoger">Recoger en almacén</option> -->
-                    <option value="usado">Usar mi dirección registrada</option>
-                </select>
-
-                <!-- Fieldset: Delivery -->
-                <fieldset id="camposDelivery" class="mt-8 border-none p-0" hidden>
-                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Delivery</legend>
-                    <p class="text-sm text-brand-muted mb-3">Datos de la persona que recibirá el pedido.</p>
-
-                    <input type="text" id="nombreDelivery" name="nombre" required placeholder="Nombre*"
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
-
-                    <input
-                        type="tel"
-                        id="telefonoDelivery"
-                        name="telefono"
-                        required
-                        placeholder="Telefono*"
-                        pattern="^9\d{8}$"
-                        title="Ingresa un número de teléfono válido de 9 dígitos"
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
-                    />
-                    
-                    <!-- UX: Checkbox para usar el número de WhatsApp principal -->
-                    <div class="mt-1 flex items-center">
-                        <input type="checkbox" id="usarMismoTelefonoDelivery" class="h-4 w-4 text-brand-accent rounded border-gray-300 focus:ring-brand-accent-alt" />
-                        <label for="usarMismoTelefonoDelivery" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayDelivery" class="font-semibold"></span>)</label>
-                    </div>
-
-                    <input type="text" id="distrito" name="distrito" required placeholder="Distrito*" readonly
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
-
-                    <input type="text" id="direccion" name="direccion" required placeholder="Dirección*"
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
-
-                    <input type="text" id="referencia" name="referencia" required placeholder="Referencia*"
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
-                    
-                    <!-- Modal oculto para Distritos -->
-                    <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalDistrito">
-                        <!-- CAMBIOS: Se quitó 'overflow-y-auto', se añadió 'flex flex-col overflow-hidden' -->
-                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] shadow-2xl flex flex-col overflow-hidden">
-                            <input type="text" id="buscadorDistrito" placeholder="Buscar distrito..."
-                                class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
-                            <!-- CAMBIOS: Se quitó 'max-h-80vh', se añadió 'overflow-y-auto' para que esta lista sea la que scrollee -->
-                            <div id="listaDistritos" class="list list-none p-0 m-0 text-brand-text overflow-y-auto"></div>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Fieldset: Shalom -->
-                <fieldset id="camposShalom" class="mt-8 border-none p-0" hidden>
-                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Shalom</legend>
-                    <p class="text-sm text-brand-muted mb-3">Datos para retiro en agencia Shalom.</p>
-
-                    <input type="text" id="nombreShalom" name="nombre" required placeholder="Nombre completo*"
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
-
-                    <input
-                        type="tel"
-                        id="telefonoShalom"
-                        name="telefono"
-                        required
-                        placeholder="Telefono*"
-                        pattern="^9\d{8}$"
-                        title="Ingresa un número de teléfono válido de 9 dígitos"
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"
-                    />
-                    
-                    <!-- UX: Checkbox para usar el número de WhatsApp principal -->
-                    <div class="mt-1 flex items-center">
-                        <input type="checkbox" id="usarMismoTelefonoShalom" class="h-4 w-4 text-brand-accent rounded border-gray-300 focus:ring-brand-accent-alt" />
-                        <label for="usarMismoTelefonoShalom" class="ml-2 block text-sm text-brand-muted cursor-pointer">Usar mi número de WhatsApp (<span id="telefonoDisplayShalom" class="font-semibold"></span>)</label>
-                    </div>
-
-                    <!-- UX: Se añade pattern para DNI (8 dígitos) o CE (5-15 alfanuméricos) -->
-                    <input type="text" id="DNI" name="DNI" required placeholder="DNI/CE*" pattern="[A-Za-z0-9]{5,15}" title="Ingresa un DNI (8 dígitos) o CE válido (5-15 caracteres)"
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text" />
-
-                    <input type="text" id="agencia" name="agencia" required placeholder="Agencia*" readonly
-                        class="w-full p-2 mt-4 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 cursor-pointer text-brand-text" />
-                    
-                    <!-- Modal oculto para Agencias -->
-                    <div class="modal hidden fixed inset-0 bg-brand-text bg-opacity-50 z-50 flex justify-center items-start pt-5 pb-5" id="modalAgencia">
-                        <!-- CAMBIOS: Se quitó 'overflow-y-auto', se añadió 'flex flex-col overflow-hidden' -->
-                        <div class="modal-content bg-brand-card p-5 rounded-xl w-[350px] max-h-[95vh] shadow-2xl flex flex-col overflow-hidden">
-                            <input type="text" id="buscadorAgencia" placeholder="Buscar agencia..."
-                                class="w-full p-2 mb-3 rounded-lg border border-gray-300 focus:border-brand-accent focus:ring-2 focus:ring-brand-accent-alt/40 text-brand-text" />
-                            <!-- CAMBIOS: Se quitó 'max-h-80vh', se añadió 'overflow-y-auto' -->
-                            <div id="listaAgencias" class="list list-none p-0 m-0 text-brand-text overflow-y-auto"></div>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Fieldset: Usado -->
-                <fieldset id="camposUsados" class="mt-8 border-none p-0" hidden>
-                    <legend class="text-xl font-bold mb-1 text-brand-text">📦 Dirección registrada</legend>
-                    <p class="text-sm text-brand-muted mb-3">Usaremos tu dirección guardada.</p>
-                </fieldset>
-
-                <!-- Campo de fecha reutilizable -->
-                <div id="contenedorFecha" class="mt-4" style="display: none;">
-                    <select id="fecha" name="fecha" required
-                        class="w-full p-2 mt-1 rounded-xl border border-gray-300 bg-white outline-none transition duration-150 ease-in-out focus:border-brand-accent focus:ring-4 focus:ring-brand-accent-alt/40 text-brand-text"></select>
-                </div>
-
-                <!-- Botón de envío, con el nuevo color de acento -->
-                <div class="flex justify-center w-full mt-6">
-                    <button type="submit"
-                        class="p-3 text-lg cursor-pointer bg-brand-accent text-white font-semibold border-none rounded-xl w-full transition duration-150 ease-in-out hover:bg-brand-accent-alt shadow-lg">
-                        Confirmar y agendar envío
-                    </button>
-                </div>
-
-                <!-- Texto de privacidad -->
-                <div class="mt-4 text-sm text-brand-muted text-center">
-                    Usaremos tus datos solo para procesar y entregar tu pedido.
-                    <a href="https://complicidad.github.io/privacy/" target="_blank" class="text-brand-accent hover:text-brand-accent-alt underline">Ver política de privacidad</a>
-                </div>
-
-            </form>
-
-            <!-- =========== NUEVO BLOQUE DE ÉXITO - INICIO =========== -->
-            <div id="successMessage" class="hidden flex-col items-center justify-center p-4 text-center">
-                <!-- Icono de Check (SVG) -->
-                <svg class="w-16 h-16 text-brand-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                <h2 class="mt-4 text-2xl font-bold text-brand-text">¡Datos registrados correctamente!</h2>
-                <p class="mt-2 text-brand-muted">Solo falta un paso: Envía la confirmación por WhatsApp para finalizar.</p>
-
-                <!-- Redes sociales (MOVIDAS AQUÍ) -->
-                <p class="mt-6 font-semibold text-brand-text">Mientras esperas, ¡síguenos!</p>
-                <div class="mt-4 flex justify-center gap-4">
-                    <a href="https://wa.me/51981391159" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
-                        <img src="https://raw.githubusercontent.com/complicidad/form/main/whatsapp.png" alt="WhatsApp" width="28" height="28">
-                    </a>
-                    <a href="https://www.tiktok.com/@complicidadboutique" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
-                        <img src="https://raw.githubusercontent.com/complicidad/form/main/tik-tok.png" alt="TikTok" width="28" height="28">
-                    </a>
-                    <a href="https://www.instagram.com/complicidadboutique" target="_blank" rel="noopener noreferrer" class="inline-flex items-center hover:opacity-80 transition">
-                        <img src="https://raw.githubusercontent.com/complicidad/form/main/instagram.png" alt="Instagram" width="28" height="28">
-                    </a>
-                </div>
-
+    <!-- NAVEGACIÓN DESKTOP (ADMIN) -->
+    <aside id="nav-desktop" class="hidden md:flex w-64 bg-slate-900 text-white flex-col min-h-screen p-6 shadow-2xl sticky top-0 z-10">
+        <div class="flex items-center gap-3 mb-10 border-b border-slate-800 pb-6">
+            <div class="bg-rose-600 p-2.5 rounded-xl shadow-lg shadow-rose-900/50">
+                <i data-lucide="chef-hat" class="w-6 h-6"></i>
             </div>
-            <!-- =========== NUEVO BLOQUE DE ÉXITO - FIN =========== -->
-
+            <div>
+                <span class="font-black text-xl tracking-tighter block leading-none">NIDOS</span>
+                <span class="text-rose-500 font-bold text-xs tracking-widest">CHICKENS</span>
+            </div>
         </div>
+        <nav class="flex-1 space-y-3">
+            <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i> Mis Ventas
+            </button>
+            <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400">
+                <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
+            </button>
+            <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400">
+                <i data-lucide="settings" class="w-5 h-5"></i> Ajustes
+            </button>
+        </nav>
+    </aside>
+
+    <!-- NAVEGACIÓN MOBILE (ADMIN) -->
+    <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 text-white flex justify-around items-center p-3 pb-safe border-t border-slate-800 z-50">
+        <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-rose-500">
+            <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+        </button>
+        <button onclick="switchView('admin-create')" id="btn-mob-create" class="flex flex-col items-center gap-1 p-2 -mt-6 bg-rose-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-rose-900/50 border-4 border-[#f8fafc] text-white transition-all">
+            <i data-lucide="plus" class="w-7 h-7"></i>
+        </button>
+        <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400">
+            <i data-lucide="settings" class="w-6 h-6"></i>
+        </button>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main id="main-content" class="flex-1 p-4 md:p-8 w-full pb-24 md:pb-8 overflow-x-hidden">
+
+        <!-- ========================================================= -->
+        <!-- ================= VISTA: ADMIN DASHBOARD ================ -->
+        <!-- ========================================================= -->
+        <section id="view-admin-dashboard" class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in">
+            <header class="flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-black tracking-tight">Mis Ventas</h1>
+                    <p class="text-slate-500 font-medium mt-1">Comparte los links mágicos para cerrar tratos.</p>
+                </div>
+                <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all">
+                    <i data-lucide="plus" class="w-5 h-5"></i> Crear Contrato
+                </button>
+            </header>
+
+            <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden w-full">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left min-w-[800px]">
+                        <thead class="bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Estado / ID</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Cliente</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Monto Final</th>
+                                <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones / Compartir</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-50">
+                            <!-- Filas de tabla inyectadas vía JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- ================= VISTA: ADMIN CREAR ==================== -->
+        <!-- ========================================================= -->
+        <section id="view-admin-create" class="hidden max-w-4xl mx-auto space-y-6 animate-fade-in">
+            <header class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-black">Generador Rápido</h1>
+                    <p class="text-slate-500 text-sm font-medium">Crea el contrato mientras chateas con el cliente.</p>
+                </div>
+                <div class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl font-black text-xl border border-rose-100" id="create-next-id">
+                    #826
+                </div>
+            </header>
+
+            <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Columna Izquierda: Datos -->
+                    <div class="space-y-5">
+                        <div class="space-y-4 border-b border-slate-100 pb-5">
+                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="chef-hat" class="w-4 h-4"></i> Datos del Comprador</h3>
+                            <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
+                                <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="utensils" class="w-4 h-4"></i> Logística</h3>
+                            
+                            <div class="flex bg-slate-100 p-1 rounded-xl" id="srv-buttons">
+                                <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Recojo</button>
+                                <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-rose-600">Delivery</button>
+                                <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Sitio</button>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="number" id="adm-count" placeholder="Nº Platos" oninput="updatePricing(); validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-rose-50 border border-rose-100 font-black text-rose-700 text-sm outline-none">
+                                <input type="date" id="adm-date" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                            </div>
+
+                            <div id="adm-location-fields" class="space-y-3">
+                                <select id="adm-district" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                    <option value="">Distrito</option>
+                                    <option>Miraflores</option><option>San Isidro</option><option>Santiago de Surco</option><option>San Borja</option><option>La Molina</option><option>Barranco</option><option>Jesús María</option><option>Lince</option><option>Magdalena del Mar</option><option>Pueblo Libre</option><option>San Miguel</option><option>Surquillo</option><option>Chorrillos</option><option>Ate</option><option>Santa Anita</option><option>S.J.L.</option><option>Otros</option>
+                                </select>
+                                <input type="text" id="adm-location" placeholder="Dirección exacta" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                <input type="text" id="adm-ref" placeholder="Referencia / Cruce" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                            </div>
+                            <input type="time" id="adm-time" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Resumen y Guardar -->
+                    <div class="flex flex-col">
+                        <div class="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex-1 flex flex-col justify-center">
+                            <h3 class="text-slate-400 text-[10px] font-black uppercase mb-6 tracking-widest text-center">Resumen Financiero</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center text-sm font-bold text-slate-300">
+                                    <span><span id="preview-count">0</span> Platos x S/ <span id="preview-unit">0.00</span></span>
+                                    <span>S/ <span id="preview-subtotal">0.00</span></span>
+                                </div>
+                                <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-rose-300">
+                                    <span>Cargo Delivery</span>
+                                    <span>S/ <span id="preview-fee">0.00</span></span>
+                                </div>
+                                
+                                <div class="h-px bg-slate-700 my-4"></div>
+                                
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Monto de Adelanto</p>
+                                        <p class="text-3xl font-black text-emerald-400">S/ <span id="preview-deposit">0.00</span></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Importe Total</p>
+                                        <p class="text-2xl font-black text-white">S/ <span id="preview-total">0.00</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-generate" onclick="generateContract()" disabled class="mt-4 w-full bg-rose-600 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i> Generar Contrato Mágico
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- ================= VISTA: ADMIN SETTINGS ================= -->
+        <!-- ========================================================= -->
+        <section id="view-admin-settings" class="hidden max-w-2xl mx-auto space-y-6 animate-fade-in">
+            <h1 class="text-3xl font-black">Ajustes del Sistema</h1>
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400">Representante</label>
+                        <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400">Mi WhatsApp (Recibir vouchers)</label>
+                        <input type="text" id="set-whatsapp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold text-emerald-600">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400">Cta BCP</label>
+                        <input type="text" id="set-bcpCta" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400">Yape / Plim</label>
+                        <input type="text" id="set-yapePlim" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold">
+                    </div>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 shadow-lg">
+                    Guardar
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- === VISTA CLIENTE: "MAGIC LINK" (Contrato Interactivo) == -->
+        <!-- ========================================================= -->
+        <section id="view-client-magic-link" class="hidden max-w-lg mx-auto py-6 md:py-10 animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="bg-white border-4 border-rose-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-xl mb-3 relative">
+                    <i data-lucide="chef-hat" class="w-10 h-10 text-rose-600"></i>
+                    <div class="absolute -bottom-2 -right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-white font-bold"></i></div>
+                </div>
+                <h1 class="text-2xl font-black text-slate-900">Hola, <span id="magic-client-name"></span></h1>
+                <p class="text-slate-500 text-sm mt-1">Por favor, revisa y confirma tu contrato.</p>
+            </div>
+
+            <!-- Documento Legal Simulado -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden mb-6">
+                <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-rose-500"></i>
+                        <span class="font-black uppercase tracking-widest text-xs">Contrato Legal</span>
+                    </div>
+                    <span class="font-bold text-rose-500 text-sm" id="magic-contract-id"></span>
+                </div>
+                
+                <div class="p-6 md:p-8 space-y-6 text-sm text-slate-700 leading-relaxed font-serif text-justify">
+                    <p>
+                        Conste por el presente documento, el acuerdo comercial entre <b id="magic-company"></b> (RUC: <span id="magic-ruc"></span>), representado por <span id="magic-seller"></span>, en adelante "EL VENDEDOR", y <b id="magic-fullname"></b> (DNI: <span id="magic-dni"></span>), en adelante "EL COMPRADOR".
+                    </p>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 font-sans">
+                        <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 border-b border-slate-200 pb-2">Detalles del Evento</h4>
+                        <div class="grid grid-cols-2 gap-y-2 text-xs">
+                            <span class="text-slate-500">Fecha:</span> <span class="font-bold text-right text-slate-900" id="magic-date"></span>
+                            <span class="text-slate-500">Hora:</span> <span class="font-bold text-right text-slate-900" id="magic-time"></span>
+                            <span class="text-slate-500">Cantidad:</span> <span class="font-bold text-right text-rose-600"><span id="magic-count"></span> Platos</span>
+                            <span class="text-slate-500">Modalidad:</span> <span class="font-bold text-right text-slate-900 uppercase" id="magic-type"></span>
+                            <div id="magic-location-wrap" class="col-span-2 hidden mt-2">
+                                <span class="text-slate-500 block">Lugar de Entrega:</span> 
+                                <span class="font-bold text-slate-900 block leading-tight" id="magic-location"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>
+                        Las partes pactan el precio total por los servicios descritos en la suma de <b id="magic-total"></b>.
+                    </p>
+                    <p>
+                        El comprador se compromete a realizar un depósito inicial por concepto de separación y reserva equivalente a <b id="magic-deposit"></b>. El saldo restante (<span id="magic-balance"></span>) será cancelado contraentrega.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Botón de Aceptación (El "Cierre") -->
+            <button onclick="handleClientAccept()" class="w-full bg-[#10b981] text-white py-5 rounded-2xl font-black text-lg flex flex-col items-center justify-center shadow-xl shadow-emerald-500/30 hover:bg-[#059669] transition-all active:scale-95">
+                <span>ACEPTAR CONTRATO</span>
+                <span class="text-[10px] uppercase tracking-widest font-bold opacity-80 mt-0.5">Y Ver Cuentas para Depósito</span>
+            </button>
+            <p class="text-center text-[10px] font-bold text-slate-400 mt-4 px-8">Al hacer clic en aceptar, confirmas que los datos son correctos y aceptas los términos comerciales.</p>
+
+            <button onclick="switchView('admin-dashboard')" class="w-full mt-6 text-slate-400 font-bold text-xs py-2 hover:text-slate-900">
+                (Volver al Admin)
+            </button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- === VISTA CLIENTE: PAGO (Cuentas después de aceptar) ==== -->
+        <!-- ========================================================= -->
+        <section id="view-client-payment" class="hidden max-w-md mx-auto py-10 animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="bg-emerald-100 w-20 h-20 rounded-[2rem] flex items-center justify-center text-emerald-600 mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-10 h-10"></i>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Contrato Aceptado!</h1>
+                <p class="text-slate-500 text-sm mt-2">Paso final: Realiza tu transferencia para asegurar tu pedido del <b id="pay-date"></b>.</p>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-6">
+                <div class="bg-slate-900 p-6 text-center text-white">
+                    <p class="text-slate-400 text-[10px] font-black uppercase mb-1 tracking-widest">Monto a Transferir</p>
+                    <p class="text-5xl font-black" id="pay-deposit">S/ 0.00</p>
+                </div>
+                
+                <div class="p-6 space-y-4">
+                    <!-- Yape/Plim Box -->
+                    <div class="bg-[#74006e] text-white rounded-xl p-4 flex justify-between items-center shadow-md">
+                        <div>
+                            <p class="text-[10px] font-black uppercase opacity-70 tracking-widest">YAPE / PLIM</p>
+                            <p class="font-black text-xl" id="pay-yape"></p>
+                            <p class="text-xs opacity-90" id="pay-seller"></p>
+                        </div>
+                        <i data-lucide="smartphone" class="w-8 h-8 opacity-50"></i>
+                    </div>
+
+                    <!-- BCP Box -->
+                    <div class="bg-[#002a8d] text-white rounded-xl p-4 flex justify-between items-center shadow-md">
+                        <div>
+                            <p class="text-[10px] font-black uppercase opacity-70 tracking-widest">BCP SOLES</p>
+                            <p class="font-black text-lg tracking-wider" id="pay-bcp"></p>
+                            <p class="text-[9px] mt-1 opacity-80" id="pay-cci"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Final -->
+            <button onclick="sendVoucherToAdmin()" class="w-full bg-[#25D366] text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-[#25D366]/30 hover:bg-[#128C7E] transition-all active:scale-95">
+                <i data-lucide="smartphone" class="w-6 h-6"></i> YA PAGUÉ (Enviar Voucher)
+            </button>
+            <button onclick="switchView('admin-dashboard')" class="w-full text-slate-400 font-bold text-xs py-4 hover:text-slate-900 mt-2">
+                Cerrar simulación y volver al Admin
+            </button>
+        </section>
+
     </main>
 
-        <footer class="mt-0 mb-5 text-center text-gray-500 text-xs">
-          <p>
-              Creado por: 
-              <a href="https://www.latam5s.com" target="_blank" class="text-blue-500 font-bold hover:underline">
-                  www.latam5s.com
-              </a>
-          </p>
-        </footer>
+    <!-- ================= MODAL IMPRESIÓN FÍSICA ================= -->
+    <div id="printable-contract" class="hidden no-print">
+        <div style="text-align: right; margin-bottom: 25px; font-weight: bold;">Lima, <span id="pr-date"></span></div>
+        <h1 style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 25px; font-size: 15pt;">CONTRATO DE COMPRAVENTA #<span id="pr-id"></span></h1>
+        
+        <p>El señor <b id="pr-seller"></b> identificado con DNI N° <b id="pr-sellerDni"></b>, representante legal de <b id="pr-company"></b>, quien en adelante se denominará EL VENDEDOR. (Con RUC <span id="pr-ruc"></span>).</p>
+        <p>El/La señor(a) <b id="pr-client"></b> con DNI N°: <b id="pr-clientDni"></b> quien en adelante se denominará EL COMPRADOR, hemos acordado celebrar contrato de compraventa que se regirá por las normas civiles y comerciales que regulan la materia, según las siguientes cláusulas:</p>
 
-    <!-- Toast de Notificación (Nuevo estilo) -->
-    <div class="toast fixed right-5 top-5 text-white p-3 rounded-xl shadow-xl shadow-brand-accent/25 opacity-0 translate-y-2 transition-all duration-300 z-50 max-w-sm" id="toast">Acción aplicada</div>
+        <span style="font-weight: bold; margin-top: 15px; display: block; font-size: 11pt;">PRIMERA. OBJETO:</span>
+        <p>Día del evento: <b id="pr-eventDate"></b><br/>En la dirección: <b id="pr-location"></b><br/>Referencia: <b id="pr-ref"></b> / Hora: <b id="pr-time"></b></p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; border: 1.5px solid #000;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">CANT.</th>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">DESCRIPCIÓN</th>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">P. UNIT.</th>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">IMPORTE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b id="pr-qty"></b></td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;">Pollada - Modalidad: <span id="pr-type"></span></td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;" id="pr-unit"></td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b id="pr-total"></b></td>
+                </tr>
+            </tbody>
+        </table>
 
+        <span style="font-weight: bold; margin-top: 15px; display: block; font-size: 11pt;">SEGUNDA. PRECIO:</span>
+        <p>Las partes pactan la suma de <b id="pr-total2"></b> nuevos soles.</p>
 
-    <!-- SPINNER DE CARGA CORREGIDO -->
-    <!-- Se añadieron 'inset-0' para cubrir toda la pantalla y 'justify-center items-center' para centrar el contenido. -->
-    <div id="spinner" class="fixed inset-0 bg-brand-bg bg-opacity-85 z-50 flex justify-center items-center flex-col hidden">
-        <img src="https://raw.githubusercontent.com/complicidad/form/main/Spin.png" alt="Cargando..." class="w-[150px] h-auto animate-spin-custom">
-        <p class="mt-4 text-lg text-brand-text">Cargando...</p>
+        <span style="font-weight: bold; margin-top: 15px; display: block; font-size: 11pt;">TERCERA. FORMA DE PAGO:</span>
+        <p>EL COMPRADOR paga el precio en la siguiente forma: <b>ADELANTO de <span id="pr-dep"></span> NUEVOS SOLES</b> y el saldo restante de <span id="pr-bal"></span> NUEVOS SOLES <b>CONTRAENTREGA</b>.</p>
+
+        <div style="border: 1.5px solid #000; padding: 15px; margin-top: 25px; font-size: 10.5pt;">
+            <b>MÉTODO DE PAGO:</b><br/>YAPE / PLIM al número: <b id="pr-yape"></b><br/>
+            Cta BCP Soles: <b id="pr-bcp"></b>
+        </div>
+
+        <div style="margin-top: 70px; display: flex; justify-content: space-around;">
+            <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;"><b>VENDEDOR</b><br/><span id="pr-sig-seller"></span></div>
+            <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;"><b>COMPRADOR</b><br/><span id="pr-sig-client"></span></div>
+        </div>
     </div>
-    
-    <!-- Script para los modales de lista. -->
+
+
+    <!-- ========================================================= -->
+    <!-- ================== LÓGICA JAVASCRIPT ==================== -->
+    <!-- ========================================================= -->
     <script>
+        lucide.createIcons();
 
-        // Se elimina la función updateMessageClasses antigua.
-        
-        // --- Lógica del modal de Distritos (Vanilla JS) ---
-        const campoDistrito = document.getElementById("distrito");
-        const overlay = document.getElementById("modalDistrito");
-        const buscador = document.getElementById("buscadorDistrito");
-        const listaDistritos = document.getElementById("listaDistritos");
-        let distritos = [];
-        
-        // Abrir popup al hacer click en el campo
-        campoDistrito.addEventListener("click", () => {
-          overlay.style.display = "flex";
-          buscador.value = "";
-          mostrarDistritos(distritos);
-          buscador.focus();
-        });
-        
-        // Cerrar popup si clic fuera de la caja
-        overlay.addEventListener("click", (e) => {
-          if (e.target === overlay) {
-            overlay.style.display = "none";
-          }
-        });
-        
-        // Buscar distritos
-        buscador.addEventListener("input", () => {
-          const filtro = buscador.value.toLowerCase();
-          const filtrados = distritos.filter(d => d.toLowerCase().includes(filtro));
-          mostrarDistritos(filtrados);
-        });
-        
-        // Mostrar lista en el popup
-        function mostrarDistritos(lista) {
-          listaDistritos.innerHTML = "";
-          lista.forEach(d => {
-            const div = document.createElement("div");
-            // Clases de Tailwind para el item de la lista
-            div.className = "p-2 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition list-item";
-            div.textContent = d;
-            div.addEventListener("click", () => {
-              campoDistrito.value = d;
-              overlay.style.display = "none";
+        // --- DATOS POR DEFECTO ---
+        const defaultRules = {
+            companyName: "NIDOS CHICKENS", whatsappNumber: "51960078506", 
+            sellerName: "Brayan Smith Sánchez Rafaile", sellerDni: "47058826",
+            sellerRuc: "10436370984", sellerBusiness: "Distribuidora VIRGEN DE GUADALUPE",
+            yapePlim: "960078506", bcpCta: "19105667430075", bcpCci: "00219110566743007552",
+            priceRecojo: 9.5, priceDelivery: 10.5, pricePresencial: 10.0,
+            minPlatesFreeShipping: 120, deliveryFee: 25, depositFixed: 100,
+            depositOnsitePercent: 40, nextContractNumber: 826 
+        };
+
+        const defaultData = [{
+            id: 825, clientName: 'Julio Geldres Montoya', clientDni: '41607475', clientPhone: '987654321',
+            serviceType: 'onsite', eventDate: '2026-03-27', district: 'Lince',
+            eventLocation: 'Jirón Mariscal Miller 2411', reference: 'Altura 23 y 24 de Arenales',
+            startTime: '12:00', guestCount: 200, total: 2000, deposit: 800, submittedAt: '26/02/2026', status: 'Aceptado'
+        }];
+
+        // --- ESTADO ---
+        let rules = JSON.parse(localStorage.getItem('nidos_rules')) || defaultRules;
+        let submissions = JSON.parse(localStorage.getItem('nidos_submissions')) || defaultData;
+        let activeContract = null;
+        let adminServiceType = 'delivery';
+
+        // --- CONTROL DE VISTAS ---
+        function switchView(viewName) {
+            // Ocultar todas las secciones
+            ['admin-dashboard', 'admin-create', 'admin-settings', 'client-magic-link', 'client-payment'].forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
             });
-            listaDistritos.appendChild(div);
-          });
+            // Mostrar la solicitada
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+
+            const isAdminView = viewName.startsWith('admin');
+            const body = document.getElementById('body-container');
+            const main = document.getElementById('main-content');
+            
+            if(isAdminView) {
+                body.classList.replace('bg-slate-100', 'bg-[#f8fafc]');
+                document.getElementById('nav-desktop').classList.remove('hidden');
+                document.getElementById('nav-desktop').classList.add('md:flex');
+                document.getElementById('nav-mobile').classList.remove('hidden');
+                main.classList.add('pb-24', 'md:pb-8');
+                main.classList.remove('p-0');
+            } else {
+                body.classList.replace('bg-[#f8fafc]', 'bg-slate-100');
+                document.getElementById('nav-desktop').classList.add('hidden');
+                document.getElementById('nav-desktop').classList.remove('md:flex');
+                document.getElementById('nav-mobile').classList.add('hidden');
+                main.classList.remove('pb-24', 'md:pb-8');
+                main.classList.add('p-0');
+            }
+
+            // Update Nav Colors (Desktop)
+            if(isAdminView) {
+                ['dash', 'create', 'set'].forEach(btn => {
+                    const el = document.getElementById('btn-nav-' + btn);
+                    if(el) el.className = `w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400`;
+                });
+                if(viewName === 'admin-dashboard') document.getElementById('btn-nav-dash').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
+                if(viewName === 'admin-create') document.getElementById('btn-nav-create').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
+                if(viewName === 'admin-settings') document.getElementById('btn-nav-set').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
+            }
+
+            // Ejecutar funciones específicas de vista
+            if(viewName === 'admin-dashboard') renderDashboard();
+            if(viewName === 'admin-create') {
+                document.getElementById('create-next-id').innerText = '#' + rules.nextContractNumber;
+                setAdminServiceType('delivery');
+                updatePricing();
+            }
+            if(viewName === 'admin-settings') loadSettings();
         }
-        
-        // Cargar JSON de distritos
-        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstDinsides.json")
-          .then(res => res.json())
-          .then(data => {
-            // --- LÍNEA MODIFICADA ---
-            // Leemos las propiedades "Distrito" y "Precio" del nuevo JSON
-            distritos = data.map(item => `${item.Distrito} | ${item.Precio}`);
-            mostrarDistritos(distritos);
-          })
-          .catch(err => {
-            console.error("Error cargando distritos:", err);
-          });
-        
-        // --- Lógica del modal de Agencias (Vanilla JS) ---
-        const campoAgencia = document.getElementById("agencia");
-        const overlayAgencia = document.getElementById("modalAgencia");
-        const buscadorAgencia = document.getElementById("buscadorAgencia");
-        const listaAgencias = document.getElementById("listaAgencias");
-        let agencias = [];
-        
-        // Abrir popup al hacer click en el campo
-        campoAgencia.addEventListener("click", () => {
-          overlayAgencia.style.display = "flex";
-          buscadorAgencia.value = "";
-          mostrarAgencias(agencias);
-          buscadorAgencia.focus();
-        });
-        
-        // Cerrar popup si clic fuera de la caja
-        overlayAgencia.addEventListener("click", (e) => {
-          if (e.target === overlayAgencia) {
-            overlayAgencia.style.display = "none";
-          }
-        });
-        
-        // Buscar agencias
-        buscadorAgencia.addEventListener("input", () => {
-          const filtro = buscadorAgencia.value.toLowerCase();
-          const filtrados = agencias.filter(a => a.toLowerCase().includes(filtro));
-          mostrarAgencias(filtrados);
-        });
-        
-        // Mostrar lista en el popup
-        function mostrarAgencias(lista) {
-          listaAgencias.innerHTML = "";
-          lista.forEach(a => {
-            const [titulo, ...resto] = a.split("\n"); // Separar en partes
-            const div = document.createElement("div");
-            // Clases de Tailwind para el item de la lista
-            div.className = "p-2 cursor-pointer border-b border-gray-100 hover:bg-gray-100 transition list-item";
-            // Armamos el HTML con la primera línea en negrita
-            div.innerHTML = `<span class="font-semibold">${titulo}</span>${resto.length ? "<br><span class='text-sm text-gray-600'>" + resto.join("<br>") + "</span>" : ""}`;
-            div.addEventListener("click", () => {
-              campoAgencia.value = titulo; // Mantener el valor original con \n
-              overlayAgencia.style.display = "none";
+
+        // --- DASHBOARD ---
+        function renderDashboard() {
+            let tbody = '';
+            submissions.forEach(s => {
+                let badgeClass = s.status === 'Emitido' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                                 s.status === 'Aceptado' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                                 s.status === 'Pagado' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                                 'bg-slate-100 text-slate-600 border-slate-200';
+
+                tbody += `
+                    <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-50">
+                        <td class="px-6 py-5">
+                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border outline-none cursor-pointer transition-all ${badgeClass}">
+                                <option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option>
+                                <option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option>
+                                <option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option>
+                                <option value="Entregado" ${s.status==='Entregado'?'selected':''}>Entregado</option>
+                            </select>
+                            <div class="font-black text-slate-400 mt-2 ml-1 text-xs">#${s.id}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="font-bold text-slate-900 text-sm line-clamp-1">${s.clientName}</div>
+                            <div class="text-[10px] font-bold text-slate-500 mt-0.5">DNI: ${s.clientDni} • Cel: ${s.clientPhone}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-xs font-black text-slate-700 uppercase">${s.serviceType}</div>
+                            <div class="text-[10px] font-bold text-rose-500 mt-0.5">${s.guestCount} Platos • ${s.eventDate}</div>
+                        </td>
+                        <td class="px-6 py-5 whitespace-nowrap">
+                            <div class="font-black text-slate-900 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
+                            <div class="text-[9px] font-bold text-slate-500 uppercase">Seña: S/ ${Number(s.deposit).toFixed(2)}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="shareWhatsApp(${s.id})" title="Enviar Link al Cliente" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
+                                    <i data-lucide="smartphone" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="openMagicLink(${s.id})" title="Simular vista del cliente" class="bg-slate-900 text-white p-2 rounded-xl hover:bg-slate-800 transition-all shadow-sm">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="printContract(${s.id})" title="Imprimir contrato" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-all">
+                                    <i data-lucide="printer" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             });
-            listaAgencias.appendChild(div);
-          });
+            document.getElementById('table-body').innerHTML = tbody;
+            lucide.createIcons();
         }
-        
-        // Cargar JSON de agencias
-        fetch("https://raw.githubusercontent.com/complicidad/form/main/lstShalom.json")
-          .then(res => res.json())
-          .then(data => {
-            // --- LÍNEA MODIFICADA ---
-            // Leemos las propiedades "Agencia" y "Direccion" del nuevo JSON
-            agencias = data.map(item => `${item.Agencia}\n${item.Direccion}`);
-            mostrarAgencias(agencias);
-          })
-          .catch(err => {
-            console.error("Error cargando agencias:", err);
-          });
 
+        function updateStatus(id, newStatus) {
+            submissions = submissions.map(s => s.id === id ? { ...s, status: newStatus } : s);
+            localStorage.setItem('nidos_submissions', JSON.stringify(submissions));
+            renderDashboard();
+        }
 
-            // --- INICIALIZACIÓN DE FIREBASE ---
+        function shareWhatsApp(id) {
+            const s = submissions.find(c => c.id === id);
+            const msg = `Hola *${s.clientName}*, un placer atenderte. \n\nAquí tienes tu contrato oficial detallado por tu pedido de polladas.\n\nPor favor, revísalo en este enlace y dale al botón de aceptar para separar tu fecha:\n\n👉 *nidoschickens.com/contrato/${s.id}*`;
+            const url = `https://wa.me/51${s.clientPhone}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
 
-            // 1. Pega tu objeto de configuración de Firebase aquí
-            const firebaseConfig = {
-            apiKey: "AIzaSyCzJ36uZ6Bh6DdZK3VBv5HMu2xcU4GqCMQ",
-            authDomain: "form-bedc2.firebaseapp.com",
-            projectId: "form-bedc2",
-            storageBucket: "form-bedc2.firebasestorage.app",
-            messagingSenderId: "942482653487",
-            appId: "1:942482653487:web:4193c16f078992659521da"
+        // --- ADMIN CREAR ---
+        function setAdminServiceType(type) {
+            adminServiceType = type;
+            ['pickup', 'delivery', 'onsite'].forEach(t => {
+                document.getElementById('btn-adm-' + t).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400";
+            });
+            document.getElementById('btn-adm-' + type).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-rose-600";
+            
+            if(type === 'pickup') {
+                document.getElementById('adm-location-fields').classList.add('hidden');
+            } else {
+                document.getElementById('adm-location-fields').classList.remove('hidden');
+            }
+            updatePricing();
+            validateCreateForm();
+        }
+
+        function getPricing() {
+            let unit = 0; let fee = 0; 
+            const count = Number(document.getElementById('adm-count').value) || 0;
+
+            if (adminServiceType === 'pickup') unit = rules.priceRecojo;
+            else if (adminServiceType === 'delivery') {
+                unit = rules.priceDelivery;
+                if (count < rules.minPlatesFreeShipping && count > 0) fee = rules.deliveryFee;
+            } else if (adminServiceType === 'onsite') unit = rules.pricePresencial;
+
+            const total = (count * unit) + fee;
+            let dep = rules.depositFixed;
+            if (adminServiceType === 'onsite') dep = (total * rules.depositOnsitePercent) / 100;
+
+            return { total, deposit: dep, unitPrice: unit, fee };
+        }
+
+        function updatePricing() {
+            const p = getPricing();
+            const count = document.getElementById('adm-count').value || 0;
+            
+            document.getElementById('preview-count').innerText = count;
+            document.getElementById('preview-unit').innerText = p.unitPrice.toFixed(2);
+            document.getElementById('preview-subtotal').innerText = (count * p.unitPrice).toFixed(2);
+            
+            if(p.fee > 0) {
+                document.getElementById('preview-fee-container').classList.remove('hidden');
+                document.getElementById('preview-fee-container').classList.add('flex');
+                document.getElementById('preview-fee').innerText = p.fee.toFixed(2);
+            } else {
+                document.getElementById('preview-fee-container').classList.add('hidden');
+                document.getElementById('preview-fee-container').classList.remove('flex');
+            }
+
+            document.getElementById('preview-deposit').innerText = p.deposit.toFixed(2);
+            document.getElementById('preview-total').innerText = p.total.toFixed(2);
+        }
+
+        function validateCreateForm() {
+            const name = document.getElementById('adm-name').value;
+            const count = document.getElementById('adm-count').value;
+            const btn = document.getElementById('btn-generate');
+            if(name && count > 0) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        function generateContract() {
+            const p = getPricing();
+            const newEntry = {
+                id: rules.nextContractNumber,
+                clientName: document.getElementById('adm-name').value,
+                clientDni: document.getElementById('adm-dni').value,
+                clientPhone: document.getElementById('adm-phone').value,
+                serviceType: adminServiceType,
+                eventDate: document.getElementById('adm-date').value,
+                district: document.getElementById('adm-district').value,
+                eventLocation: document.getElementById('adm-location').value,
+                reference: document.getElementById('adm-ref').value,
+                startTime: document.getElementById('adm-time').value,
+                guestCount: document.getElementById('adm-count').value,
+                total: p.total,
+                deposit: p.deposit,
+                submittedAt: new Date().toLocaleDateString(),
+                status: 'Emitido'
             };
 
-            // 2. Inicializar Firebase y los servicios
-            const app = firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-
-            // 3. Iniciar sesión anónimamente para cumplir las reglas de seguridad
-            // --- MODIFICADO: Convertido en una promesa que podemos 'await' ---
-            const authPromise = auth.signInAnonymously().catch((error) => {
-              console.error("Error al iniciar sesión anónimamente:", error);
-              // Re-lanzar el error para que el 'await' falle si la autenticación falla
-              throw new Error("Error de autenticación: " + error.message);
-            });
+            submissions.unshift(newEntry);
+            rules.nextContractNumber++;
             
-            authPromise.then(() => {
-                console.log("Autenticación anónima exitosa.");
-            });
-            // --- FIN DE LA MODIFICACIÓN DE AUTH ---
+            localStorage.setItem('nidos_submissions', JSON.stringify(submissions));
+            localStorage.setItem('nidos_rules', JSON.stringify(rules));
 
-
-        // --- Lógica principal del formulario (jQuery) ---
-        $(document).ready(function () {
-
-            let telefonosRegistrados = [];
-            let clientesRegistrados = [];
+            // Reset form
+            document.getElementById('adm-name').value = '';
+            document.getElementById('adm-dni').value = '';
+            document.getElementById('adm-phone').value = '';
+            document.getElementById('adm-count').value = '';
             
-            // UX: Referencias a campos de teléfono para la nueva lógica
-            const $telefonoUsado = $("#telefonoUsado");
-            const $telefonoDelivery = $("#telefonoDelivery");
-            const $telefonoShalom = $("#telefonoShalom");
-            const $usarMismoTelefonoDelivery = $("#usarMismoTelefonoDelivery");
-            const $usarMismoTelefonoShalom = $("#usarMismoTelefonoShalom");
-            const $telefonoDisplayDelivery = $("#telefonoDisplayDelivery");
-            const $telefonoDisplayShalom = $("#telefonoDisplayShalom");
+            switchView('admin-dashboard');
+        }
+
+        // --- ADMIN SETTINGS ---
+        function loadSettings() {
+            document.getElementById('set-sellerName').value = rules.sellerName;
+            document.getElementById('set-whatsapp').value = rules.whatsappNumber;
+            document.getElementById('set-bcpCta').value = rules.bcpCta;
+            document.getElementById('set-yapePlim').value = rules.yapePlim;
+        }
+
+        function saveSettings() {
+            rules.sellerName = document.getElementById('set-sellerName').value;
+            rules.whatsappNumber = document.getElementById('set-whatsapp').value;
+            rules.bcpCta = document.getElementById('set-bcpCta').value;
+            rules.yapePlim = document.getElementById('set-yapePlim').value;
+            localStorage.setItem('nidos_rules', JSON.stringify(rules));
+            switchView('admin-dashboard');
+        }
+
+        // --- CLIENT MAGIC LINK ---
+        function openMagicLink(id) {
+            activeContract = submissions.find(s => s.id === id);
             
-
-            function obtenerFechasEnvio() {
-                const ahora = new Date();
-                const opciones = [];
-                const diasPermitidos = [2, 5]; // martes = 2, viernes = 5
-                const horaCorte = 10; // 10:00 a.m.
-                const limite = new Date();
-                limite.setDate(ahora.getDate() + 14);
-
-                let fecha = new Date();
-                fecha.setHours(0, 0, 0, 0);
-
-                while (fecha <= limite) {
-                    const diaSemana = fecha.getDay();
-
-                    if (diasPermitidos.includes(diaSemana)) {
-                        const fechaCorte = new Date(fecha);
-                        fechaCorte.setDate(fecha.getDate() - 1);
-                        fechaCorte.setHours(horaCorte, 0, 0, 0);
-
-                        if (ahora < fechaCorte) {
-                            opciones.push(new Date(fecha));
-                        }
-                    }
-                    fecha.setDate(fecha.getDate() + 1);
-                }
-                return opciones;
-            }
-
-            function formatearFecha(fecha) {
-                return fecha.toLocaleDateString("es-ES", {
-                    weekday: "long",
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                });
-            }
-
-            // Carga las fechas en el select #fecha
-            const $selectFecha = $("#fecha");
-
-            // --- AÑADIR ESTE BLOQUE - INICIO ---
-            // 1. Añadir la opción placeholder
-            $selectFecha.append(
-                $("<option>")
-                    .val("") // Valor vacío para la validación 'required'
-                    .text("Fecha de envío*")
-                    .prop("disabled", true) // No se puede seleccionar
-                    .prop("selected", true) // Es la opción por defecto
-            );
-            // --- AÑADIR ESTE BLOQUE - FIN ---
-
-            const fechas = obtenerFechasEnvio();
-            fechas.forEach((f) => {
-                const option = $("<option>")
-                    .val(f.toISOString().split("T")[0])
-                    .text(formatearFecha(f));
-                $selectFecha.append(option);
-            });
-
-            function limpiarCampos(idContenedor) {
-                const selector = `#${idContenedor} input, #${idContenedor} select`;
-                document.querySelectorAll(selector).forEach((campo) => {
-                    if (campo.tagName === "SELECT") {
-                        $(campo).val(null).trigger("change");
-                    } else {
-                        campo.value = "";
-                    }
-                    $(campo).removeClass("is-invalid"); // Limpia el estado de error
-                    
-                    // UX: Asegurar que los campos de teléfono estén habilitados/no readonly al limpiar
-                    if(campo.id === 'telefonoDelivery' || campo.id === 'telefonoShalom') {
-                        $(campo).prop('readonly', false).removeClass('bg-gray-100');
-                    }
-                });
+            if(activeContract.status === 'Emitido') {
+                // Rellenar datos
+                document.getElementById('magic-client-name').innerText = activeContract.clientName.split(' ')[0];
+                document.getElementById('magic-contract-id').innerText = '#' + activeContract.id;
+                document.getElementById('magic-company').innerText = rules.companyName;
+                document.getElementById('magic-ruc').innerText = rules.sellerRuc;
+                document.getElementById('magic-seller').innerText = rules.sellerName;
+                document.getElementById('magic-fullname').innerText = activeContract.clientName;
+                document.getElementById('magic-dni').innerText = activeContract.clientDni;
+                document.getElementById('magic-date').innerText = activeContract.eventDate;
+                document.getElementById('magic-time').innerText = activeContract.startTime;
+                document.getElementById('magic-count').innerText = activeContract.guestCount;
+                document.getElementById('magic-type').innerText = activeContract.serviceType;
                 
-                // UX: Desmarcar los checkboxes al limpiar
-                $usarMismoTelefonoDelivery.prop('checked', false);
-                $usarMismoTelefonoShalom.prop('checked', false);
-            }
-            
-            // FUNCIÓN ACTUALIZADA PARA USAR EL TOAST CON ESTILO GRADIENTE
-            function mostrarMensajeTelefono(mensaje, tipo = "success") {
-                const $toast = $("#toast");
-                
-                // Limpiar clases de gradiente y visibilidad
-                $toast.removeClass("bg-gradient-to-r from-brand-accent to-brand-accent-alt from-red-500 to-red-600 opacity-100 translate-y-0");
-                
-                // 1. Aplicar clases de color según el tipo (Terracota para éxito, Rojo para error)
-                if (tipo === "success") {
-                    $toast.addClass("bg-gradient-to-r from-brand-accent to-brand-accent-alt shadow-brand-accent/25");
+                if(activeContract.serviceType !== 'pickup') {
+                    document.getElementById('magic-location-wrap').classList.remove('hidden');
+                    document.getElementById('magic-location').innerText = `${activeContract.eventLocation}, ${activeContract.district}`;
                 } else {
-                    $toast.addClass("bg-gradient-to-r from-red-500 to-red-600 shadow-red-500/25");
+                    document.getElementById('magic-location-wrap').classList.add('hidden');
                 }
 
-                // 2. Setear el texto
-                $toast.text(mensaje);
-                
-                // 3. Mostrar el toast (aplica la transición)
-                // Se hace en el siguiente tick del ciclo de eventos para asegurar la transición
-                setTimeout(() => {
-                    $toast.addClass("opacity-100 translate-y-0");
-                }, 50);
+                document.getElementById('magic-total').innerText = 'S/ ' + Number(activeContract.total).toFixed(2);
+                document.getElementById('magic-deposit').innerText = 'S/ ' + Number(activeContract.deposit).toFixed(2);
+                document.getElementById('magic-balance').innerText = 'S/ ' + (activeContract.total - activeContract.deposit).toFixed(2);
 
-                // 4. Set timeout para ocultar el toast después de 5 segundos
-                clearTimeout($toast.data('timer'));
-                const timer = setTimeout(() => {
-                    $toast.removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
-                    // Limpia las clases de color después de la animación de salida
-                    setTimeout(() => {
-                        $toast.removeClass("from-brand-accent to-brand-accent-alt from-red-500 to-red-600 shadow-brand-accent/25 shadow-red-500/25");
-                    }, 300); // 300ms es la duración de la transición
-                }, 5000); 
-
-                $toast.data('timer', timer);
+                switchView('client-magic-link');
+            } else {
+                showPaymentView();
             }
+        }
 
-            // UX: Funciones y eventos para reutilizar el número de teléfono principal
-            function updateTelefonoDisplay() {
-                const val = $telefonoUsado.val() || 'N/A';
-                $telefonoDisplayDelivery.text(val);
-                $telefonoDisplayShalom.text(val);
-            }
+        function handleClientAccept() {
+            updateStatus(activeContract.id, 'Aceptado');
+            showPaymentView();
+        }
+
+        function showPaymentView() {
+            document.getElementById('pay-date').innerText = activeContract.eventDate;
+            document.getElementById('pay-deposit').innerText = 'S/ ' + Number(activeContract.deposit).toFixed(2);
+            document.getElementById('pay-yape').innerText = rules.yapePlim;
+            document.getElementById('pay-seller').innerText = rules.sellerName;
+            document.getElementById('pay-bcp').innerText = rules.bcpCta;
+            document.getElementById('pay-cci').innerText = rules.bcpCci;
+            switchView('client-payment');
+        }
+
+        function sendVoucherToAdmin() {
+            const msg = `Hola NIDOS CHICKENS, ya acepté mi *CONTRATO #${activeContract.id}*.\n\nAquí te envío el voucher del depósito de *S/ ${activeContract.deposit.toFixed(2)}*.`;
+            const url = `https://wa.me/${rules.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        // --- IMPRESIÓN FÍSICA ---
+        function printContract(id) {
+            const order = submissions.find(s => s.id === id);
             
-            // Inicializar la visualización y actualizar en cada input del teléfono principal
-            updateTelefonoDisplay();
-            $telefonoUsado.on('input', function() {
-                updateTelefonoDisplay();
-                // Si el checkbox está marcado, también actualiza el campo de destino
-                if ($usarMismoTelefonoDelivery.is(':checked')) {
-                    $telefonoDelivery.val($(this).val());
-                }
-                if ($usarMismoTelefonoShalom.is(':checked')) {
-                    $telefonoShalom.val($(this).val());
-                }
-            });
+            document.getElementById('pr-date').innerText = order.submittedAt;
+            document.getElementById('pr-id').innerText = order.id;
+            document.getElementById('pr-seller').innerText = rules.sellerName;
+            document.getElementById('pr-sellerDni').innerText = rules.sellerDni;
+            document.getElementById('pr-company').innerText = rules.companyName;
+            document.getElementById('pr-ruc').innerText = rules.sellerRuc;
+            document.getElementById('pr-client').innerText = order.clientName;
+            document.getElementById('pr-clientDni').innerText = order.clientDni;
+            document.getElementById('pr-eventDate').innerText = order.eventDate;
+            document.getElementById('pr-location').innerText = order.eventLocation + (order.district ? ` (${order.district})` : '');
+            document.getElementById('pr-ref').innerText = order.reference;
+            document.getElementById('pr-time').innerText = order.startTime;
+            document.getElementById('pr-qty').innerText = order.guestCount;
+            document.getElementById('pr-type').innerText = order.serviceType.toUpperCase();
+            document.getElementById('pr-unit').innerText = 'S/ ' + (order.total / order.guestCount).toFixed(2);
+            document.getElementById('pr-total').innerText = 'S/ ' + Number(order.total).toFixed(2);
+            document.getElementById('pr-total2').innerText = 'S/ ' + Number(order.total).toFixed(2);
+            document.getElementById('pr-dep').innerText = Number(order.deposit).toFixed(2);
+            document.getElementById('pr-bal').innerText = (order.total - order.deposit).toFixed(2);
+            document.getElementById('pr-yape').innerText = rules.yapePlim;
+            document.getElementById('pr-bcp').innerText = rules.bcpCta;
+            document.getElementById('pr-sig-seller').innerText = rules.sellerName;
+            document.getElementById('pr-sig-client').innerText = order.clientName;
 
+            // Esperar un instante para que el DOM se actualice y llamar a imprimir
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
 
-            // Toggle logic for Delivery phone number
-            $usarMismoTelefonoDelivery.on('change', function() {
-                const checked = $(this).is(':checked');
-                if (checked) {
-                    $telefonoDelivery.val($telefonoUsado.val());
-                    $telefonoDelivery.prop('readonly', true).removeClass('cursor-pointer').addClass('bg-gray-100');
-                    $telefonoDelivery.removeClass('is-invalid'); // Limpia estado de error
-                } else {
-                    $telefonoDelivery.val('');
-                    $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100').focus();
-                }
-            });
-
-            // Toggle logic for Shalom phone number
-            $usarMismoTelefonoShalom.on('change', function() {
-                const checked = $(this).is(':checked');
-                if (checked) {
-                    $telefonoShalom.val($telefonoUsado.val());
-                    $telefonoShalom.prop('readonly', true).removeClass('cursor-pointer').addClass('bg-gray-100');
-                    $telefonoShalom.removeClass('is-invalid'); // Limpia estado de error
-                } else {
-                    $telefonoShalom.val('');
-                    $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100').focus();
-                }
-            });
-
-            // Muestra/oculta bloques de campos según la opción seleccionada
-            $("#tipoAccion").on("change", function () {
-                limpiarCampos("camposDelivery");
-                limpiarCampos("camposShalom");
-                limpiarCampos("camposUsados");
-
-                // Oculta todos los bloques y deshabilita inputs/selects dentro
-                $("#camposDelivery, #camposShalom, #camposUsados")
-                    .attr("hidden", true)
-                    .find("input, select")
-                    .prop("disabled", true);
-                
-                // UX: Asegurar que los checkboxes estén desmarcados
-                $usarMismoTelefonoDelivery.prop('checked', false);
-                $usarMismoTelefonoShalom.prop('checked', false);
-
-
-                const valor = $(this).val();
-
-                // Mostrar y habilitar bloque correspondiente
-                if (valor === "delivery") {
-                    $("#camposDelivery").attr("hidden", false).find("input, select").prop("disabled", false);
-                } else if (valor === "shalom") {
-                    $("#camposShalom").attr("hidden", false).find("input, select").prop("disabled", false);
-                } else if (valor === "recoger") {
-                    // Recoger en almacén no requiere campos extra ni fecha de envío
-                } else if (valor === "usado") {
-                    $("#camposUsados").attr("hidden", false).find("input, select").prop("disabled", false);
-                }
-
-                // Mover y mostrar campo fecha en el bloque correspondiente
-                const $contenedorFecha = $("#contenedorFecha");
-                $contenedorFecha.hide();
-
-                if (["delivery", "shalom", "usado"].includes(valor)) {
-                    if (valor === "delivery") {
-                        $("#camposDelivery").append($contenedorFecha);
-                    } else if (valor === "shalom") {
-                        $("#camposShalom").append($contenedorFecha);
-                    } else {
-                        $("#camposUsados").append($contenedorFecha);
-                    }
-                    $contenedorFecha.show();
-                    $("#fecha").prop("disabled", false);
-                } else {
-                    $("#fecha").prop("disabled", true);
-                }
-
-                // --- AÑADIR ESTE BLOQUE - INICIO ---
-                // UX: Mover el foco y el scroll al primer campo de la sección
-                
-                // La variable 'valor' ya existe en esta función, así que la reusamos.
-                let targetId = null; 
-                
-                if (valor === "delivery") {
-                    targetId = "nombreDelivery"; // ID del primer input en Delivery
-                } else if (valor === "shalom") {
-                    targetId = "nombreShalom"; // ID del primer input en Shalom
-                } else if (valor === "usado") {
-                    targetId = "fecha"; // ID del primer (y único) input en Usado
-                }
-
-                if (targetId) {
-                    // Se usa un pequeño retardo (100ms) para dar tiempo al navegador
-                    // a renderizar la sección antes de mover el foco.
-                    setTimeout(() => {
-                        const targetElement = document.getElementById(targetId);
-                        if (targetElement) {
-                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            // Opcional: Si focus() no es suficiente, puedes forzar un scroll más suave
-                            // targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    }, 100); 
-                }
-                // --- AÑADIR ESTE BLOQUE - FIN ---
-            });
-
-            // Envío del formulario con validación y lógica de Firestore
-            $("#formulario").on("submit", async function (e) {
-                e.preventDefault();
-
-                // Oculta el mensaje previo inmediatamente
-                $("#toast").removeClass("opacity-100 translate-y-0").addClass("opacity-0 translate-y-2");
-
-                function mostrarMensaje(mensaje, tipo = "success") {
-                    mostrarMensajeTelefono(mensaje, tipo);
-                }
-
-                const tipoAccion = $("#tipoAccion").val();
-
-                // Función para aplicar clase de error (se mantiene igual)
-                function aplicarClaseError(id) {
-                    $(`#${id}`).addClass('is-invalid');
-                    $(`#${id}`).on('input change', function() {
-                        $(this).removeClass('is-invalid');
-                    });
-                }
-
-                // Validaciones manuales para 'readonly' (se mantienen igual)
-                if (tipoAccion === "delivery") {
-                    if (!$("#distrito").val()) {
-                        mostrarMensaje("Por favor, selecciona un distrito de la lista", "error");
-                        aplicarClaseError("distrito");
-                        return;
-                    }
-                }
-                if (tipoAccion === "shalom") {
-                    if (!$("#agencia").val()) {
-                        mostrarMensaje("Por favor, selecciona una agencia de la lista", "error");
-                        aplicarClaseError("agencia");
-                        return;
-                    }
-                }
-
-                // Validación nativa HTML5 (se mantiene igual)
-                if (!this.checkValidity()) {
-                    $(this).find(':invalid').each(function() {
-                        aplicarClaseError(this.id);
-                    });
-                    this.reportValidity();
-                    return;
-                }
-
-                const spinnerOverlay = document.getElementById('spinner');
-                spinnerOverlay.classList.remove('hidden');
-                spinnerOverlay.classList.add('flex');
-
-                // --- INICIO DE LA NUEVA LÓGica DE FIRESTORE ---
-                try {
-                    // --- AÑADIDO: AWAIT DE AUTENTICACIÓN ---
-                    // Asegurarse de que el inicio de sesión anónimo esté completo
-                    // ANTES de intentar cualquier operación de base de datos.
-                    // Esto soluciona la "condición de carrera".
-                    await authPromise;
-                    console.log("Autenticación confirmada. Procediendo con el envío.");
-                    // --- FIN DEL AWAIT ---
-
-                    const telefonoCliente = $("#telefonoUsado").val().replace(/\D/g, "");
-                    
-                    // --- INICIO DE LA NUEVA LÓGICA DE DATOS SEPARADOS ---
-
-                    // Definir las referencias a las colecciones
-                    const clienteRef = db.collection("clientes").doc(telefonoCliente);
-                    const enviosCollectionRef = db.collection("envios");
-
-                    // 1. Preparar el documento de ENVÍO (siempre se crea)
-                    const envioData = {
-                        fechaRegistro: new Date(),
-                        cliente: telefonoCliente, // Guardamos el teléfono como ID
-                        courier: tipoAccion.toUpperCase(),
-                        fechaEnvio: $("#fecha").val(),
-                        estado: "PENDIENTE",
-                    };
-
-                    // 2. Preparar el documento de CLIENTE (solo para 'delivery' y 'shalom')
-                    let clienteData = {};
-                    let esEnvioNuevo = false;
-
-                    if (tipoAccion === "delivery") {
-                        clienteData.nombre = $("#nombreDelivery").val();
-                        clienteData.telefono = $("#telefonoDelivery").val();
-                        clienteData.distrito = $("#distrito").val();
-                        clienteData.direccion = $("#direccion").val();
-                        clienteData.referencia = $("#referencia").val();
-                        clienteData.tipoUltimoEnvio = "delivery"; // Para saber qué datos rellenar la prox. vez
-                        esEnvioNuevo = true;
-                        Object.assign(envioData, clienteData);
-
-                    } else if (tipoAccion === "shalom") {
-                        clienteData.nombre = $("#nombreShalom").val();
-                        clienteData.telefono = $("#telefonoShalom").val();
-                        clienteData.DNI = $("#DNI").val();
-                        clienteData.agencia = $("#agencia").val();
-                        clienteData.tipoUltimoEnvio = "shalom"; // Para saber qué datos rellenar la prox. vez
-                        esEnvioNuevo = true;
-                        Object.assign(envioData, clienteData);
-                    
-                    } else if (tipoAccion === "usado") {
-                        // "Usar mi dirección" ya no usa la lógica de "debug"
-                        console.log(`(NUEVO) Iniciando 'getCliente' para: ${telefonoCliente}`);
-                        
-                        const clienteDoc = await clienteRef.get(); // Intenta leer el doc del cliente
-
-                        if (!clienteDoc.exists) {
-                            console.log("(NUEVO) 'getCliente' completado: El cliente NO existe.");
-                            mostrarMensaje("El número ingresado no está registrado.", "error");
-                            aplicarClaseError("telefonoUsado");
-                            $("#telefonoUsado").focus();
-                            spinnerOverlay.classList.remove('flex');
-                            spinnerOverlay.classList.add('hidden');
-                            return; // Detener
-                        } else {
-                            console.log("(NUEVO) 'getCliente' completado: ¡El cliente SÍ existe!");
-                            // Copia el courier anterior del cliente al envío
-                            const datosCliente = clienteDoc.data();
-                            if (datosCliente.tipoUltimoEnvio) {
-                                 envioData.courier = datosCliente.tipoUltimoEnvio.toUpperCase();
-                            }
-                        
-                            // --- AÑADE ESTE BLOQUE ---
-                            // Copiar los datos personales del cliente al nuevo envío
-                            envioData.nombre = datosCliente.nombre || "";
-                            envioData.telefono = datosCliente.telefono || "";
-                            envioData.distrito = datosCliente.distrito || "";
-                            envioData.direccion = datosCliente.direccion || "";
-                            envioData.referencia = datosCliente.referencia || "";
-                            envioData.DNI = datosCliente.DNI || "";
-                            envioData.agencia = datosCliente.agencia || "";
-                            // --- FIN DEL BLOQUE ---
-
-                        }
-                    }
-
-                    // 3. Ejecutar las escrituras en la base de datos
-                    console.log("Iniciando transacción...");
-                    
-                    // Usamos una transacción para asegurar que ambas escrituras (si aplican) ocurran juntas
-                    await db.runTransaction(async (transaction) => {
-                        // 3a. Siempre crear el nuevo envío en la colección "envios"
-                        // Usamos .doc() para generar un ID automático
-                        transaction.set(enviosCollectionRef.doc(), envioData);
-                        
-                        // 3b. Si es un envío nuevo (Delivery/Shalom), crear/actualizar los datos del cliente
-                        if (esEnvioNuevo) {
-                            console.log("Guardando datos del cliente en 'clientes'");
-                            // { merge: true } crea el doc si no existe,
-                            // o actualiza solo estos campos si ya existe (ej. un cliente de Shalom ahora pide Delivery)
-                            transaction.set(clienteRef, clienteData, { merge: true });
-                        }
-                    });
-
-                    console.log("¡Transacción completada! Envío y/o cliente guardados.");
-
-                    // 4. Lógica de Éxito (se mantiene igual)
-                    $("#formulario").hide();
-                    $("#successMessage").removeClass('hidden').addClass('flex');
-                    $("#formulario")[0].reset();
-                    // ... (resto del código de reseteo) ...
-                    $("#camposDelivery, #camposShalom, #camposUsados")
-                        .attr("hidden", true)
-                        .find("input, select")
-                        .prop("disabled", true);
-                    $("#contenedorFecha").hide();
-                    $("#fecha").empty();
-
-                    // --- RE-AÑADIR PLACEHOLDER A FECHA ---
-                    $("#fecha").append(
-                        $("<option>")
-                            .val("") 
-                            .text("Elige una fecha de envío...")
-                            .prop("disabled", true)
-                            .prop("selected", true)
-                    );
-                    const nuevasFechas = obtenerFechasEnvio();
-                    nuevasFechas.forEach(f => {
-                        $("#fecha").append(
-                            $("<option>").val(f.toISOString().split("T")[0]).text(formatearFecha(f))
-                        );
-                    });
-                    $usarMismoTelefonoDelivery.prop('checked', false);
-                    $usarMismoTelefonoShalom.prop('checked', false);
-                    $telefonoDelivery.prop('readonly', false).removeClass('bg-gray-100');
-                    $telefonoShalom.prop('readonly', false).removeClass('bg-gray-100');
-
-                } catch (err) {
-                    // 5. Manejo de Errores
-                    console.error("Error al guardar en Firestore (Transacción):", err);
-                    mostrarMensaje("Ocurrió un error al guardar tus datos", "error");
-                } finally {
-                    // 6. Ocultar el spinner
-                    spinnerOverlay.classList.remove('flex');
-                    spinnerOverlay.classList.add('hidden');
-                }
-                // --- FIN DE LA NUEVA LÓGica DE FIRESTORE ---
-            });
-        });
+        // --- INICIO ---
+        switchView('admin-dashboard');
     </script>
 </body>
 </html>
-
