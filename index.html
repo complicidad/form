@@ -81,7 +81,7 @@
             <header class="flex justify-between items-end">
                 <div>
                     <h1 class="text-3xl md:text-4xl font-black tracking-tight">Mis Ventas</h1>
-                    <p class="text-slate-500 font-medium mt-1">Comparte los links mágicos para cerrar tratos.</p>
+                    <p class="text-slate-500 font-medium mt-1">Comparte los resúmenes por WhatsApp y adjunta el PDF.</p>
                 </div>
                 <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all">
                     <i data-lucide="plus" class="w-5 h-5"></i> Crear Contrato
@@ -192,7 +192,7 @@
                         </div>
 
                         <button id="btn-generate" onclick="generateContract()" disabled class="mt-4 w-full bg-rose-600 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i> Generar Contrato Mágico
+                            <i data-lucide="check-circle" class="w-5 h-5"></i> Generar Contrato Interno
                         </button>
                     </div>
                 </div>
@@ -504,13 +504,13 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="shareWhatsApp(${s.id})" title="Enviar Link al Cliente" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
+                                <button onclick="shareWhatsApp(${s.id})" title="Enviar resumen por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
                                     <i data-lucide="smartphone" class="w-4 h-4"></i>
                                 </button>
                                 <button onclick="openMagicLink(${s.id})" title="Simular vista del cliente" class="bg-slate-900 text-white p-2 rounded-xl hover:bg-slate-800 transition-all shadow-sm">
                                     <i data-lucide="eye" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="printContract(${s.id})" title="Imprimir contrato" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-all">
+                                <button onclick="printContract(${s.id})" title="Imprimir o guardar contrato en PDF" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-all">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -530,8 +530,15 @@
 
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
-            const msg = `Hola *${s.clientName}*, un placer atenderte. \n\nAquí tienes tu contrato oficial detallado por tu pedido de polladas.\n\nPor favor, revísalo en este enlace y dale al botón de aceptar para separar tu fecha:\n\n👉 *nidoschickens.com/contrato/${s.id}*`;
-            const url = `https://wa.me/51${s.clientPhone}?text=${encodeURIComponent(msg)}`;
+            
+            // Redactar mensaje profesional pidiendo adjuntar el PDF
+            const msg = `Hola *${s.clientName}*, un placer atenderte.\n\nTe escribimos de parte de *${rules.companyName}*. En este chat te enviaremos tu *CONTRATO OFICIAL #${s.id}* en PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${s.guestCount}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nPor favor, envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
+            
+            // Limpiar el número para la URL de WhatsApp (quitar espacios o +, y asegurar código 51 si no hay)
+            let phone = s.clientPhone.replace(/\D/g, '');
+            if(phone.length === 9) phone = '51' + phone;
+
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
 
@@ -705,7 +712,9 @@
 
         function sendVoucherToAdmin() {
             const msg = `Hola NIDOS CHICKENS, ya acepté mi *CONTRATO #${activeContract.id}*.\n\nAquí te envío el voucher del depósito de *S/ ${activeContract.deposit.toFixed(2)}*.`;
-            const url = `https://wa.me/${rules.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+            // Limpiar número tuyo
+            let phone = rules.whatsappNumber.replace(/\D/g, '');
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
 
