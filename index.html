@@ -18,31 +18,40 @@
         /* Estilos específicos para la impresión del contrato físico */
         @media print {
             body * { visibility: hidden; }
-            #printable-contract, #printable-contract * { visibility: visible; }
-            #printable-contract { 
+            #modal-contract, #modal-contract * { visibility: visible; }
+            #modal-contract { 
                 position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
-                padding: 1.5cm !important; margin: 0; 
-                font-family: 'Times New Roman', serif; color: #000; 
-                font-size: 11pt; line-height: 1.5; background: white;
+                padding: 0 !important; margin: 0; background: white;
                 display: block !important;
             }
+            #printable-area {
+                padding: 1.5cm !important; height: auto !important; overflow: visible !important;
+            }
             .no-print { display: none !important; }
-            /* Ocultar el resto de la interfaz para evitar hojas en blanco */
+            /* Ocultar la UI trasera */
             #nav-desktop, #nav-mobile, #main-content { display: none !important; }
         }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-900 flex flex-col md:flex-row min-h-screen transition-colors duration-300" id="body-container">
 
-    <!-- NAVEGACIÓN DESKTOP (ADMIN) -->
+    <!-- ========================================================= -->
+    <!-- ================= NAV DESKTOP (ADMIN) =================== -->
+    <!-- ========================================================= -->
     <aside id="nav-desktop" class="hidden md:flex w-64 bg-slate-900 text-white flex-col min-h-screen p-6 shadow-2xl sticky top-0 z-10">
         <div class="flex items-center gap-3 mb-10 border-b border-slate-800 pb-6">
-            <div class="bg-rose-600 p-2.5 rounded-xl shadow-lg shadow-rose-900/50">
+            <div class="bg-rose-600 p-2.5 rounded-xl shadow-lg shadow-rose-900/50 flex-shrink-0">
                 <i data-lucide="chef-hat" class="w-6 h-6"></i>
             </div>
             <div>
                 <span class="font-black text-xl tracking-tighter block leading-none">NIDOS</span>
-                <span class="text-rose-500 font-bold text-xs tracking-widest">CHICKENS</span>
+                <span class="text-rose-500 font-bold text-[10px] tracking-widest uppercase">Chickens</span>
             </div>
         </div>
         <nav class="flex-1 space-y-3">
@@ -53,37 +62,41 @@
                 <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
             </button>
             <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400">
-                <i data-lucide="settings" class="w-5 h-5"></i> Ajustes
+                <i data-lucide="settings" class="w-5 h-5"></i> Ajustes Legales
             </button>
         </nav>
     </aside>
 
-    <!-- NAVEGACIÓN MOBILE (ADMIN) -->
-    <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 text-white flex justify-around items-center p-3 pb-safe border-t border-slate-800 z-50">
-        <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-rose-500">
-            <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+    <!-- ========================================================= -->
+    <!-- ================= NAV MOBILE (ADMIN) ==================== -->
+    <!-- ========================================================= -->
+    <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 text-white flex justify-around items-center p-2 pb-safe border-t border-slate-800 z-40">
+        <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-rose-500 transition-colors w-20">
+            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold">Ventas</span>
         </button>
-        <button onclick="switchView('admin-create')" id="btn-mob-create" class="flex flex-col items-center gap-1 p-2 -mt-6 bg-rose-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-rose-900/50 border-4 border-[#f8fafc] text-white transition-all">
-            <i data-lucide="plus" class="w-7 h-7"></i>
+        <button onclick="switchView('admin-create')" id="btn-mob-create" class="flex flex-col items-center gap-1 p-2 -mt-8 bg-rose-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-rose-900/50 border-4 border-[#f8fafc] text-white transition-all z-10">
+            <i data-lucide="plus" class="w-6 h-6"></i>
         </button>
-        <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400">
-            <i data-lucide="settings" class="w-6 h-6"></i>
+        <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold">Ajustes</span>
         </button>
     </nav>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- ========================================================= -->
+    <!-- ================= CONTENEDOR PRINCIPAL ================== -->
+    <!-- ========================================================= -->
     <main id="main-content" class="flex-1 p-4 md:p-8 w-full pb-24 md:pb-8 overflow-x-hidden">
 
-        <!-- ========================================================= -->
         <!-- ================= VISTA: ADMIN DASHBOARD ================ -->
-        <!-- ========================================================= -->
         <section id="view-admin-dashboard" class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in">
             <header class="flex justify-between items-end">
                 <div>
                     <h1 class="text-3xl md:text-4xl font-black tracking-tight">Mis Ventas</h1>
-                    <p class="text-slate-500 font-medium mt-1">Genera PDFs y envía recordatorios de pago por WhatsApp.</p>
+                    <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Genera PDFs y envía resúmenes por WhatsApp.</p>
                 </div>
-                <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all">
+                <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all text-sm">
                     <i data-lucide="plus" class="w-5 h-5"></i> Crear Contrato
                 </button>
             </header>
@@ -95,8 +108,8 @@
                             <tr>
                                 <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Estado / ID</th>
                                 <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Cliente</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Monto Final</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio y Platos</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Finanzas</th>
                                 <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones Rápida</th>
                             </tr>
                         </thead>
@@ -108,14 +121,12 @@
             </div>
         </section>
 
-        <!-- ========================================================= -->
         <!-- ================= VISTA: ADMIN CREAR ==================== -->
-        <!-- ========================================================= -->
-        <section id="view-admin-create" class="hidden max-w-4xl mx-auto space-y-6 animate-fade-in">
+        <section id="view-admin-create" class="hidden max-w-5xl mx-auto space-y-6 animate-fade-in">
             <header class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-black">Generador de Contratos</h1>
-                    <p class="text-slate-500 text-sm font-medium">Crea el contrato oficial de tu cliente al instante.</p>
+                    <h1 class="text-3xl font-black">Nuevo Contrato</h1>
+                    <p class="text-slate-500 text-sm font-medium">Arma el pedido oficial del cliente.</p>
                 </div>
                 <div class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl font-black text-xl border border-rose-100" id="create-next-id">
                     #826
@@ -123,29 +134,35 @@
             </header>
 
             <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-xl">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Columna Izquierda: Datos -->
-                    <div class="space-y-5">
-                        <div class="space-y-4 border-b border-slate-100 pb-5">
-                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="chef-hat" class="w-4 h-4"></i> Datos del Comprador</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- Columna Izquierda: Configuración -->
+                    <div class="space-y-6">
+                        <!-- Sección 1: Cliente -->
+                        <div class="space-y-4 border-b border-slate-100 pb-6">
+                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> 1. Datos del Comprador</h3>
                             <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
                             <div class="grid grid-cols-2 gap-3">
                                 <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
                                 <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
                             </div>
                         </div>
-                        
-                        <div class="space-y-4 border-b border-slate-100 pb-5">
-                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> Tipo de Producto</h3>
-                            <select id="adm-product" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-rose-500/20 outline-none">
-                                <option value="Pollada">Pollada</option>
-                                <option value="Chuleta">Chuleta</option>
-                                <option value="Parrilla">Parrilla</option>
-                            </select>
+
+                        <!-- Sección 2: Productos -->
+                        <div class="space-y-4 border-b border-slate-100 pb-6">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> 2. Platos a Preparar</h3>
+                                <button onclick="addItem()" class="text-[10px] font-black uppercase text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-all">+ Añadir Plato</button>
+                            </div>
+                            
+                            <div id="items-container" class="space-y-2">
+                                <!-- Lista de items inyectada vía JS -->
+                            </div>
                         </div>
 
+                        <!-- Sección 3: Logística -->
                         <div class="space-y-4">
-                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="utensils" class="w-4 h-4"></i> Logística</h3>
+                            <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 3. Logística del Evento</h3>
                             
                             <div class="flex bg-slate-100 p-1 rounded-xl" id="srv-buttons">
                                 <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Recojo</button>
@@ -154,34 +171,34 @@
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
-                                <input type="number" id="adm-count" placeholder="Nº Platos" oninput="updatePricing(); validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-rose-50 border border-rose-100 font-black text-rose-700 text-sm outline-none">
                                 <input type="date" id="adm-date" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                <input type="time" id="adm-time" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
                             </div>
 
                             <div id="adm-location-fields" class="space-y-3">
                                 <select id="adm-district" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                    <option value="">Distrito</option>
+                                    <option value="">Distrito (Solo Lima)</option>
                                     <option>Miraflores</option><option>San Isidro</option><option>Santiago de Surco</option><option>San Borja</option><option>La Molina</option><option>Barranco</option><option>Jesús María</option><option>Lince</option><option>Magdalena del Mar</option><option>Pueblo Libre</option><option>San Miguel</option><option>Surquillo</option><option>Chorrillos</option><option>Ate</option><option>Santa Anita</option><option>S.J.L.</option><option>Otros</option>
                                 </select>
-                                <input type="text" id="adm-location" placeholder="Dirección exacta" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                <input type="text" id="adm-ref" placeholder="Referencia / Cruce" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                <input type="text" id="adm-location" placeholder="Dirección exacta del evento" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                <input type="text" id="adm-ref" placeholder="Referencia / Cruce principal" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
                             </div>
-                            <input type="time" id="adm-time" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
                         </div>
                     </div>
 
-                    <!-- Columna Derecha: Resumen y Guardar -->
-                    <div class="flex flex-col">
-                        <div class="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex-1 flex flex-col justify-center">
-                            <h3 class="text-slate-400 text-[10px] font-black uppercase mb-6 tracking-widest text-center">Resumen Financiero</h3>
+                    <!-- Columna Derecha: Resumen Financiero -->
+                    <div class="flex flex-col h-full">
+                        <div class="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex-1 flex flex-col justify-center relative overflow-hidden">
+                            <i data-lucide="calculator" class="absolute top-4 right-4 w-24 h-24 opacity-5"></i>
+                            <h3 class="text-slate-400 text-[10px] font-black uppercase mb-6 tracking-widest text-center relative z-10">Resumen Financiero</h3>
                             
-                            <div class="space-y-4">
+                            <div class="space-y-4 relative z-10">
                                 <div class="flex justify-between items-center text-sm font-bold text-slate-300">
-                                    <span><span id="preview-count">0</span> Platos x S/ <span id="preview-unit">0.00</span></span>
+                                    <span>Total Platos (<span id="preview-total-qty">0</span>)</span>
                                     <span>S/ <span id="preview-subtotal">0.00</span></span>
                                 </div>
-                                <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-rose-300">
-                                    <span>Cargo Delivery</span>
+                                <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-rose-400">
+                                    <span>Cargo Adicional (Delivery/Otros)</span>
                                     <span>S/ <span id="preview-fee">0.00</span></span>
                                 </div>
                                 
@@ -200,118 +217,186 @@
                             </div>
                         </div>
 
-                        <button id="btn-generate" onclick="generateContract()" disabled class="mt-4 w-full bg-rose-600 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i> Guardar Contrato
-                        </button>
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <button id="btn-preview" onclick="openPreview()" disabled class="col-span-1 bg-slate-100 disabled:opacity-50 text-slate-700 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed border border-slate-200">
+                                <i data-lucide="eye" class="w-4 h-4"></i> Vista Previa
+                            </button>
+                            <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-rose-600 disabled:opacity-50 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
+                                <i data-lucide="save" class="w-4 h-4"></i> Guardar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ========================================================= -->
         <!-- ================= VISTA: ADMIN SETTINGS ================= -->
-        <!-- ========================================================= -->
         <section id="view-admin-settings" class="hidden max-w-2xl mx-auto space-y-6 animate-fade-in">
-            <h1 class="text-3xl font-black">Ajustes del Sistema</h1>
+            <h1 class="text-3xl font-black">Ajustes Legales</h1>
             <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black uppercase text-slate-400">Representante</label>
-                        <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black uppercase text-slate-400">Mi WhatsApp (Recibir vouchers)</label>
-                        <input type="text" id="set-whatsapp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold text-emerald-600">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black uppercase text-slate-400">Cta BCP</label>
-                        <input type="text" id="set-bcpCta" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black uppercase text-slate-400">Yape / Plim</label>
-                        <input type="text" id="set-yapePlim" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-none font-bold">
-                    </div>
-                </div>
-                <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 shadow-lg">
-                    Guardar
-                </button>
-            </div>
-        </section>
-
-        <!-- ========================================================= -->
-        <!-- ================= VISTA: SUCCESS ======================== -->
-        <!-- ========================================================= -->
-        <section id="view-success" class="hidden min-h-[70vh] flex items-center justify-center p-4">
-            <div class="text-center max-w-md w-full bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-100">
-                <div class="bg-emerald-100 w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-4">
-                    <i data-lucide="check-circle" class="w-8 h-8"></i>
-                </div>
-                <h1 class="text-2xl font-black mb-2 uppercase text-slate-900" id="success-title">¡Contrato Generado!</h1>
-                <p class="text-slate-500 font-medium mb-6 text-sm leading-relaxed">
-                    Vuelve al panel de ventas para <b>descargar el PDF</b> y enviarle los detalles a tu cliente por WhatsApp.
-                </p>
+                
                 <div class="space-y-4">
-                    <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black hover:bg-slate-800 transition-all shadow-lg">
-                        Ir a Mis Ventas
+                    <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Datos de la Empresa</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400">Representante Legal</label>
+                            <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400">DNI Representante</label>
+                            <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                        </div>
+                        <div class="space-y-1 col-span-1 md:col-span-2">
+                            <label class="text-[10px] font-black uppercase text-slate-400">Razón Social y RUC</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="set-sellerRuc" placeholder="RUC" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                <input type="text" id="set-sellerBusiness" placeholder="Razón Social" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-2">
+                    <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Información de Recepción y Pagos</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400">WhatsApp para Notificaciones</label>
+                            <input type="text" id="set-whatsapp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-emerald-600 outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400">Yape / Plim</label>
+                            <input type="text" id="set-yapePlim" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                        </div>
+                        <div class="space-y-1 col-span-1 md:col-span-2">
+                            <label class="text-[10px] font-black uppercase text-slate-400">Cta BCP (Soles y CCI)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="set-bcpCta" placeholder="Nº Cuenta" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                <input type="text" id="set-bcpCci" placeholder="CCI" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 shadow-lg active:scale-95 transition-all">
+                        Guardar Ajustes Legales
                     </button>
                 </div>
             </div>
         </section>
 
+        <!-- ================= VISTA: SUCCESS ======================== -->
+        <section id="view-success" class="hidden min-h-[70vh] flex items-center justify-center p-4 animate-fade-in">
+            <div class="text-center max-w-md w-full bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100">
+                <div class="bg-emerald-100 w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-6">
+                    <i data-lucide="check-circle" class="w-10 h-10"></i>
+                </div>
+                <h1 class="text-3xl font-black mb-2 uppercase text-slate-900" id="success-title">¡Guardado!</h1>
+                <p class="text-slate-500 font-medium mb-8 text-sm leading-relaxed">
+                    El contrato ha sido registrado con éxito. Vuelve al panel para <b>generar el PDF</b> o notificar al cliente.
+                </p>
+                <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                    Ir a Mis Ventas
+                </button>
+            </div>
+        </section>
+
     </main>
 
-    <!-- ================= MODAL IMPRESIÓN FÍSICA ================= -->
-    <div id="printable-contract" class="hidden">
-        <div style="text-align: right; margin-bottom: 25px; font-weight: bold;">Lima, <span id="pr-date"></span></div>
-        <h1 style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 25px; font-size: 15pt;">CONTRATO DE COMPRAVENTA #<span id="pr-id"></span></h1>
-        
-        <p>El señor <b id="pr-seller"></b> identificado con DNI N° <b id="pr-sellerDni"></b>, representante legal de <b id="pr-company"></b>, quien en adelante se denominará EL VENDEDOR. (Con RUC <span id="pr-ruc"></span>).</p>
-        <p>El/La señor(a) <b id="pr-client"></b> con DNI N°: <b id="pr-clientDni"></b> quien en adelante se denominará EL COMPRADOR, hemos acordado celebrar contrato de compraventa que se regirá por las normas civiles y comerciales que regulan la materia, según las siguientes cláusulas:</p>
+    <!-- ================= MODAL: VISTA PREVIA Y CONTRATO ================= -->
+    <!-- Este modal unifica la vista previa y la impresión del contrato real -->
+    <div id="modal-contract" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] flex items-center justify-center p-2 md:p-6 no-print">
+        <div class="bg-white w-full max-w-4xl h-[95vh] rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
+            
+            <!-- Header (Solo en pantalla) -->
+            <div class="no-print bg-slate-100 flex justify-between items-center p-4 border-b border-slate-200">
+               <h3 class="font-black text-slate-800 flex items-center gap-2" id="modal-title">
+                   <i data-lucide="file-text" class="w-5 h-5 text-rose-600"></i> Vista Previa del Documento
+               </h3>
+               <button onclick="closeContractModal()" class="p-1.5 bg-slate-200 rounded-full hover:bg-slate-300 transition-colors">
+                 <i data-lucide="x" class="w-5 h-5"></i>
+               </button>
+            </div>
 
-        <span style="font-weight: bold; margin-top: 15px; display: block; font-size: 11pt;">PRIMERA. OBJETO:</span>
-        <p>Día del evento: <b id="pr-eventDate"></b><br/>En la dirección: <b id="pr-location"></b><br/>Referencia: <b id="pr-ref"></b> / Hora: <b id="pr-time"></b></p>
-        
-        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; border: 1.5px solid #000;">
-            <thead>
-                <tr>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">CANT.</th>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">DESCRIPCIÓN</th>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">P. UNIT.</th>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: center;">IMPORTE</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b id="pr-qty"></b></td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><span id="pr-product"></span> - Modalidad: <span id="pr-type"></span></td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;" id="pr-unit"></td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b id="pr-total"></b></td>
-                </tr>
-            </tbody>
-        </table>
+            <!-- Área de impresión (El documento en sí) -->
+            <div id="printable-area" class="flex-1 overflow-y-auto p-8 md:p-12 bg-white" style="font-family: 'Times New Roman', serif; color: #000; font-size: 11pt; line-height: 1.5;">
+                <div style="text-align: right; margin-bottom: 25px; font-weight: bold;">Lima, <span id="pr-date"></span></div>
+                <h1 style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 25px; font-size: 15pt; text-transform: uppercase;">
+                    CONTRATO DE COMPRAVENTA #<span id="pr-id"></span>
+                </h1>
+                
+                <div style="text-align: justify; margin-bottom: 15px;">
+                    <p style="margin-bottom: 10px;">
+                        El señor <b id="pr-seller"></b> identificado con DNI N° <b id="pr-sellerDni"></b>, representante legal de <b id="pr-company"></b>, quien en adelante se denominará EL VENDEDOR. (Con RUC <span id="pr-ruc"></span>).
+                    </p>
+                    <p>
+                        El/La señor(a) <b id="pr-client"></b> con DNI N°: <b id="pr-clientDni"></b> quien en adelante se denominará EL COMPRADOR, hemos acordado celebrar contrato de compraventa que se regirá por las normas civiles y comerciales que regulan la materia, según las siguientes cláusulas:
+                    </p>
+                </div>
 
-        <span style="font-weight: bold; margin-top: 15px; display: block; font-size: 11pt;">SEGUNDA. PRECIO:</span>
-        <p>Las partes pactan la suma de <b id="pr-total2"></b> nuevos soles.</p>
+                <div style="margin-top: 20px;">
+                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 1px solid #000; margin-bottom: 5px;">PRIMERA. OBJETO:</span>
+                    <p>Día del evento: <b id="pr-eventDate"></b><br/>En la dirección: <b id="pr-location"></b><br/>Referencia: <b id="pr-ref"></b> / Hora: <b id="pr-time"></b></p>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1.5px solid #000;">
+                    <thead>
+                        <tr style="background-color: #f8fafc;">
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; width: 10%;">CANT.</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: left;">DESCRIPCIÓN</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; width: 15%;">P. UNIT.</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; width: 15%;">IMPORTE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pr-items-tbody">
+                        <!-- Filas de items inyectadas aquí -->
+                    </tbody>
+                </table>
 
-        <span style="font-weight: bold; margin-top: 15px; display: block; font-size: 11pt;">TERCERA. FORMA DE PAGO:</span>
-        <p>EL COMPRADOR paga el precio en la siguiente forma: <b>ADELANTO de <span id="pr-dep"></span> NUEVOS SOLES</b> y el saldo restante de <span id="pr-bal"></span> NUEVOS SOLES <b>CONTRAENTREGA</b>.</p>
+                <div style="margin-top: 20px;">
+                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 1px solid #000; margin-bottom: 5px;">SEGUNDA. PRECIO:</span>
+                    <p>Las partes pactan la suma de <b id="pr-total2"></b> nuevos soles por el total de los servicios acordados.</p>
+                </div>
 
-        <div style="border: 1.5px solid #000; padding: 15px; margin-top: 25px; font-size: 10.5pt;">
-            <b>MÉTODO DE PAGO:</b><br/>YAPE / PLIM al número: <b id="pr-yape"></b><br/>
-            Cta BCP Soles: <b id="pr-bcp"></b>
-        </div>
+                <div style="margin-top: 20px;">
+                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 1px solid #000; margin-bottom: 5px;">TERCERA. FORMA DE PAGO:</span>
+                    <p>EL COMPRADOR paga el precio en la siguiente forma: <b>ADELANTO de <span id="pr-dep"></span> NUEVOS SOLES</b> por concepto de separación y el saldo restante de <span id="pr-bal"></span> NUEVOS SOLES <b>CONTRAENTREGA</b>.</p>
+                </div>
 
-        <div style="margin-top: 70px; display: flex; justify-content: space-around;">
-            <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;"><b>VENDEDOR</b><br/><span id="pr-sig-seller"></span></div>
-            <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;"><b>COMPRADOR</b><br/><span id="pr-sig-client"></span></div>
+                <div style="border: 1.5px solid #000; padding: 15px; margin-top: 30px; font-size: 10.5pt; background: #fafafa;">
+                    <b style="display: block; margin-bottom: 5px;">MÉTODO DE PAGO OFICIAL:</b>
+                    YAPE / PLIM al número: <b id="pr-yape"></b><br/>
+                    Cta BCP Soles: <b id="pr-bcp"></b><br/>
+                    CCI BCP: <b id="pr-cci"></b>
+                </div>
+
+                <div style="margin-top: 80px; display: flex; justify-content: space-around; padding-bottom: 40px;">
+                    <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;">
+                        <b>VENDEDOR</b><br/><span id="pr-sig-seller"></span><br/>DNI: <span id="pr-sig-sellerDni"></span>
+                    </div>
+                    <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;">
+                        <b>COMPRADOR</b><br/><span id="pr-sig-client"></span><br/>DNI: <span id="pr-sig-clientDni"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer con Botones (Solo en pantalla) -->
+            <div class="no-print bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-200">
+                <button id="btn-modal-print" onclick="window.print()" class="hidden bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black flex items-center gap-2 hover:bg-slate-800 transition-all">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
+                </button>
+                <button id="btn-modal-save" onclick="generateFromPreview()" class="hidden bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-black flex items-center gap-2 hover:bg-emerald-700 shadow-lg transition-all">
+                    <i data-lucide="check" class="w-4 h-4"></i> Confirmar y Guardar
+                </button>
+            </div>
         </div>
     </div>
-
 
     <!-- ========================================================= -->
     <!-- ================== LÓGICA JAVASCRIPT ==================== -->
     <!-- ========================================================= -->
     <script>
+        // Inicializar Iconos la primera vez
         lucide.createIcons();
 
         // --- DATOS POR DEFECTO ---
@@ -325,49 +410,87 @@
             depositOnsitePercent: 40, nextContractNumber: 826 
         };
 
-        const defaultData = [{
-            id: 825, clientName: 'Julio Geldres Montoya', clientDni: '41607475', clientPhone: '987654321',
-            serviceType: 'onsite', eventDate: '2026-03-27', district: 'Lince',
-            eventLocation: 'Jirón Mariscal Miller 2411', reference: 'Altura 23 y 24 de Arenales',
-            startTime: '12:00', guestCount: 200, productType: 'Pollada', total: 2000, deposit: 800, submittedAt: '26/02/2026', status: 'Aceptado'
-        }];
-
-        // --- ESTADO ---
         let rules = JSON.parse(localStorage.getItem('nidos_rules')) || defaultRules;
-        let submissions = JSON.parse(localStorage.getItem('nidos_submissions')) || defaultData;
+        let rawSubmissions = JSON.parse(localStorage.getItem('nidos_submissions')) || [];
+        
+        // Migración de datos antiguos (soporte multi-item)
+        let submissions = rawSubmissions.map(s => {
+            if (!s.items) {
+                let qty = Number(s.guestCount) || 0;
+                let tot = Number(s.total) || 0;
+                let fee = (s.serviceType === 'delivery' && qty > 0 && qty < 120) ? 25 : 0;
+                let price = qty > 0 ? ((tot - fee) / qty) : 0;
+                
+                s.items = [{
+                    id: Math.random(),
+                    product: s.productType || 'Pollada',
+                    qty: qty,
+                    price: price
+                }];
+                s.fee = fee;
+            }
+            return s;
+        });
+
+        // Si no hay datos, insertar el de prueba
+        if (submissions.length === 0) {
+            submissions = [{
+                id: 825, clientName: 'Julio Geldres Montoya', clientDni: '41607475', clientPhone: '987654321',
+                serviceType: 'onsite', eventDate: '2026-03-27', district: 'Lince',
+                eventLocation: 'Jirón Mariscal Miller 2411', reference: 'Altura 23 y 24 de Arenales',
+                startTime: '12:00', guestCount: 200, status: 'Aceptado', submittedAt: '26/02/2026',
+                fee: 0, deposit: 800, total: 2000,
+                items: [{ id: 1, product: 'Pollada', qty: 200, price: 10 }]
+            }];
+        }
+
+        // --- ESTADO DE CREACIÓN ---
         let adminServiceType = 'delivery';
+        let currentItems = []; // Array de platos
+
+        // Utilidad para generar IDs
+        function generateId() { return Math.floor(Math.random() * 1000000); }
 
         // --- CONTROL DE VISTAS ---
         function switchView(viewName) {
-            // Ocultar todas las secciones
+            // Ocultar todas las vistas principales
             ['admin-dashboard', 'admin-create', 'admin-settings', 'success'].forEach(v => {
                 document.getElementById('view-' + v).classList.add('hidden');
             });
-            
-            // Mostrar la solicitada
             document.getElementById('view-' + viewName).classList.remove('hidden');
 
-            // Update Nav Colors (Desktop)
+            // Actualizar colores de navegación (Desktop & Mobile)
             ['dash', 'create', 'set'].forEach(btn => {
-                const el = document.getElementById('btn-nav-' + btn);
-                if(el) el.className = `w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400`;
+                let elD = document.getElementById('btn-nav-' + btn);
+                if(elD) elD.className = `w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400`;
+                let elM = document.getElementById('btn-mob-' + btn);
+                if(elM && btn !== 'create') elM.className = `flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20`;
             });
             
-            if(viewName === 'admin-dashboard') document.getElementById('btn-nav-dash').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
-            if(viewName === 'admin-create') document.getElementById('btn-nav-create').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
-            if(viewName === 'admin-settings') document.getElementById('btn-nav-set').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
-
-            // Ejecutar funciones específicas de vista
-            if(viewName === 'admin-dashboard') renderDashboard();
-            if(viewName === 'admin-create') {
-                document.getElementById('create-next-id').innerText = '#' + rules.nextContractNumber;
-                setAdminServiceType('delivery');
-                updatePricing();
+            if(viewName === 'admin-dashboard') {
+                document.getElementById('btn-nav-dash').classList.replace('hover:bg-slate-800', 'bg-rose-600');
+                document.getElementById('btn-nav-dash').classList.replace('text-slate-400', 'shadow-lg');
+                document.getElementById('btn-mob-dash').classList.replace('text-slate-400', 'text-rose-500');
+                renderDashboard();
             }
-            if(viewName === 'admin-settings') loadSettings();
+            if(viewName === 'admin-create') {
+                document.getElementById('btn-nav-create').classList.replace('hover:bg-slate-800', 'bg-rose-600');
+                document.getElementById('btn-nav-create').classList.replace('text-slate-400', 'shadow-lg');
+                document.getElementById('create-next-id').innerText = '#' + rules.nextContractNumber;
+                resetCreateForm();
+            }
+            if(viewName === 'admin-settings') {
+                document.getElementById('btn-nav-set').classList.replace('hover:bg-slate-800', 'bg-rose-600');
+                document.getElementById('btn-nav-set').classList.replace('text-slate-400', 'shadow-lg');
+                document.getElementById('btn-mob-set').classList.replace('text-slate-400', 'text-rose-500');
+                loadSettings();
+            }
+            
+            // Cerrar modales si existen
+            closeContractModal();
         }
 
-        // --- DASHBOARD ---
+        // --- DASHBOARD (TABLA) ---
         function renderDashboard() {
             let tbody = '';
             submissions.forEach(s => {
@@ -375,6 +498,9 @@
                                  s.status === 'Aceptado' ? 'bg-blue-50 text-blue-600 border-blue-200' :
                                  s.status === 'Pagado' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
                                  'bg-slate-100 text-slate-600 border-slate-200';
+
+                // Generar texto de los productos
+                let itemsDesc = s.items.map(i => `${i.qty} ${i.product}`).join(', ');
 
                 tbody += `
                     <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-50">
@@ -393,7 +519,8 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="text-xs font-black text-slate-700 uppercase">${s.serviceType}</div>
-                            <div class="text-[10px] font-bold text-rose-500 mt-0.5">${s.guestCount} Platos de ${s.productType || 'Pollada'} • ${s.eventDate}</div>
+                            <div class="text-[10px] font-bold text-rose-500 mt-0.5 max-w-[150px] truncate" title="${itemsDesc}">${itemsDesc}</div>
+                            <div class="text-[10px] font-bold text-slate-400 mt-0.5">${s.eventDate}</div>
                         </td>
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="font-black text-slate-900 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
@@ -401,11 +528,11 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="printContract(${s.id})" title="1. Descargar/Imprimir Contrato PDF" class="bg-rose-100 text-rose-700 p-2 rounded-xl hover:bg-rose-200 transition-all border border-rose-200">
-                                    <i data-lucide="printer" class="w-5 h-5"></i>
+                                <button onclick="openPrintModal(${s.id})" title="Ver o Imprimir PDF" class="bg-rose-100 text-rose-700 p-2 rounded-xl hover:bg-rose-200 transition-all border border-rose-200">
+                                    <i data-lucide="printer" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="shareWhatsApp(${s.id})" title="2. Recordatorio de Pago por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
-                                    <i data-lucide="smartphone" class="w-5 h-5"></i>
+                                <button onclick="shareWhatsApp(${s.id})" title="Avisar por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
+                                    <i data-lucide="smartphone" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </td>
@@ -425,10 +552,10 @@
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
             
-            // Mensaje Optimizado para Adjuntar el PDF
-            const msg = `Hola *${s.clientName}*, te acabo de enviar el PDF con tu contrato oficial #${s.id}.\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nQuedo atento a la foto de tu voucher para validar tu reserva. ¡Gracias!`;
+            let itemsTxt = s.items.map(i => `${i.qty} ${i.product}`).join(' y ');
+
+            const msg = `Hola *${s.clientName}*, un placer saludarte.\n\nTe escribimos de parte de *${rules.companyName}*. Aquí te adjuntamos tu *CONTRATO OFICIAL #${s.id}* en formato PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${itemsTxt}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nPor favor, envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
             
-            // Limpiar el número
             let phone = s.clientPhone.replace(/\D/g, '');
             if(phone.length === 9) phone = '51' + phone;
 
@@ -436,47 +563,129 @@
             window.open(url, '_blank');
         }
 
+        // --- GESTIÓN DE ITEMS (MULTIPLE PRODUCTOS) ---
+        function getBasePrice() {
+            if(adminServiceType === 'pickup') return rules.priceRecojo;
+            if(adminServiceType === 'delivery') return rules.priceDelivery;
+            return rules.pricePresencial;
+        }
+
+        function addItem() {
+            currentItems.push({
+                id: generateId(),
+                product: 'Pollada',
+                qty: '',
+                price: getBasePrice()
+            });
+            renderItems();
+        }
+
+        function removeItem(id) {
+            currentItems = currentItems.filter(i => i.id !== id);
+            renderItems();
+        }
+
+        function updateItem(id, field, value) {
+            const item = currentItems.find(i => i.id === id);
+            if(item) {
+                item[field] = value;
+                updatePricing();
+            }
+        }
+
+        function renderItems() {
+            let html = '';
+            currentItems.forEach((item) => {
+                html += `
+                <div class="flex items-center gap-2 animate-fade-in">
+                    <select onchange="updateItem(${item.id}, 'product', this.value)" class="flex-[3] px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none focus:ring-2 focus:ring-rose-500/20 text-slate-700">
+                        <option value="Pollada" ${item.product==='Pollada'?'selected':''}>Pollada</option>
+                        <option value="Chuleta" ${item.product==='Chuleta'?'selected':''}>Chuleta</option>
+                        <option value="Parrilla" ${item.product==='Parrilla'?'selected':''}>Parrilla</option>
+                    </select>
+                    <input type="number" oninput="updateItem(${item.id}, 'qty', this.value); validateCreateForm()" value="${item.qty}" placeholder="Cant." class="flex-[2] px-2 py-3 rounded-xl bg-rose-50 border border-rose-200 font-black text-rose-700 text-xs outline-none text-center">
+                    <div class="flex-[2] relative">
+                        <span class="absolute left-2 top-3 text-[10px] font-bold text-slate-400">S/</span>
+                        <input type="number" step="0.1" oninput="updateItem(${item.id}, 'price', this.value)" value="${item.price}" class="w-full pl-6 pr-2 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none">
+                    </div>
+                    <button type="button" onclick="removeItem(${item.id})" class="flex-none p-2.5 text-rose-500 hover:bg-rose-100 rounded-lg transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                `;
+            });
+            document.getElementById('items-container').innerHTML = html;
+            lucide.createIcons();
+            updatePricing();
+            validateCreateForm();
+        }
+
         // --- ADMIN CREAR ---
+        function resetCreateForm() {
+            setAdminServiceType('delivery'); // Esto llama a resetear items
+            document.getElementById('adm-name').value = '';
+            document.getElementById('adm-dni').value = '';
+            document.getElementById('adm-phone').value = '';
+            document.getElementById('adm-date').value = '';
+            document.getElementById('adm-district').value = '';
+            document.getElementById('adm-location').value = '';
+            document.getElementById('adm-ref').value = '';
+            document.getElementById('adm-time').value = '';
+        }
+
         function setAdminServiceType(type) {
             adminServiceType = type;
             ['pickup', 'delivery', 'onsite'].forEach(t => {
-                document.getElementById('btn-adm-' + t).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400";
+                document.getElementById('btn-adm-' + t).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400 hover:bg-slate-200";
             });
-            document.getElementById('btn-adm-' + type).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-rose-600";
+            document.getElementById('btn-adm-' + type).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-md text-rose-600 border border-slate-200";
             
             if(type === 'pickup') {
                 document.getElementById('adm-location-fields').classList.add('hidden');
             } else {
                 document.getElementById('adm-location-fields').classList.remove('hidden');
             }
-            updatePricing();
-            validateCreateForm();
+
+            // Actualizar precio de los items actuales al nuevo default si no hay customización (opcional)
+            let defaultPrice = getBasePrice();
+            if(currentItems.length === 0) {
+                currentItems = [{ id: generateId(), product: 'Pollada', qty: '', price: defaultPrice }];
+            } else {
+                currentItems.forEach(i => i.price = defaultPrice);
+            }
+            renderItems();
         }
 
         function getPricing() {
-            let unit = 0; let fee = 0; 
-            const count = Number(document.getElementById('adm-count').value) || 0;
+            let subtotal = 0; 
+            let totalQty = 0;
 
-            if (adminServiceType === 'pickup') unit = rules.priceRecojo;
-            else if (adminServiceType === 'delivery') {
-                unit = rules.priceDelivery;
-                if (count < rules.minPlatesFreeShipping && count > 0) fee = rules.deliveryFee;
-            } else if (adminServiceType === 'onsite') unit = rules.pricePresencial;
+            currentItems.forEach(item => {
+                const q = Number(item.qty) || 0;
+                const p = Number(item.price) || 0;
+                subtotal += (q * p);
+                totalQty += q;
+            });
 
-            const total = (count * unit) + fee;
+            let fee = 0;
+            if (adminServiceType === 'delivery' && totalQty > 0 && totalQty < rules.minPlatesFreeShipping) {
+                fee = rules.deliveryFee;
+            }
+
+            const total = subtotal + fee;
             let dep = rules.depositFixed;
-            if (adminServiceType === 'onsite') dep = (total * rules.depositOnsitePercent) / 100;
+            if (adminServiceType === 'onsite') {
+                dep = (total * rules.depositOnsitePercent) / 100;
+            }
 
-            return { total, deposit: dep, unitPrice: unit, fee };
+            return { subtotal, fee, total, deposit: dep, totalQty };
         }
 
         function updatePricing() {
             const p = getPricing();
-            const count = document.getElementById('adm-count').value || 0;
             
-            document.getElementById('preview-count').innerText = count;
-            document.getElementById('preview-unit').innerText = p.unitPrice.toFixed(2);
-            document.getElementById('preview-subtotal').innerText = (count * p.unitPrice).toFixed(2);
+            document.getElementById('preview-total-qty').innerText = p.totalQty;
+            document.getElementById('preview-subtotal').innerText = p.subtotal.toFixed(2);
             
             if(p.fee > 0) {
                 document.getElementById('preview-fee-container').classList.remove('hidden');
@@ -493,73 +702,104 @@
 
         function validateCreateForm() {
             const name = document.getElementById('adm-name').value;
-            const count = document.getElementById('adm-count').value;
-            const btn = document.getElementById('btn-generate');
-            if(name && count > 0) {
-                btn.disabled = false;
+            const p = getPricing();
+            
+            const btnPrev = document.getElementById('btn-preview');
+            const btnGen = document.getElementById('btn-generate');
+            
+            if(name && p.totalQty > 0) {
+                btnPrev.disabled = false;
+                btnGen.disabled = false;
             } else {
-                btn.disabled = true;
+                btnPrev.disabled = true;
+                btnGen.disabled = true;
             }
         }
 
-        function generateContract() {
+        // Crea el objeto del formulario actual (sin guardarlo aún)
+        function getFormDataAsOrder() {
             const p = getPricing();
-            const newEntry = {
+            // Filtrar items sin cantidad
+            const validItems = currentItems.filter(i => Number(i.qty) > 0);
+
+            return {
                 id: rules.nextContractNumber,
-                clientName: document.getElementById('adm-name').value,
-                clientDni: document.getElementById('adm-dni').value,
-                clientPhone: document.getElementById('adm-phone').value,
-                productType: document.getElementById('adm-product').value || 'Pollada',
+                clientName: document.getElementById('adm-name').value || 'Cliente General',
+                clientDni: document.getElementById('adm-dni').value || '-',
+                clientPhone: document.getElementById('adm-phone').value || '-',
                 serviceType: adminServiceType,
-                eventDate: document.getElementById('adm-date').value,
-                district: document.getElementById('adm-district').value,
-                eventLocation: document.getElementById('adm-location').value,
-                reference: document.getElementById('adm-ref').value,
-                startTime: document.getElementById('adm-time').value,
-                guestCount: document.getElementById('adm-count').value,
+                eventDate: document.getElementById('adm-date').value || '-',
+                district: document.getElementById('adm-district').value || '',
+                eventLocation: document.getElementById('adm-location').value || '',
+                reference: document.getElementById('adm-ref').value || '',
+                startTime: document.getElementById('adm-time').value || '-',
+                items: validItems,
+                guestCount: p.totalQty,
+                fee: p.fee,
                 total: p.total,
                 deposit: p.deposit,
                 submittedAt: new Date().toLocaleDateString(),
                 status: 'Emitido'
             };
+        }
+
+        // Abre la vista previa
+        function openPreview() {
+            const tempOrder = getFormDataAsOrder();
+            populateContractModal(tempOrder);
+            
+            document.getElementById('modal-title').innerHTML = '<i data-lucide="eye" class="w-5 h-5 text-rose-600"></i> Vista Previa (No Guardado)';
+            document.getElementById('btn-modal-print').classList.add('hidden');
+            document.getElementById('btn-modal-save').classList.remove('hidden');
+            
+            document.getElementById('modal-contract').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function generateFromPreview() {
+            closeContractModal();
+            generateContract();
+        }
+
+        function generateContract() {
+            const newEntry = getFormDataAsOrder();
 
             submissions.unshift(newEntry);
             rules.nextContractNumber++;
             
             localStorage.setItem('nidos_submissions', JSON.stringify(submissions));
             localStorage.setItem('nidos_rules', JSON.stringify(rules));
-
-            // Reset form
-            document.getElementById('adm-name').value = '';
-            document.getElementById('adm-dni').value = '';
-            document.getElementById('adm-phone').value = '';
-            document.getElementById('adm-count').value = '';
-            document.getElementById('adm-product').value = 'Pollada';
             
-            // Ir a pantalla de éxito
             switchView('success');
         }
 
         // --- ADMIN SETTINGS ---
         function loadSettings() {
             document.getElementById('set-sellerName').value = rules.sellerName;
+            document.getElementById('set-sellerDni').value = rules.sellerDni;
+            document.getElementById('set-sellerRuc').value = rules.sellerRuc;
+            document.getElementById('set-sellerBusiness').value = rules.sellerBusiness;
             document.getElementById('set-whatsapp').value = rules.whatsappNumber;
             document.getElementById('set-bcpCta').value = rules.bcpCta;
+            document.getElementById('set-bcpCci').value = rules.bcpCci;
             document.getElementById('set-yapePlim').value = rules.yapePlim;
         }
 
         function saveSettings() {
             rules.sellerName = document.getElementById('set-sellerName').value;
+            rules.sellerDni = document.getElementById('set-sellerDni').value;
+            rules.sellerRuc = document.getElementById('set-sellerRuc').value;
+            rules.sellerBusiness = document.getElementById('set-sellerBusiness').value;
             rules.whatsappNumber = document.getElementById('set-whatsapp').value;
             rules.bcpCta = document.getElementById('set-bcpCta').value;
+            rules.bcpCci = document.getElementById('set-bcpCci').value;
             rules.yapePlim = document.getElementById('set-yapePlim').value;
             localStorage.setItem('nidos_rules', JSON.stringify(rules));
             switchView('admin-dashboard');
         }
 
-        // --- IMPRESIÓN FÍSICA ---
-        function printContract(id) {
-            const order = submissions.find(s => s.id === id);
+        // --- CONTRATO MODAL (VISTA Y PDF) ---
+        function populateContractModal(order) {
             if(!order) return;
             
             document.getElementById('pr-date').innerText = order.submittedAt;
@@ -570,34 +810,65 @@
             document.getElementById('pr-ruc').innerText = rules.sellerRuc;
             document.getElementById('pr-client').innerText = order.clientName;
             document.getElementById('pr-clientDni').innerText = order.clientDni;
+            
             document.getElementById('pr-eventDate').innerText = order.eventDate;
-            document.getElementById('pr-location').innerText = order.eventLocation + (order.district ? ` (${order.district})` : '');
-            document.getElementById('pr-ref').innerText = order.reference;
+            document.getElementById('pr-location').innerText = order.serviceType === 'pickup' ? 'Recojo en Local' : `${order.eventLocation} ${order.district ? `(${order.district})` : ''}`;
+            document.getElementById('pr-ref').innerText = order.reference || '-';
             document.getElementById('pr-time').innerText = order.startTime;
-            document.getElementById('pr-qty').innerText = order.guestCount;
-            document.getElementById('pr-product').innerText = order.productType || 'Pollada';
-            document.getElementById('pr-type').innerText = order.serviceType.toUpperCase();
-            document.getElementById('pr-unit').innerText = 'S/ ' + (order.total / order.guestCount).toFixed(2);
-            document.getElementById('pr-total').innerText = 'S/ ' + Number(order.total).toFixed(2);
+
+            // Llenar tabla de items
+            let itemsHtml = '';
+            order.items.forEach(item => {
+                itemsHtml += `
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>${item.qty}</b></td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: left;">Plato de ${item.product} - Modalidad: ${order.serviceType.toUpperCase()}</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;">S/ ${Number(item.price).toFixed(2)}</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>S/ ${(item.qty * item.price).toFixed(2)}</b></td>
+                </tr>`;
+            });
+
+            // Si hay fee de delivery, añadir como fila
+            if (order.fee > 0) {
+                itemsHtml += `
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>1</b></td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: left;">Cargo por Delivery (Menos de ${rules.minPlatesFreeShipping} platos)</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;">S/ ${Number(order.fee).toFixed(2)}</td>
+                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>S/ ${Number(order.fee).toFixed(2)}</b></td>
+                </tr>`;
+            }
+
+            document.getElementById('pr-items-tbody').innerHTML = itemsHtml;
+            
             document.getElementById('pr-total2').innerText = 'S/ ' + Number(order.total).toFixed(2);
             document.getElementById('pr-dep').innerText = Number(order.deposit).toFixed(2);
             document.getElementById('pr-bal').innerText = (order.total - order.deposit).toFixed(2);
+            
             document.getElementById('pr-yape').innerText = rules.yapePlim;
             document.getElementById('pr-bcp').innerText = rules.bcpCta;
-            document.getElementById('pr-sig-seller').innerText = rules.sellerName;
-            document.getElementById('pr-sig-client').innerText = order.clientName;
-
-            const printArea = document.getElementById('printable-contract');
+            document.getElementById('pr-cci').innerText = rules.bcpCci || '-';
             
-            // Mostrar la capa de impresión ocultando el 'hidden'
-            printArea.classList.remove('hidden');
+            document.getElementById('pr-sig-seller').innerText = rules.sellerName;
+            document.getElementById('pr-sig-sellerDni').innerText = rules.sellerDni;
+            document.getElementById('pr-sig-client').innerText = order.clientName;
+            document.getElementById('pr-sig-clientDni').innerText = order.clientDni;
+        }
 
-            // Retraso para que el navegador renderice la capa antes de invocar la impresora
-            setTimeout(() => {
-                window.print();
-                // Ocultarlo nuevamente después de que se cierre el cuadro de diálogo de impresión
-                printArea.classList.add('hidden');
-            }, 300);
+        function openPrintModal(id) {
+            const order = submissions.find(s => s.id === id);
+            populateContractModal(order);
+            
+            document.getElementById('modal-title').innerHTML = '<i data-lucide="file-text" class="w-5 h-5 text-rose-600"></i> Documento Legal';
+            document.getElementById('btn-modal-save').classList.add('hidden');
+            document.getElementById('btn-modal-print').classList.remove('hidden');
+            
+            document.getElementById('modal-contract').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeContractModal() {
+            document.getElementById('modal-contract').classList.add('hidden');
         }
 
         // --- INICIO ---
