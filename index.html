@@ -21,11 +21,14 @@
             #printable-contract, #printable-contract * { visibility: visible; }
             #printable-contract { 
                 position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
-                padding: 2cm !important; margin: 0; 
+                padding: 1.5cm !important; margin: 0; 
                 font-family: 'Times New Roman', serif; color: #000; 
                 font-size: 11pt; line-height: 1.5; background: white;
+                display: block !important;
             }
             .no-print { display: none !important; }
+            /* Ocultar el resto de la interfaz para evitar hojas en blanco */
+            #nav-desktop, #nav-mobile, #main-content { display: none !important; }
         }
     </style>
 </head>
@@ -341,7 +344,7 @@
     </main>
 
     <!-- ================= MODAL IMPRESIÓN FÍSICA ================= -->
-    <div id="printable-contract" class="hidden no-print">
+    <div id="printable-contract" class="hidden">
         <div style="text-align: right; margin-bottom: 25px; font-weight: bold;">Lima, <span id="pr-date"></span></div>
         <h1 style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 25px; font-size: 15pt;">CONTRATO DE COMPRAVENTA #<span id="pr-id"></span></h1>
         
@@ -710,6 +713,7 @@
         // --- IMPRESIÓN FÍSICA ---
         function printContract(id) {
             const order = submissions.find(s => s.id === id);
+            if(!order) return;
             
             document.getElementById('pr-date').innerText = order.submittedAt;
             document.getElementById('pr-id').innerText = order.id;
@@ -735,10 +739,17 @@
             document.getElementById('pr-sig-seller').innerText = rules.sellerName;
             document.getElementById('pr-sig-client').innerText = order.clientName;
 
-            // Esperar un instante para que el DOM se actualice y llamar a imprimir
+            const printArea = document.getElementById('printable-contract');
+            
+            // Mostrar la capa de impresión ocultando el 'hidden'
+            printArea.classList.remove('hidden');
+
+            // Retraso para que el navegador renderice la capa antes de invocar la impresora
             setTimeout(() => {
                 window.print();
-            }, 100);
+                // Ocultarlo nuevamente después de que se cierre el cuadro de diálogo de impresión
+                printArea.classList.add('hidden');
+            }, 300);
         }
 
         // --- INICIO ---
