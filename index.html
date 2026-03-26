@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nidos Chickens - Venta Asistida</title>
+    <title>Nidos Chickens - CRM & Contratos</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -81,7 +81,7 @@
             <header class="flex justify-between items-end">
                 <div>
                     <h1 class="text-3xl md:text-4xl font-black tracking-tight">Mis Ventas</h1>
-                    <p class="text-slate-500 font-medium mt-1">Comparte los resúmenes por WhatsApp y adjunta el PDF.</p>
+                    <p class="text-slate-500 font-medium mt-1">Genera PDFs y envía resúmenes por WhatsApp.</p>
                 </div>
                 <button onclick="switchView('admin-create')" class="hidden md:flex bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all">
                     <i data-lucide="plus" class="w-5 h-5"></i> Crear Contrato
@@ -97,7 +97,7 @@
                                 <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Cliente</th>
                                 <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio</th>
                                 <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Monto Final</th>
-                                <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones / Compartir</th>
+                                <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones Rápida</th>
                             </tr>
                         </thead>
                         <tbody id="table-body" class="divide-y divide-slate-50">
@@ -114,8 +114,8 @@
         <section id="view-admin-create" class="hidden max-w-4xl mx-auto space-y-6 animate-fade-in">
             <header class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-black">Generador Rápido</h1>
-                    <p class="text-slate-500 text-sm font-medium">Crea el contrato mientras chateas con el cliente.</p>
+                    <h1 class="text-3xl font-black">Generador de Contratos</h1>
+                    <p class="text-slate-500 text-sm font-medium">Crea el contrato oficial de tu cliente al instante.</p>
                 </div>
                 <div class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl font-black text-xl border border-rose-100" id="create-next-id">
                     #826
@@ -192,7 +192,7 @@
                         </div>
 
                         <button id="btn-generate" onclick="generateContract()" disabled class="mt-4 w-full bg-rose-600 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-rose-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i> Generar Contrato Interno
+                            <i data-lucide="check-circle" class="w-5 h-5"></i> Guardar Contrato
                         </button>
                     </div>
                 </div>
@@ -230,115 +230,23 @@
         </section>
 
         <!-- ========================================================= -->
-        <!-- === VISTA CLIENTE: "MAGIC LINK" (Contrato Interactivo) == -->
+        <!-- ================= VISTA: SUCCESS ======================== -->
         <!-- ========================================================= -->
-        <section id="view-client-magic-link" class="hidden max-w-lg mx-auto py-6 md:py-10 animate-fade-in">
-            <div class="text-center mb-8">
-                <div class="bg-white border-4 border-rose-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-xl mb-3 relative">
-                    <i data-lucide="chef-hat" class="w-10 h-10 text-rose-600"></i>
-                    <div class="absolute -bottom-2 -right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-white font-bold"></i></div>
+        <section id="view-success" class="hidden min-h-[70vh] flex items-center justify-center p-4">
+            <div class="text-center max-w-md w-full bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-100">
+                <div class="bg-emerald-100 w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-8 h-8"></i>
                 </div>
-                <h1 class="text-2xl font-black text-slate-900">Hola, <span id="magic-client-name"></span></h1>
-                <p class="text-slate-500 text-sm mt-1">Por favor, revisa y confirma tu contrato.</p>
-            </div>
-
-            <!-- Documento Legal Simulado -->
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden mb-6">
-                <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-rose-500"></i>
-                        <span class="font-black uppercase tracking-widest text-xs">Contrato Legal</span>
-                    </div>
-                    <span class="font-bold text-rose-500 text-sm" id="magic-contract-id"></span>
-                </div>
-                
-                <div class="p-6 md:p-8 space-y-6 text-sm text-slate-700 leading-relaxed font-serif text-justify">
-                    <p>
-                        Conste por el presente documento, el acuerdo comercial entre <b id="magic-company"></b> (RUC: <span id="magic-ruc"></span>), representado por <span id="magic-seller"></span>, en adelante "EL VENDEDOR", y <b id="magic-fullname"></b> (DNI: <span id="magic-dni"></span>), en adelante "EL COMPRADOR".
-                    </p>
-
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 font-sans">
-                        <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 border-b border-slate-200 pb-2">Detalles del Evento</h4>
-                        <div class="grid grid-cols-2 gap-y-2 text-xs">
-                            <span class="text-slate-500">Fecha:</span> <span class="font-bold text-right text-slate-900" id="magic-date"></span>
-                            <span class="text-slate-500">Hora:</span> <span class="font-bold text-right text-slate-900" id="magic-time"></span>
-                            <span class="text-slate-500">Cantidad:</span> <span class="font-bold text-right text-rose-600"><span id="magic-count"></span> Platos</span>
-                            <span class="text-slate-500">Modalidad:</span> <span class="font-bold text-right text-slate-900 uppercase" id="magic-type"></span>
-                            <div id="magic-location-wrap" class="col-span-2 hidden mt-2">
-                                <span class="text-slate-500 block">Lugar de Entrega:</span> 
-                                <span class="font-bold text-slate-900 block leading-tight" id="magic-location"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p>
-                        Las partes pactan el precio total por los servicios descritos en la suma de <b id="magic-total"></b>.
-                    </p>
-                    <p>
-                        El comprador se compromete a realizar un depósito inicial por concepto de separación y reserva equivalente a <b id="magic-deposit"></b>. El saldo restante (<span id="magic-balance"></span>) será cancelado contraentrega.
-                    </p>
+                <h1 class="text-2xl font-black mb-2 uppercase text-slate-900" id="success-title">¡Contrato Generado!</h1>
+                <p class="text-slate-500 font-medium mb-6 text-sm leading-relaxed">
+                    Vuelve al panel de ventas para <b>descargar el PDF</b> y enviarle los detalles a tu cliente por WhatsApp.
+                </p>
+                <div class="space-y-4">
+                    <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black hover:bg-slate-800 transition-all shadow-lg">
+                        Ir a Mis Ventas
+                    </button>
                 </div>
             </div>
-
-            <!-- Botón de Aceptación (El "Cierre") -->
-            <button onclick="handleClientAccept()" class="w-full bg-[#10b981] text-white py-5 rounded-2xl font-black text-lg flex flex-col items-center justify-center shadow-xl shadow-emerald-500/30 hover:bg-[#059669] transition-all active:scale-95">
-                <span>ACEPTAR CONTRATO</span>
-                <span class="text-[10px] uppercase tracking-widest font-bold opacity-80 mt-0.5">Y Ver Cuentas para Depósito</span>
-            </button>
-            <p class="text-center text-[10px] font-bold text-slate-400 mt-4 px-8">Al hacer clic en aceptar, confirmas que los datos son correctos y aceptas los términos comerciales.</p>
-
-            <button onclick="switchView('admin-dashboard')" class="w-full mt-6 text-slate-400 font-bold text-xs py-2 hover:text-slate-900">
-                (Volver al Admin)
-            </button>
-        </section>
-
-        <!-- ========================================================= -->
-        <!-- === VISTA CLIENTE: PAGO (Cuentas después de aceptar) ==== -->
-        <!-- ========================================================= -->
-        <section id="view-client-payment" class="hidden max-w-md mx-auto py-10 animate-fade-in">
-            <div class="text-center mb-8">
-                <div class="bg-emerald-100 w-20 h-20 rounded-[2rem] flex items-center justify-center text-emerald-600 mx-auto mb-4">
-                    <i data-lucide="check-circle" class="w-10 h-10"></i>
-                </div>
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">¡Contrato Aceptado!</h1>
-                <p class="text-slate-500 text-sm mt-2">Paso final: Realiza tu transferencia para asegurar tu pedido del <b id="pay-date"></b>.</p>
-            </div>
-
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-6">
-                <div class="bg-slate-900 p-6 text-center text-white">
-                    <p class="text-slate-400 text-[10px] font-black uppercase mb-1 tracking-widest">Monto a Transferir</p>
-                    <p class="text-5xl font-black" id="pay-deposit">S/ 0.00</p>
-                </div>
-                
-                <div class="p-6 space-y-4">
-                    <!-- Yape/Plim Box -->
-                    <div class="bg-[#74006e] text-white rounded-xl p-4 flex justify-between items-center shadow-md">
-                        <div>
-                            <p class="text-[10px] font-black uppercase opacity-70 tracking-widest">YAPE / PLIM</p>
-                            <p class="font-black text-xl" id="pay-yape"></p>
-                            <p class="text-xs opacity-90" id="pay-seller"></p>
-                        </div>
-                        <i data-lucide="smartphone" class="w-8 h-8 opacity-50"></i>
-                    </div>
-
-                    <!-- BCP Box -->
-                    <div class="bg-[#002a8d] text-white rounded-xl p-4 flex justify-between items-center shadow-md">
-                        <div>
-                            <p class="text-[10px] font-black uppercase opacity-70 tracking-widest">BCP SOLES</p>
-                            <p class="font-black text-lg tracking-wider" id="pay-bcp"></p>
-                            <p class="text-[9px] mt-1 opacity-80" id="pay-cci"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CTA Final -->
-            <button onclick="sendVoucherToAdmin()" class="w-full bg-[#25D366] text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-[#25D366]/30 hover:bg-[#128C7E] transition-all active:scale-95">
-                <i data-lucide="smartphone" class="w-6 h-6"></i> YA PAGUÉ (Enviar Voucher)
-            </button>
-            <button onclick="switchView('admin-dashboard')" class="w-full text-slate-400 font-bold text-xs py-4 hover:text-slate-900 mt-2">
-                Cerrar simulación y volver al Admin
-            </button>
         </section>
 
     </main>
@@ -418,47 +326,27 @@
         // --- ESTADO ---
         let rules = JSON.parse(localStorage.getItem('nidos_rules')) || defaultRules;
         let submissions = JSON.parse(localStorage.getItem('nidos_submissions')) || defaultData;
-        let activeContract = null;
         let adminServiceType = 'delivery';
 
         // --- CONTROL DE VISTAS ---
         function switchView(viewName) {
             // Ocultar todas las secciones
-            ['admin-dashboard', 'admin-create', 'admin-settings', 'client-magic-link', 'client-payment'].forEach(v => {
+            ['admin-dashboard', 'admin-create', 'admin-settings', 'success'].forEach(v => {
                 document.getElementById('view-' + v).classList.add('hidden');
             });
+            
             // Mostrar la solicitada
             document.getElementById('view-' + viewName).classList.remove('hidden');
 
-            const isAdminView = viewName.startsWith('admin');
-            const body = document.getElementById('body-container');
-            const main = document.getElementById('main-content');
-            
-            if(isAdminView) {
-                body.classList.replace('bg-slate-100', 'bg-[#f8fafc]');
-                document.getElementById('nav-desktop').classList.add('hidden', 'md:flex'); // Oculto en móvil, visible en escritorio
-                document.getElementById('nav-mobile').classList.remove('hidden');
-                main.classList.add('pb-24', 'md:pb-8');
-                main.classList.remove('p-0');
-            } else {
-                body.classList.replace('bg-[#f8fafc]', 'bg-slate-100');
-                document.getElementById('nav-desktop').classList.add('hidden');
-                document.getElementById('nav-desktop').classList.remove('md:flex'); // Completamente oculto
-                document.getElementById('nav-mobile').classList.add('hidden');
-                main.classList.remove('pb-24', 'md:pb-8');
-                main.classList.add('p-0');
-            }
-
             // Update Nav Colors (Desktop)
-            if(isAdminView) {
-                ['dash', 'create', 'set'].forEach(btn => {
-                    const el = document.getElementById('btn-nav-' + btn);
-                    if(el) el.className = `w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400`;
-                });
-                if(viewName === 'admin-dashboard') document.getElementById('btn-nav-dash').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
-                if(viewName === 'admin-create') document.getElementById('btn-nav-create').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
-                if(viewName === 'admin-settings') document.getElementById('btn-nav-set').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
-            }
+            ['dash', 'create', 'set'].forEach(btn => {
+                const el = document.getElementById('btn-nav-' + btn);
+                if(el) el.className = `w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all hover:bg-slate-800 text-slate-400`;
+            });
+            
+            if(viewName === 'admin-dashboard') document.getElementById('btn-nav-dash').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
+            if(viewName === 'admin-create') document.getElementById('btn-nav-create').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
+            if(viewName === 'admin-settings') document.getElementById('btn-nav-set').className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all bg-rose-600 shadow-lg shadow-rose-600/30";
 
             // Ejecutar funciones específicas de vista
             if(viewName === 'admin-dashboard') renderDashboard();
@@ -504,14 +392,11 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="shareWhatsApp(${s.id})" title="Enviar resumen por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
-                                    <i data-lucide="smartphone" class="w-4 h-4"></i>
+                                <button onclick="printContract(${s.id})" title="1. Descargar/Imprimir Contrato PDF" class="bg-rose-100 text-rose-700 p-2 rounded-xl hover:bg-rose-200 transition-all border border-rose-200">
+                                    <i data-lucide="printer" class="w-5 h-5"></i>
                                 </button>
-                                <button onclick="openMagicLink(${s.id})" title="Simular vista del cliente" class="bg-slate-900 text-white p-2 rounded-xl hover:bg-slate-800 transition-all shadow-sm">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="printContract(${s.id})" title="Imprimir o guardar contrato en PDF" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-all">
-                                    <i data-lucide="printer" class="w-4 h-4"></i>
+                                <button onclick="shareWhatsApp(${s.id})" title="2. Enviar mensaje por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
+                                    <i data-lucide="smartphone" class="w-5 h-5"></i>
                                 </button>
                             </div>
                         </td>
@@ -531,10 +416,10 @@
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
             
-            // Redactar mensaje profesional pidiendo adjuntar el PDF
-            const msg = `Hola *${s.clientName}*, un placer atenderte.\n\nTe escribimos de parte de *${rules.companyName}*. En este chat te enviaremos tu *CONTRATO OFICIAL #${s.id}* en PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${s.guestCount}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nPor favor, envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
+            // Nuevo Mensaje Optimizado para Adjuntar el PDF
+            const msg = `Hola *${s.clientName}*, un placer atenderte.\n\nTe escribimos de parte de *${rules.companyName}*. Aquí te adjuntamos tu *CONTRATO OFICIAL #${s.id}* en formato PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${s.guestCount}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nPor favor, revísalo y envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
             
-            // Limpiar el número para la URL de WhatsApp (quitar espacios o +, y asegurar código 51 si no hay)
+            // Limpiar el número
             let phone = s.clientPhone.replace(/\D/g, '');
             if(phone.length === 9) phone = '51' + phone;
 
@@ -640,7 +525,8 @@
             document.getElementById('adm-phone').value = '';
             document.getElementById('adm-count').value = '';
             
-            switchView('admin-dashboard');
+            // Ir a pantalla de éxito
+            switchView('success');
         }
 
         // --- ADMIN SETTINGS ---
@@ -658,64 +544,6 @@
             rules.yapePlim = document.getElementById('set-yapePlim').value;
             localStorage.setItem('nidos_rules', JSON.stringify(rules));
             switchView('admin-dashboard');
-        }
-
-        // --- CLIENT MAGIC LINK ---
-        function openMagicLink(id) {
-            activeContract = submissions.find(s => s.id === id);
-            
-            if(activeContract.status === 'Emitido') {
-                // Rellenar datos
-                document.getElementById('magic-client-name').innerText = activeContract.clientName.split(' ')[0];
-                document.getElementById('magic-contract-id').innerText = '#' + activeContract.id;
-                document.getElementById('magic-company').innerText = rules.companyName;
-                document.getElementById('magic-ruc').innerText = rules.sellerRuc;
-                document.getElementById('magic-seller').innerText = rules.sellerName;
-                document.getElementById('magic-fullname').innerText = activeContract.clientName;
-                document.getElementById('magic-dni').innerText = activeContract.clientDni;
-                document.getElementById('magic-date').innerText = activeContract.eventDate;
-                document.getElementById('magic-time').innerText = activeContract.startTime;
-                document.getElementById('magic-count').innerText = activeContract.guestCount;
-                document.getElementById('magic-type').innerText = activeContract.serviceType;
-                
-                if(activeContract.serviceType !== 'pickup') {
-                    document.getElementById('magic-location-wrap').classList.remove('hidden');
-                    document.getElementById('magic-location').innerText = `${activeContract.eventLocation}, ${activeContract.district}`;
-                } else {
-                    document.getElementById('magic-location-wrap').classList.add('hidden');
-                }
-
-                document.getElementById('magic-total').innerText = 'S/ ' + Number(activeContract.total).toFixed(2);
-                document.getElementById('magic-deposit').innerText = 'S/ ' + Number(activeContract.deposit).toFixed(2);
-                document.getElementById('magic-balance').innerText = 'S/ ' + (activeContract.total - activeContract.deposit).toFixed(2);
-
-                switchView('client-magic-link');
-            } else {
-                showPaymentView();
-            }
-        }
-
-        function handleClientAccept() {
-            updateStatus(activeContract.id, 'Aceptado');
-            showPaymentView();
-        }
-
-        function showPaymentView() {
-            document.getElementById('pay-date').innerText = activeContract.eventDate;
-            document.getElementById('pay-deposit').innerText = 'S/ ' + Number(activeContract.deposit).toFixed(2);
-            document.getElementById('pay-yape').innerText = rules.yapePlim;
-            document.getElementById('pay-seller').innerText = rules.sellerName;
-            document.getElementById('pay-bcp').innerText = rules.bcpCta;
-            document.getElementById('pay-cci').innerText = rules.bcpCci;
-            switchView('client-payment');
-        }
-
-        function sendVoucherToAdmin() {
-            const msg = `Hola NIDOS CHICKENS, ya acepté mi *CONTRATO #${activeContract.id}*.\n\nAquí te envío el voucher del depósito de *S/ ${activeContract.deposit.toFixed(2)}*.`;
-            // Limpiar número tuyo
-            let phone = rules.whatsappNumber.replace(/\D/g, '');
-            const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
         }
 
         // --- IMPRESIÓN FÍSICA ---
