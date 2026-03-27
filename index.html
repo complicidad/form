@@ -232,7 +232,7 @@
         </aside>
 
         <!-- === NAV MOBILE (GLASSMORPHISM) === -->
-        <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 glass-nav text-white flex justify-around items-end px-2 pb-5 pt-3 border-t border-white/5 z-40 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+        <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 glass-nav text-white flex justify-around items-center p-3 border-t border-white/5 z-40 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
             <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2">
                 <i data-lucide="truck" class="w-6 h-6"></i>
                 <span class="text-[9px] font-bold tracking-wide">Ventas</span>
@@ -403,9 +403,14 @@
                                         <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-700">Sitio</button>
                                     </div>
 
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                                        <input type="date" id="adm-date" class="w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-xs md:text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
-                                        <input type="time" id="adm-time" class="w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-xs md:text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
+                                    <!-- Campos de Fecha y Hora Responsivos -->
+                                    <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full">
+                                        <div class="flex-1 w-full">
+                                            <input type="date" id="adm-date" class="w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-xs md:text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
+                                        </div>
+                                        <div class="flex-1 w-full">
+                                            <input type="time" id="adm-time" class="w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-xs md:text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
+                                        </div>
                                     </div>
 
                                     <div id="adm-location-fields" class="space-y-4">
@@ -583,7 +588,7 @@
                                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Razón Social / Nombre Comercial</label>
                                         <div class="flex gap-3">
                                             <input type="text" id="set-sellerRuc" placeholder="RUC (Opcional)" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all">
+                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm shadow-sm md:shadow-none font-bold">
                                         </div>
                                     </div>
                                 </div>
@@ -780,7 +785,7 @@
         lucide.createIcons();
 
         // --- CONEXIÓN BACKEND (GOOGLE APPS SCRIPT) ---
-        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbzUXttKuJi-o_z3i-rfpqKJwRnk8lzkI2GJEx7G_6nXz_-DffgPC1N2oejIPK7rG6cpZw/exec";
+        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbyMn3qsvmSL3T3p2CQFUTJYso5Ny94VxfmavEnY35Tqdmee-E7IV95ZPlNzPLb0Lmr1hA/exec";
 
         // --- CONFIGURACIÓN DEL DUEÑO DEL SAAS ---
         let saasConfig = {
@@ -949,8 +954,8 @@
                             : 'text-rose-500 font-black flex items-center gap-1.5';
                     }
 
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('kitchen-date').value = today;
+                    const todayInput = document.getElementById('kitchen-date');
+                    if(todayInput) todayInput.value = new Date().toISOString().split('T')[0];
                     
                     switchView('admin-dashboard');
                     document.getElementById('loader-dashboard').classList.add('hidden');
@@ -1484,13 +1489,16 @@
             document.getElementById('adm-name').value = '';
             document.getElementById('adm-dni').value = '';
             document.getElementById('adm-phone').value = '';
-            document.getElementById('adm-date').value = '';
             document.getElementById('adm-district').value = '';
             document.getElementById('adm-location').value = '';
             document.getElementById('adm-ref').value = '';
-            document.getElementById('adm-time').value = '';
             document.getElementById('adm-deposit').value = '';
             
+            // Establecer fecha y hora actuales por defecto
+            const now = new Date();
+            document.getElementById('adm-date').value = now.toISOString().split('T')[0];
+            document.getElementById('adm-time').value = now.toTimeString().split(' ')[0].substring(0, 5);
+
             currentItems = [];
             isDepositManuallyEdited = false;
             if (rules.products && rules.products.length > 0) addItem(); 
