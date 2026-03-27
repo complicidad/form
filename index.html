@@ -429,14 +429,26 @@
                                         
                                         <div class="h-px bg-slate-700/50 my-6"></div>
                                         
-                                        <div class="space-y-6">
+                                        <div class="space-y-5">
                                             <div>
-                                                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest">Monto de Adelanto</p>
-                                                <p class="text-4xl font-black text-emerald-400 tracking-tight">S/ <span id="preview-deposit">0.00</span></p>
+                                                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest flex items-center justify-between">
+                                                    <span>Monto de Adelanto</span>
+                                                    <span class="text-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 rounded text-[8px]">EDITABLE</span>
+                                                </p>
+                                                <div class="flex items-center gap-1 border-b border-slate-700/50 focus-within:border-emerald-500 transition-colors pb-1">
+                                                    <span class="text-4xl font-black text-emerald-400 tracking-tight">S/</span>
+                                                    <input type="number" id="adm-deposit" oninput="onManualDepositEdit()" class="w-full bg-transparent text-4xl font-black text-emerald-400 tracking-tight outline-none" placeholder="0.00">
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest">Importe Total</p>
-                                                <p class="text-2xl font-bold text-white tracking-tight">S/ <span id="preview-total">0.00</span></p>
+                                            <div class="flex justify-between items-end">
+                                                <div>
+                                                    <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest">Importe Total</p>
+                                                    <p class="text-2xl font-bold text-white tracking-tight">S/ <span id="preview-total">0.00</span></p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest">Saldo Restante</p>
+                                                    <p class="text-xl font-bold text-slate-300 tracking-tight">S/ <span id="preview-balance">0.00</span></p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -571,7 +583,7 @@
                             <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-soft h-fit space-y-5">
                                 <div class="flex justify-between items-center pb-2 border-b border-slate-100">
                                     <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest flex items-center gap-2">
-                                        <div class="bg-emerald-50 p-1.5 rounded-md"><i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i></div> Métodos de Pago
+                                        <div class="bg-emerald-50 p-1.5 rounded-md"><i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i></div> Pagos y Reservas
                                     </h3>
                                 </div>
                                 
@@ -593,6 +605,17 @@
                                     </div>
                                     <div id="settings-banks-container" class="space-y-3">
                                         <!-- Bancos inyectados -->
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-100">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Configuración de Adelantos</label>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase tracking-wider ml-1">Porcentaje de Adelanto por Defecto (Todas las modalidades)</label>
+                                        <div class="relative">
+                                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">%</span>
+                                            <input type="number" step="1" id="set-deposit-percent" placeholder="40" class="w-full pl-4 pr-8 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-right">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -762,7 +785,7 @@
             sellerName: "", sellerDni: "",
             sellerRuc: "", sellerBusiness: "Mi Empresa",
             yape: "", plin: "", banks: [],
-            minPlatesFreeShipping: 120, deliveryFee: 25, depositFixed: 100, depositOnsitePercent: 40, 
+            minPlatesFreeShipping: 120, deliveryFee: 25, depositPercent: 40, 
             nextContractNumber: 826,
             products: []
         };
@@ -771,8 +794,15 @@
         if (!rules.password) rules.password = "1234";
         if (!rules.products) rules.products = [];
         if (!rules.banks) rules.banks = [];
+        
+        // Migrar reglas antiguas al nuevo formato si es necesario
+        if (rules.depositPercent === undefined) {
+            rules.depositPercent = rules.depositOnsitePercent || 40;
+            delete rules.depositFixed;
+            delete rules.depositOnsitePercent;
+        }
 
-        let submissions = []; 
+        let submissions = []; // Ahora los pedidos vienen de la base de datos de Google
 
         // --- FUNCIONES DE SEGURIDAD Y BACKEND ---
         async function hashPassword(message) {
@@ -1019,6 +1049,7 @@
         let currentItems = []; 
         let tempSettingsProducts = [];
         let tempSettingsBanks = [];
+        let isDepositManuallyEdited = false;
 
         function generateId() { return Math.floor(Math.random() * 1000000); }
         function generateOrderId() {
@@ -1375,10 +1406,11 @@
             document.getElementById('adm-location').value = '';
             document.getElementById('adm-ref').value = '';
             document.getElementById('adm-time').value = '';
+            document.getElementById('adm-deposit').value = '';
             
             currentItems = [];
+            isDepositManuallyEdited = false;
             
-            // Solo añadir un item si hay productos disponibles
             if (rules.products && rules.products.length > 0) {
                 addItem(); 
             }
@@ -1410,10 +1442,9 @@
             if (adminServiceType === 'delivery' && totalQty > 0 && totalQty < rules.minPlatesFreeShipping) fee = rules.deliveryFee;
 
             const total = subtotal + fee;
-            let dep = rules.depositFixed;
-            if (adminServiceType === 'onsite') dep = (total * rules.depositOnsitePercent) / 100;
+            const defaultDeposit = total * ((rules.depositPercent || 0) / 100);
 
-            return { subtotal, fee, total, deposit: dep, totalQty };
+            return { subtotal, fee, total, defaultDeposit, totalQty };
         }
 
         function updatePricing() {
@@ -1431,8 +1462,26 @@
                 document.getElementById('preview-fee-container').classList.remove('flex');
             }
 
-            document.getElementById('preview-deposit').innerText = p.deposit.toFixed(2);
             document.getElementById('preview-total').innerText = p.total.toFixed(2);
+            
+            if (!isDepositManuallyEdited) {
+                document.getElementById('adm-deposit').value = p.defaultDeposit.toFixed(2);
+            }
+            
+            updateBalance();
+        }
+
+        function onManualDepositEdit() {
+            isDepositManuallyEdited = true;
+            updateBalance();
+            validateCreateForm();
+        }
+
+        function updateBalance() {
+            const p = getPricing();
+            const deposit = Number(document.getElementById('adm-deposit').value) || 0;
+            const balance = p.total - deposit;
+            document.getElementById('preview-balance').innerText = balance.toFixed(2);
         }
 
         function validateCreateForm() {
@@ -1451,6 +1500,7 @@
         function getFormDataAsOrder() {
             const p = getPricing();
             const validItems = currentItems.filter(i => Number(i.qty) > 0);
+            const deposit = Number(document.getElementById('adm-deposit').value) || 0;
 
             return {
                 id: generateOrderId(),
@@ -1467,7 +1517,7 @@
                 guestCount: p.totalQty,
                 fee: p.fee,
                 total: p.total,
-                deposit: p.deposit,
+                deposit: deposit,
                 submittedAt: new Date().toLocaleDateString(),
                 status: 'Emitido'
             };
@@ -1541,6 +1591,8 @@
             
             document.getElementById('set-yape').value = rules.yape || '';
             document.getElementById('set-plin').value = rules.plin || '';
+            
+            document.getElementById('set-deposit-percent').value = rules.depositPercent !== undefined ? rules.depositPercent : 40;
             
             tempSettingsProducts = JSON.parse(JSON.stringify(rules.products || []));
             tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks || []));
@@ -1638,6 +1690,8 @@
             
             rules.yape = document.getElementById('set-yape').value;
             rules.plin = document.getElementById('set-plin').value;
+            
+            rules.depositPercent = Number(document.getElementById('set-deposit-percent').value) || 0;
             
             rules.products = tempSettingsProducts.filter(p => p.name.trim() !== '');
             rules.banks = tempSettingsBanks.filter(b => b.name.trim() !== '' || b.cta.trim() !== '');
