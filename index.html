@@ -13,9 +13,11 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none !important; }
         
         /* Estilos específicos para la impresión del contrato físico */
         @media print {
+            body { height: auto !important; overflow: visible !important; display: block !important; }
             body * { visibility: hidden; }
             #modal-contract, #modal-contract * { visibility: visible; }
             #modal-contract { 
@@ -27,8 +29,8 @@
                 padding: 1.5cm !important; height: auto !important; overflow: visible !important;
             }
             .no-print { display: none !important; }
-            /* Ocultar la UI trasera */
-            #nav-desktop, #nav-mobile, #main-content { display: none !important; }
+            /* Ocultar la UI trasera en impresión */
+            #nav-desktop, #nav-mobile, #header-mobile, #main-content { display: none !important; }
         }
 
         /* Scrollbar styling */
@@ -38,320 +40,343 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-[#f8fafc] text-slate-900 flex flex-col md:flex-row min-h-screen transition-colors duration-300" id="body-container">
+<body class="bg-[#f8fafc] text-slate-900 overflow-hidden transition-colors duration-300" id="body-container">
 
     <!-- ========================================================= -->
-    <!-- ================= NAV DESKTOP (LATAM5S STYLE) =========== -->
+    <!-- ================= WRAPPER PRINCIPAL ===================== -->
     <!-- ========================================================= -->
-    <aside id="nav-desktop" class="hidden md:flex w-72 bg-[#090E17] text-white flex-col min-h-screen border-r border-[#1e293b] sticky top-0 z-10 transition-all">
-        <!-- Header -->
-        <div class="flex items-center gap-3 p-6 mb-2">
-            <div class="bg-[#059669] p-2.5 rounded-xl flex-shrink-0 border border-[#047857]">
-                <i data-lucide="package" class="w-6 h-6 text-white"></i>
-            </div>
-            <div>
-                <span class="font-bold text-[17px] tracking-tight block leading-none">Mi Panel</span>
-                <span class="text-slate-400 text-xs font-medium mt-1 block">Nidos Chickens</span>
-            </div>
-        </div>
+    <div class="flex h-[100dvh] w-full relative">
 
-        <!-- Nav -->
-        <nav class="space-y-1.5 px-4 mt-2">
-            <!-- Ajustes -->
-            <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
-                <i data-lucide="settings" class="w-5 h-5"></i> <span class="text-[14px]">Configurar</span>
-            </button>
-            <!-- Crear (Compartir) -->
-            <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
-                <i data-lucide="share-2" class="w-5 h-5"></i> <span class="text-[14px]">Nuevo Contrato</span>
-            </button>
-            <!-- Ventas (Envíos) -->
-            <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#111827] text-blue-500 font-medium transition-all">
-                <i data-lucide="truck" class="w-5 h-5"></i> <span class="text-[14px]">Envíos / Ventas</span>
-            </button>
-        </nav>
-
-        <!-- Resumen -->
-        <div class="mt-8 px-4">
-            <div class="bg-[#0F172A] border border-[#1e293b] rounded-[1.25rem] p-5">
-                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Resumen de Envíos</h4>
-                <div class="space-y-3.5">
-                    <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
-                        <span>DELIVERY</span>
-                        <span id="sum-delivery" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
-                    </div>
-                    <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
-                        <span>EN SITIO</span>
-                        <span id="sum-onsite" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
-                    </div>
-                    <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
-                        <span>RETIRO EN TIENDA</span>
-                        <span id="sum-pickup" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
-                    </div>
-                </div>
-                <div class="mt-5 pt-4 border-t border-[#1e293b] flex justify-between items-center text-sm font-black text-white">
-                    <span>TOTAL</span>
-                    <span id="sum-total">0</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="mt-auto border-t border-[#1e293b] p-6 flex flex-col">
-            <div class="flex items-center gap-4 w-full mb-6">
-                <div class="bg-[#1e293b] p-3 rounded-full border border-[#334155]">
-                    <i data-lucide="phone" class="w-5 h-5 text-slate-300"></i>
+        <!-- ================= NAV DESKTOP (LATAM5S STYLE) =========== -->
+        <!-- Visible solo en pantallas grandes (lg+) -->
+        <aside id="nav-desktop" class="hidden lg:flex w-72 bg-[#090E17] text-white flex-col flex-none h-full border-r border-[#1e293b] z-20 overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center gap-3 p-6 mb-2">
+                <div class="bg-[#059669] p-2.5 rounded-xl flex-shrink-0 border border-[#047857]">
+                    <i data-lucide="package" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <span class="font-bold text-white block text-sm tracking-wide" id="sidebar-phone">904774275</span>
-                    <span class="bg-[#0F172A] text-blue-500 text-[9px] font-black px-2 py-0.5 rounded uppercase border border-[#1e293b] mt-1 inline-block">Plan Pro</span>
+                    <span class="font-bold text-[17px] tracking-tight block leading-none">Mi Panel</span>
+                    <span class="text-slate-400 text-xs font-medium mt-1 block">Nidos Chickens</span>
                 </div>
             </div>
-            <button class="text-[#ef4444] font-bold text-sm mb-8 hover:text-red-400 transition-colors text-center">
-                Cerrar Sesión
-            </button>
-            <span class="text-[9px] font-black text-slate-500 tracking-[0.2em] uppercase text-center w-full block">Powered by Latam5S</span>
-        </div>
-    </aside>
 
-    <!-- ========================================================= -->
-    <!-- ================= NAV MOBILE (ADMIN) ==================== -->
-    <!-- ========================================================= -->
-    <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 bg-[#090E17] text-white flex justify-around items-center p-2 pb-safe border-t border-slate-800 z-40">
-        <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-blue-500 transition-colors w-20">
-            <i data-lucide="truck" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold">Envíos</span>
-        </button>
-        <button onclick="switchView('admin-create')" id="btn-mob-create" class="flex flex-col items-center gap-1 p-2 -mt-8 bg-blue-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-blue-900/50 border-4 border-[#f8fafc] text-white transition-all z-10">
-            <i data-lucide="share-2" class="w-6 h-6"></i>
-        </button>
-        <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20">
-            <i data-lucide="settings" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold">Ajustes</span>
-        </button>
-    </nav>
-
-    <!-- ========================================================= -->
-    <!-- ================= CONTENEDOR PRINCIPAL ================== -->
-    <!-- ========================================================= -->
-    <main id="main-content" class="flex-1 p-4 md:p-8 w-full pb-24 md:pb-8 overflow-x-hidden">
-
-        <!-- ================= VISTA: ADMIN DASHBOARD ================ -->
-        <section id="view-admin-dashboard" class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in">
-            <header class="flex justify-between items-end">
-                <div>
-                    <h1 class="text-3xl md:text-4xl font-black tracking-tight">Ventas y Envíos</h1>
-                    <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Genera PDFs y envía resúmenes por WhatsApp.</p>
-                </div>
-                <button onclick="switchView('admin-create')" class="hidden md:flex bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all text-sm">
-                    <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
+            <!-- Nav -->
+            <nav class="space-y-1.5 px-4 mt-2">
+                <!-- Ajustes -->
+                <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
+                    <i data-lucide="settings" class="w-5 h-5"></i> <span class="text-[14px]">Configurar</span>
                 </button>
-            </header>
+                <!-- Crear (Compartir) -->
+                <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
+                    <i data-lucide="share-2" class="w-5 h-5"></i> <span class="text-[14px]">Nuevo Contrato</span>
+                </button>
+                <!-- Ventas (Envíos) -->
+                <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#111827] text-blue-500 font-medium transition-all">
+                    <i data-lucide="truck" class="w-5 h-5"></i> <span class="text-[14px]">Envíos / Ventas</span>
+                </button>
+            </nav>
 
-            <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden w-full">
-                <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left min-w-[800px]">
-                        <thead class="bg-slate-50 border-b border-slate-100">
-                            <tr>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Estado / ID</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Cliente</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio y Platos</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Finanzas</th>
-                                <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones Rápida</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body" class="divide-y divide-slate-50">
-                            <!-- Filas de tabla inyectadas vía JS -->
-                        </tbody>
-                    </table>
+            <!-- Resumen -->
+            <div class="mt-8 px-4">
+                <div class="bg-[#0F172A] border border-[#1e293b] rounded-[1.25rem] p-5">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Resumen de Envíos</h4>
+                    <div class="space-y-3.5">
+                        <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
+                            <span>DELIVERY</span>
+                            <span id="sum-delivery" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
+                            <span>EN SITIO</span>
+                            <span id="sum-onsite" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
+                            <span>RETIRO EN TIENDA</span>
+                            <span id="sum-pickup" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                        </div>
+                    </div>
+                    <div class="mt-5 pt-4 border-t border-[#1e293b] flex justify-between items-center text-sm font-black text-white">
+                        <span>TOTAL</span>
+                        <span id="sum-total">0</span>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- ================= VISTA: ADMIN CREAR ==================== -->
-        <section id="view-admin-create" class="hidden max-w-5xl mx-auto space-y-6 animate-fade-in">
-            <header class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-3xl font-black">Nuevo Contrato</h1>
-                    <p class="text-slate-500 text-sm font-medium">Arma el pedido oficial del cliente.</p>
+            <!-- Footer -->
+            <div class="mt-auto border-t border-[#1e293b] p-6 flex flex-col">
+                <div class="flex items-center gap-4 w-full mb-6">
+                    <div class="bg-[#1e293b] p-3 rounded-full border border-[#334155]">
+                        <i data-lucide="phone" class="w-5 h-5 text-slate-300"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-white block text-sm tracking-wide" id="sidebar-phone">904774275</span>
+                        <span class="bg-[#0F172A] text-blue-500 text-[9px] font-black px-2 py-0.5 rounded uppercase border border-[#1e293b] mt-1 inline-block">Plan Pro</span>
+                    </div>
                 </div>
-                <div class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-black text-xl border border-blue-100" id="create-next-id">
-                    #826
+                <button class="text-[#ef4444] font-bold text-sm mb-8 hover:text-red-400 transition-colors text-center">
+                    Cerrar Sesión
+                </button>
+                <span class="text-[9px] font-black text-slate-500 tracking-[0.2em] uppercase text-center w-full block">Powered by Latam5S</span>
+            </div>
+        </aside>
+
+        <!-- ================= CONTENEDOR PRINCIPAL ================== -->
+        <!-- min-w-0 previene que el flex item rompa el layout si el contenido es ancho -->
+        <div class="flex-1 flex flex-col h-full min-w-0 relative">
+            
+            <!-- ================= HEADER MOBILE ========================= -->
+            <header id="header-mobile" class="lg:hidden bg-[#090E17] text-white p-4 flex items-center justify-between flex-none border-b border-slate-800 z-30">
+                <div class="flex items-center gap-3">
+                    <div class="bg-[#059669] p-2 rounded-xl flex-shrink-0 border border-[#047857]">
+                        <i data-lucide="package" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-[15px] tracking-tight block leading-none">Mi Panel</span>
+                        <span class="text-slate-400 text-[10px] font-medium mt-0.5 block">Nidos Chickens</span>
+                    </div>
                 </div>
             </header>
 
-            <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-xl">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    <!-- Columna Izquierda: Configuración -->
-                    <div class="space-y-6">
-                        <!-- Sección 1: Cliente -->
-                        <div class="space-y-4 border-b border-slate-100 pb-6">
-                            <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> 1. Datos del Comprador</h3>
-                            <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
-                            <div class="grid grid-cols-2 gap-3">
-                                <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
-                                <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
-                            </div>
-                        </div>
+            <!-- ================= ÁREA DE VISTAS (SCROLL) =============== -->
+            <main id="main-content" class="flex-1 p-4 md:p-8 w-full overflow-y-auto overflow-x-hidden relative pb-24 lg:pb-8">
 
-                        <!-- Sección 2: Productos -->
-                        <div class="space-y-4 border-b border-slate-100 pb-6">
-                            <div class="flex justify-between items-center">
-                                <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> 2. Platos a Preparar</h3>
-                                <button onclick="addItem()" class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">+ Añadir Plato</button>
-                            </div>
+                <!-- ================= VISTA: ADMIN DASHBOARD ================ -->
+                <section id="view-admin-dashboard" class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in">
+                    <header class="flex justify-between items-end">
+                        <div>
+                            <h1 class="text-3xl md:text-4xl font-black tracking-tight">Ventas y Envíos</h1>
+                            <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Genera PDFs y envía resúmenes por WhatsApp.</p>
+                        </div>
+                        <button onclick="switchView('admin-create')" class="hidden lg:flex bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all text-sm">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
+                        </button>
+                    </header>
+
+                    <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden w-full">
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left min-w-[800px]">
+                                <thead class="bg-slate-50 border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Estado / ID</th>
+                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Cliente</th>
+                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio y Platos</th>
+                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Finanzas</th>
+                                        <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones Rápida</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body" class="divide-y divide-slate-50">
+                                    <!-- Filas de tabla inyectadas vía JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= VISTA: ADMIN CREAR ==================== -->
+                <section id="view-admin-create" class="hidden max-w-5xl mx-auto space-y-6 animate-fade-in">
+                    <header class="flex justify-between items-center">
+                        <div>
+                            <h1 class="text-3xl font-black">Nuevo Contrato</h1>
+                            <p class="text-slate-500 text-sm font-medium">Arma el pedido oficial del cliente.</p>
+                        </div>
+                        <div class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-black text-xl border border-blue-100" id="create-next-id">
+                            #826
+                        </div>
+                    </header>
+
+                    <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-xl">
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                             
-                            <div id="items-container" class="space-y-2">
-                                <!-- Lista de items inyectada vía JS -->
+                            <!-- Columna Izquierda: Configuración -->
+                            <div class="space-y-6">
+                                <!-- Sección 1: Cliente -->
+                                <div class="space-y-4 border-b border-slate-100 pb-6">
+                                    <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> 1. Datos del Comprador</h3>
+                                    <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                        <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Sección 2: Productos -->
+                                <div class="space-y-4 border-b border-slate-100 pb-6">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> 2. Platos a Preparar</h3>
+                                        <button onclick="addItem()" class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">+ Añadir Plato</button>
+                                    </div>
+                                    
+                                    <div id="items-container" class="space-y-2">
+                                        <!-- Lista de items inyectada vía JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Sección 3: Logística -->
+                                <div class="space-y-4">
+                                    <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 3. Logística del Evento</h3>
+                                    
+                                    <div class="flex bg-slate-100 p-1 rounded-xl" id="srv-buttons">
+                                        <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Recojo</button>
+                                        <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-blue-600">Delivery</button>
+                                        <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Sitio</button>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <input type="date" id="adm-date" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                        <input type="time" id="adm-time" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                    </div>
+
+                                    <div id="adm-location-fields" class="space-y-3">
+                                        <select id="adm-district" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                            <option value="">Distrito (Solo Lima)</option>
+                                            <option>Miraflores</option><option>San Isidro</option><option>Santiago de Surco</option><option>San Borja</option><option>La Molina</option><option>Barranco</option><option>Jesús María</option><option>Lince</option><option>Magdalena del Mar</option><option>Pueblo Libre</option><option>San Miguel</option><option>Surquillo</option><option>Chorrillos</option><option>Ate</option><option>Santa Anita</option><option>S.J.L.</option><option>Otros</option>
+                                        </select>
+                                        <input type="text" id="adm-location" placeholder="Dirección exacta del evento" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                        <input type="text" id="adm-ref" placeholder="Referencia / Cruce principal" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Columna Derecha: Resumen Financiero -->
+                            <div class="flex flex-col h-full">
+                                <div class="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex-1 flex flex-col justify-center relative overflow-hidden">
+                                    <i data-lucide="calculator" class="absolute top-4 right-4 w-24 h-24 opacity-5"></i>
+                                    <h3 class="text-slate-400 text-[10px] font-black uppercase mb-6 tracking-widest text-center relative z-10">Resumen Financiero</h3>
+                                    
+                                    <div class="space-y-4 relative z-10">
+                                        <div class="flex justify-between items-center text-sm font-bold text-slate-300">
+                                            <span>Total Platos (<span id="preview-total-qty">0</span>)</span>
+                                            <span>S/ <span id="preview-subtotal">0.00</span></span>
+                                        </div>
+                                        <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-blue-400">
+                                            <span>Cargo Adicional (Delivery/Otros)</span>
+                                            <span>S/ <span id="preview-fee">0.00</span></span>
+                                        </div>
+                                        
+                                        <div class="h-px bg-slate-700 my-4"></div>
+                                        
+                                        <div class="flex justify-between items-end">
+                                            <div>
+                                                <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Monto de Adelanto</p>
+                                                <p class="text-3xl font-black text-emerald-400">S/ <span id="preview-deposit">0.00</span></p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Importe Total</p>
+                                                <p class="text-2xl font-black text-white">S/ <span id="preview-total">0.00</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 mt-4">
+                                    <button id="btn-preview" onclick="openPreview()" disabled class="col-span-1 bg-slate-100 disabled:opacity-50 text-slate-700 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed border border-slate-200">
+                                        <i data-lucide="eye" class="w-4 h-4"></i> Vista Previa
+                                    </button>
+                                    <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-blue-600 disabled:opacity-50 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
+                                        <i data-lucide="save" class="w-4 h-4"></i> Guardar
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </section>
 
-                        <!-- Sección 3: Logística -->
+                <!-- ================= VISTA: ADMIN SETTINGS ================= -->
+                <section id="view-admin-settings" class="hidden max-w-2xl mx-auto space-y-6 animate-fade-in">
+                    <h1 class="text-3xl font-black">Ajustes Legales</h1>
+                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl space-y-6">
+                        
                         <div class="space-y-4">
-                            <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 3. Logística del Evento</h3>
-                            
-                            <div class="flex bg-slate-100 p-1 rounded-xl" id="srv-buttons">
-                                <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Recojo</button>
-                                <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-blue-600">Delivery</button>
-                                <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Sitio</button>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <input type="date" id="adm-date" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                <input type="time" id="adm-time" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                            </div>
-
-                            <div id="adm-location-fields" class="space-y-3">
-                                <select id="adm-district" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                    <option value="">Distrito (Solo Lima)</option>
-                                    <option>Miraflores</option><option>San Isidro</option><option>Santiago de Surco</option><option>San Borja</option><option>La Molina</option><option>Barranco</option><option>Jesús María</option><option>Lince</option><option>Magdalena del Mar</option><option>Pueblo Libre</option><option>San Miguel</option><option>Surquillo</option><option>Chorrillos</option><option>Ate</option><option>Santa Anita</option><option>S.J.L.</option><option>Otros</option>
-                                </select>
-                                <input type="text" id="adm-location" placeholder="Dirección exacta del evento" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                <input type="text" id="adm-ref" placeholder="Referencia / Cruce principal" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Columna Derecha: Resumen Financiero -->
-                    <div class="flex flex-col h-full">
-                        <div class="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex-1 flex flex-col justify-center relative overflow-hidden">
-                            <i data-lucide="calculator" class="absolute top-4 right-4 w-24 h-24 opacity-5"></i>
-                            <h3 class="text-slate-400 text-[10px] font-black uppercase mb-6 tracking-widest text-center relative z-10">Resumen Financiero</h3>
-                            
-                            <div class="space-y-4 relative z-10">
-                                <div class="flex justify-between items-center text-sm font-bold text-slate-300">
-                                    <span>Total Platos (<span id="preview-total-qty">0</span>)</span>
-                                    <span>S/ <span id="preview-subtotal">0.00</span></span>
+                            <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Datos de la Empresa</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black uppercase text-slate-400">Representante Legal</label>
+                                    <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
                                 </div>
-                                <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-blue-400">
-                                    <span>Cargo Adicional (Delivery/Otros)</span>
-                                    <span>S/ <span id="preview-fee">0.00</span></span>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black uppercase text-slate-400">DNI Representante</label>
+                                    <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
                                 </div>
-                                
-                                <div class="h-px bg-slate-700 my-4"></div>
-                                
-                                <div class="flex justify-between items-end">
-                                    <div>
-                                        <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Monto de Adelanto</p>
-                                        <p class="text-3xl font-black text-emerald-400">S/ <span id="preview-deposit">0.00</span></p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Importe Total</p>
-                                        <p class="text-2xl font-black text-white">S/ <span id="preview-total">0.00</span></p>
+                                <div class="space-y-1 col-span-1 md:col-span-2">
+                                    <label class="text-[10px] font-black uppercase text-slate-400">Razón Social y RUC</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="set-sellerRuc" placeholder="RUC" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                        <input type="text" id="set-sellerBusiness" placeholder="Razón Social" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3 mt-4">
-                            <button id="btn-preview" onclick="openPreview()" disabled class="col-span-1 bg-slate-100 disabled:opacity-50 text-slate-700 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed border border-slate-200">
-                                <i data-lucide="eye" class="w-4 h-4"></i> Vista Previa
-                            </button>
-                            <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-blue-600 disabled:opacity-50 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
-                                <i data-lucide="save" class="w-4 h-4"></i> Guardar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= VISTA: ADMIN SETTINGS ================= -->
-        <section id="view-admin-settings" class="hidden max-w-2xl mx-auto space-y-6 animate-fade-in">
-            <h1 class="text-3xl font-black">Ajustes Legales</h1>
-            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl space-y-6">
-                
-                <div class="space-y-4">
-                    <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Datos de la Empresa</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase text-slate-400">Representante Legal</label>
-                            <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase text-slate-400">DNI Representante</label>
-                            <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                        </div>
-                        <div class="space-y-1 col-span-1 md:col-span-2">
-                            <label class="text-[10px] font-black uppercase text-slate-400">Razón Social y RUC</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="set-sellerRuc" placeholder="RUC" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                <input type="text" id="set-sellerBusiness" placeholder="Razón Social" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                        <div class="space-y-4 pt-2">
+                            <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Información de Recepción y Pagos</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black uppercase text-slate-400">WhatsApp para Notificaciones</label>
+                                    <input type="text" id="set-whatsapp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-emerald-600 outline-none">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black uppercase text-slate-400">Yape / Plim</label>
+                                    <input type="text" id="set-yapePlim" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                </div>
+                                <div class="space-y-1 col-span-1 md:col-span-2">
+                                    <label class="text-[10px] font-black uppercase text-slate-400">Cta BCP (Soles y CCI)</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="set-bcpCta" placeholder="Nº Cuenta" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                        <input type="text" id="set-bcpCci" placeholder="CCI" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="space-y-4 pt-2">
-                    <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Información de Recepción y Pagos</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase text-slate-400">WhatsApp para Notificaciones</label>
-                            <input type="text" id="set-whatsapp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-emerald-600 outline-none">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase text-slate-400">Yape / Plim</label>
-                            <input type="text" id="set-yapePlim" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                        </div>
-                        <div class="space-y-1 col-span-1 md:col-span-2">
-                            <label class="text-[10px] font-black uppercase text-slate-400">Cta BCP (Soles y CCI)</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="set-bcpCta" placeholder="Nº Cuenta" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                <input type="text" id="set-bcpCci" placeholder="CCI" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                            </div>
+                        <div class="pt-4">
+                            <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 shadow-lg active:scale-95 transition-all">
+                                Guardar Ajustes Legales
+                            </button>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="pt-4">
-                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 shadow-lg active:scale-95 transition-all">
-                        Guardar Ajustes Legales
+                <!-- ================= VISTA: SUCCESS ======================== -->
+                <section id="view-success" class="hidden min-h-[70vh] flex items-center justify-center p-4 animate-fade-in">
+                    <div class="text-center max-w-md w-full bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100">
+                        <div class="bg-emerald-100 w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-6">
+                            <i data-lucide="check-circle" class="w-10 h-10"></i>
+                        </div>
+                        <h1 class="text-3xl font-black mb-2 uppercase text-slate-900" id="success-title">¡Guardado!</h1>
+                        <p class="text-slate-500 font-medium mb-8 text-sm leading-relaxed">
+                            El contrato ha sido registrado con éxito. Vuelve al panel para <b>generar el PDF</b> o notificar al cliente.
+                        </p>
+                        <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                        Ir a Mis Ventas
                     </button>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ================= VISTA: SUCCESS ======================== -->
-        <section id="view-success" class="hidden min-h-[70vh] flex items-center justify-center p-4 animate-fade-in">
-            <div class="text-center max-w-md w-full bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100">
-                <div class="bg-emerald-100 w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-6">
-                    <i data-lucide="check-circle" class="w-10 h-10"></i>
-                </div>
-                <h1 class="text-3xl font-black mb-2 uppercase text-slate-900" id="success-title">¡Guardado!</h1>
-                <p class="text-slate-500 font-medium mb-8 text-sm leading-relaxed">
-                    El contrato ha sido registrado con éxito. Vuelve al panel para <b>generar el PDF</b> o notificar al cliente.
-                </p>
-                <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black hover:bg-slate-800 transition-all shadow-lg active:scale-95">
-                    Ir a Mis Ventas
+            </main>
+
+            <!-- ================= NAV MOBILE (ADMIN) ==================== -->
+            <!-- Visible en pantallas móviles y tablets (hasta lg) -->
+            <nav id="nav-mobile" class="lg:hidden flex-none w-full bg-[#090E17] text-white flex justify-around items-center p-2 pb-4 border-t border-slate-800 z-40 relative">
+                <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-blue-500 transition-colors w-20">
+                    <i data-lucide="truck" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-bold">Envíos</span>
                 </button>
-            </div>
-        </section>
+                <div class="relative w-14 h-14 flex items-center justify-center">
+                    <button onclick="switchView('admin-create')" id="btn-mob-create" class="absolute -top-6 flex flex-col items-center gap-1 p-2 bg-blue-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-blue-900/50 border-4 border-[#f8fafc] text-white transition-all z-10">
+                        <i data-lucide="share-2" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-bold">Ajustes</span>
+                </button>
+            </nav>
 
-    </main>
+        </div> <!-- Fin de Contenedor Principal (Main/Header/NavMobile) -->
+
+    </div> <!-- Fin del Wrapper global -->
 
     <!-- ================= MODAL: VISTA PREVIA Y CONTRATO ================= -->
-    <!-- Este modal unifica la vista previa y la impresión del contrato real -->
     <div id="modal-contract" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] flex items-center justify-center p-2 md:p-6 no-print">
         <div class="bg-white w-full max-w-4xl h-[95vh] rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
             
