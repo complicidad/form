@@ -3,169 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nidos Chickens - CRM & Contratos</title>
+    <title>Latam5S - Sistema de Gestión</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 900: '#090E17', 800: '#0F172A', 700: '#1E293B' },
+                        brand: { 500: '#2563EB', 600: '#1D4ED8' } // Blue primary
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 20px rgba(37, 99, 235, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none !important; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         
-        /* Estilos específicos para la impresión del contrato físico */
+        /* Efecto Cristal */
+        .glass-nav { background: rgba(9, 14, 23, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Inputs sin flechas */
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Print Styles */
         @media print {
-            body { height: auto !important; overflow: visible !important; display: block !important; }
             body * { visibility: hidden; }
             #modal-contract, #modal-contract * { visibility: visible; }
             #modal-contract { 
                 position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
-                padding: 0 !important; margin: 0; background: white;
-                display: block !important;
+                padding: 0 !important; margin: 0; background: white; display: block !important;
             }
-            #printable-area {
-                padding: 1.5cm !important; height: auto !important; overflow: visible !important;
-            }
+            #printable-area { padding: 1.5cm !important; height: auto !important; overflow: visible !important; box-shadow: none !important; }
             .no-print { display: none !important; }
-            /* Ocultar la UI trasera en impresión */
-            #nav-desktop, #nav-mobile, #header-mobile, #main-content { display: none !important; }
+            #app-wrapper, #login-wrapper, #force-pwd-wrapper { display: none !important; }
         }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-[#f8fafc] text-slate-900 overflow-hidden transition-colors duration-300" id="body-container">
+<body class="bg-[#F8FAFC] text-slate-800 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col">
 
     <!-- ========================================================= -->
-    <!-- ================= WRAPPER PRINCIPAL ===================== -->
+    <!-- ================= VISTA DE LOGIN ======================== -->
     <!-- ========================================================= -->
-    <div class="flex h-[100dvh] w-full relative">
+    <div id="login-wrapper" class="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-slate-50 to-slate-100 relative overflow-hidden">
+        <!-- Decoración de fondo -->
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-rose-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
 
-        <!-- ================= NAV DESKTOP (LATAM5S STYLE) =========== -->
-        <!-- Visible solo en pantallas grandes (lg+) -->
-        <aside id="nav-desktop" class="hidden lg:flex w-72 bg-[#090E17] text-white flex-col flex-none h-full border-r border-[#1e293b] z-20 overflow-y-auto">
+        <div class="bg-white/80 backdrop-blur-xl p-8 md:p-12 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white max-w-md w-full text-center relative z-10 transform transition-all duration-500 translate-y-0 opacity-100" id="login-card">
+            <div class="bg-gradient-to-br from-brand-500 to-brand-600 w-20 h-20 rounded-[1.8rem] flex items-center justify-center mx-auto mb-8 shadow-lg shadow-brand-500/30">
+                <i data-lucide="package" class="w-10 h-10 text-white"></i>
+            </div>
+            <h1 class="text-3xl font-black text-slate-900 mb-2 tracking-tight">Latam5S</h1>
+            <p class="text-slate-500 text-sm font-medium mb-10">Ingresa tus credenciales para continuar</p>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-5">
+                <div class="space-y-2 text-left">
+                    <label class="text-[11px] font-bold uppercase text-slate-500 tracking-wider ml-1">Usuario (WhatsApp)</label>
+                    <div class="relative group">
+                        <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-500 transition-colors"></i>
+                        <input type="text" id="login-user" placeholder="Ej: 987654321" pattern="[\d]{9}" maxlength="9" required title="Debe contener exactamente 9 dígitos" class="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold outline-none focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all">
+                    </div>
+                </div>
+                <div class="space-y-2 text-left">
+                    <label class="text-[11px] font-bold uppercase text-slate-500 tracking-wider ml-1">Contraseña</label>
+                    <div class="relative group">
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-500 transition-colors"></i>
+                        <input type="password" id="login-pass" placeholder="••••" required class="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold outline-none focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all">
+                    </div>
+                </div>
+                
+                <p id="login-error" class="text-rose-500 text-xs font-bold hidden mt-2 animate-bounce">Credenciales incorrectas.</p>
+                
+                <button type="submit" id="btn-login-submit" class="w-full bg-navy-900 text-white py-4 rounded-2xl font-bold mt-4 shadow-lg shadow-navy-900/20 hover:bg-navy-800 hover:-translate-y-0.5 transition-all active:scale-95 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    Ingresar al Sistema <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- ================= VISTA: CAMBIO CONTRASEÑA OBLIGATORIO == -->
+    <!-- ========================================================= -->
+    <div id="force-pwd-wrapper" class="hidden min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-slate-50 to-slate-100 relative overflow-hidden z-50">
+        <!-- Decoración de fondo -->
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-emerald-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
+        
+        <div class="bg-white/80 backdrop-blur-xl p-8 md:p-12 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white max-w-md w-full text-center relative z-10">
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 w-20 h-20 rounded-[1.8rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
+                <i data-lucide="shield-alert" class="w-10 h-10 text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">¡Cuenta Nueva!</h2>
+            <p class="text-slate-500 text-sm font-medium mb-8">Por seguridad, debes cambiar tu contraseña predeterminada (1234) antes de acceder a tu panel.</p>
+            
+            <form onsubmit="handleForcePwd(event)" class="space-y-5">
+                <div class="space-y-2 text-left">
+                    <label class="text-[11px] font-bold uppercase text-slate-500 tracking-wider ml-1">Nueva Contraseña</label>
+                    <div class="relative group">
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors"></i>
+                        <input type="password" id="force-new-pass" required minlength="4" placeholder="Min. 4 caracteres" class="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                    </div>
+                </div>
+                <div class="space-y-2 text-left">
+                    <label class="text-[11px] font-bold uppercase text-slate-500 tracking-wider ml-1">Confirmar Contraseña</label>
+                    <div class="relative group">
+                        <i data-lucide="check-circle" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors"></i>
+                        <input type="password" id="force-conf-pass" required minlength="4" placeholder="Escríbela de nuevo" class="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                    </div>
+                </div>
+                
+                <p id="force-pwd-error" class="text-rose-500 text-xs font-bold hidden mt-2 animate-bounce">Las contraseñas no coinciden.</p>
+                
+                <button type="submit" id="btn-force-pwd-submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold mt-4 shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 hover:-translate-y-0.5 transition-all active:scale-95 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    Guardar y Entrar <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- ================= APP PRINCIPAL ========================= -->
+    <!-- ========================================================= -->
+    <div id="app-wrapper" class="hidden flex-col md:flex-row min-h-screen w-full">
+        
+        <!-- === SIDEBAR DESKTOP (LATAM5S STYLE PREMIUM) === -->
+        <aside id="nav-desktop" class="hidden md:flex w-72 bg-navy-900 text-white flex-col min-h-screen border-r border-navy-700/50 sticky top-0 z-20">
             <!-- Header -->
-            <div class="flex items-center gap-3 p-6 mb-2">
-                <div class="bg-[#059669] p-2.5 rounded-xl flex-shrink-0 border border-[#047857]">
+            <div class="flex items-center gap-4 p-7 mb-2">
+                <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 p-2.5 rounded-[14px] flex-shrink-0 shadow-lg shadow-emerald-500/20">
                     <i data-lucide="package" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <span class="font-bold text-[17px] tracking-tight block leading-none">Mi Panel</span>
-                    <span class="text-slate-400 text-xs font-medium mt-1 block">Nidos Chickens</span>
+                    <span class="font-bold text-[18px] tracking-tight block leading-none text-white">Mi Panel</span>
+                    <span class="text-slate-400 text-[11px] font-medium mt-1.5 block tracking-wide uppercase truncate max-w-[150px]" id="sidebar-company-name">Empresa</span>
                 </div>
             </div>
 
-            <!-- Nav -->
-            <nav class="space-y-1.5 px-4 mt-2">
-                <!-- Ajustes -->
-                <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
-                    <i data-lucide="settings" class="w-5 h-5"></i> <span class="text-[14px]">Configurar</span>
-                </button>
-                <!-- Crear (Compartir) -->
-                <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all">
-                    <i data-lucide="share-2" class="w-5 h-5"></i> <span class="text-[14px]">Nuevo Contrato</span>
-                </button>
-                <!-- Ventas (Envíos) -->
-                <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#111827] text-blue-500 font-medium transition-all">
+            <!-- Nav Links -->
+            <nav class="space-y-2 px-5 mt-4">
+                <button onclick="switchView('admin-dashboard')" id="btn-nav-dash" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-navy-700/50 bg-navy-800 text-brand-500 font-semibold transition-all shadow-glow">
                     <i data-lucide="truck" class="w-5 h-5"></i> <span class="text-[14px]">Envíos / Ventas</span>
+                </button>
+                <button onclick="switchView('admin-kitchen')" id="btn-nav-kitchen" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-transparent text-slate-400 hover:text-white hover:bg-navy-800/50 font-medium transition-all">
+                    <i data-lucide="flame" class="w-5 h-5"></i> <span class="text-[14px]">Cocina</span>
+                </button>
+                <button onclick="switchView('admin-create')" id="btn-nav-create" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-transparent text-slate-400 hover:text-white hover:bg-navy-800/50 font-medium transition-all">
+                    <i data-lucide="file-plus-2" class="w-5 h-5"></i> <span class="text-[14px]">Nuevo Contrato</span>
+                </button>
+                <button onclick="switchView('admin-billing')" id="btn-nav-billing" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-transparent text-slate-400 hover:text-white hover:bg-navy-800/50 font-medium transition-all">
+                    <i data-lucide="star" class="w-5 h-5"></i> <span class="text-[14px]">Suscripción</span>
+                </button>
+                <button onclick="switchView('admin-settings')" id="btn-nav-set" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-transparent text-slate-400 hover:text-white hover:bg-navy-800/50 font-medium transition-all">
+                    <i data-lucide="settings" class="w-5 h-5"></i> <span class="text-[14px]">Configurar</span>
                 </button>
             </nav>
 
-            <!-- Resumen -->
-            <div class="mt-8 px-4">
-                <div class="bg-[#0F172A] border border-[#1e293b] rounded-[1.25rem] p-5">
-                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Resumen de Envíos</h4>
+            <!-- Resumen Rápido -->
+            <div class="mt-8 px-5">
+                <div class="bg-navy-800/80 border border-navy-700/50 rounded-[1.5rem] p-5 shadow-lg">
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Resumen Global</h4>
                     <div class="space-y-3.5">
-                        <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
-                            <span>DELIVERY</span>
-                            <span id="sum-delivery" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                        <div class="flex justify-between items-center text-[13px] font-medium text-slate-300">
+                            <span class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-brand-500"></div> Delivery</span>
+                            <span id="sum-delivery" class="bg-navy-900 text-brand-400 px-2.5 py-1 rounded-lg text-xs font-bold border border-navy-700">0</span>
                         </div>
-                        <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
-                            <span>EN SITIO</span>
-                            <span id="sum-onsite" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                        <div class="flex justify-between items-center text-[13px] font-medium text-slate-300">
+                            <span class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div> En Sitio</span>
+                            <span id="sum-onsite" class="bg-navy-900 text-brand-400 px-2.5 py-1 rounded-lg text-xs font-bold border border-navy-700">0</span>
                         </div>
-                        <div class="flex justify-between items-center text-[13px] font-bold text-slate-200">
-                            <span>RETIRO EN TIENDA</span>
-                            <span id="sum-pickup" class="bg-[#1e293b] text-blue-400 px-2.5 py-0.5 rounded-full text-xs font-black">0</span>
+                        <div class="flex justify-between items-center text-[13px] font-medium text-slate-300">
+                            <span class="flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Retiro</span>
+                            <span id="sum-pickup" class="bg-navy-900 text-brand-400 px-2.5 py-1 rounded-lg text-xs font-bold border border-navy-700">0</span>
                         </div>
                     </div>
-                    <div class="mt-5 pt-4 border-t border-[#1e293b] flex justify-between items-center text-sm font-black text-white">
+                    <div class="mt-4 pt-4 border-t border-navy-700/50 flex justify-between items-center text-[13px] font-bold text-white">
                         <span>TOTAL</span>
                         <span id="sum-total">0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="mt-auto border-t border-[#1e293b] p-6 flex flex-col">
-                <div class="flex items-center gap-4 w-full mb-6">
-                    <div class="bg-[#1e293b] p-3 rounded-full border border-[#334155]">
-                        <i data-lucide="phone" class="w-5 h-5 text-slate-300"></i>
+            <!-- Footer Sidebar -->
+            <div class="mt-auto p-6 flex flex-col">
+                <div class="flex items-center gap-4 w-full mb-6 bg-navy-800/50 p-4 rounded-[1.2rem] border border-navy-700/50 cursor-pointer hover:bg-navy-800 transition-colors" onclick="switchView('admin-billing')">
+                    <div class="bg-navy-900 p-2.5 rounded-full border border-navy-700">
+                        <i data-lucide="phone" class="w-4 h-4 text-slate-300"></i>
                     </div>
                     <div>
-                        <span class="font-bold text-white block text-sm tracking-wide" id="sidebar-phone">904774275</span>
-                        <span class="bg-[#0F172A] text-blue-500 text-[9px] font-black px-2 py-0.5 rounded uppercase border border-[#1e293b] mt-1 inline-block">Plan Pro</span>
+                        <span class="font-bold text-white block text-sm tracking-wide" id="sidebar-phone">000000000</span>
+                        <span class="text-brand-400 text-[10px] font-bold uppercase tracking-wider mt-0.5 block" id="sidebar-plan-name">Plan Pro</span>
                     </div>
                 </div>
-                <button class="text-[#ef4444] font-bold text-sm mb-8 hover:text-red-400 transition-colors text-center">
-                    Cerrar Sesión
+                <button onclick="logout()" class="text-slate-400 hover:text-rose-400 font-bold text-sm mb-6 transition-colors flex justify-center items-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
                 </button>
-                <span class="text-[9px] font-black text-slate-500 tracking-[0.2em] uppercase text-center w-full block">Powered by Latam5S</span>
+                <span class="text-[9px] font-bold text-slate-600 tracking-[0.2em] uppercase text-center w-full block">Powered by Latam5S</span>
             </div>
         </aside>
 
-        <!-- ================= CONTENEDOR PRINCIPAL ================== -->
-        <!-- min-w-0 previene que el flex item rompa el layout si el contenido es ancho -->
-        <div class="flex-1 flex flex-col h-full min-w-0 relative">
-            
-            <!-- ================= HEADER MOBILE ========================= -->
-            <header id="header-mobile" class="lg:hidden bg-[#090E17] text-white p-4 flex items-center justify-between flex-none border-b border-slate-800 z-30">
-                <div class="flex items-center gap-3">
-                    <div class="bg-[#059669] p-2 rounded-xl flex-shrink-0 border border-[#047857]">
-                        <i data-lucide="package" class="w-5 h-5 text-white"></i>
-                    </div>
-                    <div>
-                        <span class="font-bold text-[15px] tracking-tight block leading-none">Mi Panel</span>
-                        <span class="text-slate-400 text-[10px] font-medium mt-0.5 block">Nidos Chickens</span>
-                    </div>
-                </div>
-            </header>
+        <!-- === NAV MOBILE (GLASSMORPHISM) === -->
+        <nav id="nav-mobile" class="md:hidden fixed bottom-0 left-0 right-0 glass-nav text-white flex justify-around items-end px-2 pb-5 pt-3 border-t border-white/5 z-40 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+            <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2">
+                <i data-lucide="truck" class="w-6 h-6"></i>
+                <span class="text-[9px] font-bold tracking-wide">Ventas</span>
+            </button>
+            <button onclick="switchView('admin-kitchen')" id="btn-mob-kitchen" class="flex flex-col items-center gap-1.5 p-2 text-slate-400 hover:text-slate-200 transition-colors flex-1 pb-2">
+                <i data-lucide="flame" class="w-6 h-6"></i>
+                <span class="text-[9px] font-bold tracking-wide">Cocina</span>
+            </button>
+            <!-- Botón Central Flotante -->
+            <div class="relative -top-6 px-2">
+                <button onclick="switchView('admin-create')" id="btn-mob-create" class="bg-brand-600 rounded-full w-14 h-14 flex items-center justify-center shadow-[0_8px_20px_rgba(37,99,235,0.4)] border-4 border-navy-900 text-white transition-transform active:scale-90 z-50">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <button onclick="switchView('admin-billing')" id="btn-mob-billing" class="flex flex-col items-center gap-1.5 p-2 text-slate-400 hover:text-slate-200 transition-colors flex-1 pb-2">
+                <i data-lucide="star" class="w-6 h-6"></i>
+                <span class="text-[9px] font-bold tracking-wide">Mi Plan</span>
+            </button>
+            <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1.5 p-2 text-slate-400 hover:text-slate-200 transition-colors flex-1 pb-2">
+                <i data-lucide="settings" class="w-6 h-6"></i>
+                <span class="text-[9px] font-bold tracking-wide">Ajustes</span>
+            </button>
+        </nav>
 
-            <!-- ================= ÁREA DE VISTAS (SCROLL) =============== -->
-            <main id="main-content" class="flex-1 p-4 md:p-8 w-full overflow-y-auto overflow-x-hidden relative pb-24 lg:pb-8">
+        <!-- === CONTENIDO PRINCIPAL === -->
+        <main id="main-content" class="flex-1 w-full overflow-x-hidden relative h-screen overflow-y-auto">
+            <!-- Patrón de fondo sutil -->
+            <div class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 24px 24px;"></div>
+            
+            <div class="relative z-10 p-5 md:p-10 pb-32 md:pb-10 max-w-[1400px] mx-auto">
 
                 <!-- ================= VISTA: ADMIN DASHBOARD ================ -->
-                <section id="view-admin-dashboard" class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in">
-                    <header class="flex justify-between items-end">
+                <section id="view-admin-dashboard" class="space-y-8 animate-fade-in">
+                    <header class="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
                         <div>
-                            <h1 class="text-3xl md:text-4xl font-black tracking-tight">Ventas y Envíos</h1>
-                            <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Genera PDFs y envía resúmenes por WhatsApp.</p>
+                            <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Ventas y Envíos</h1>
+                            <p class="text-slate-500 font-medium mt-2 text-sm md:text-base">Gestiona tus contratos y envíos del día.</p>
                         </div>
-                        <button onclick="switchView('admin-create')" class="hidden lg:flex bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black items-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all text-sm">
+                        <button onclick="switchView('admin-create')" class="hidden md:flex bg-brand-600 text-white px-6 py-3 rounded-2xl font-bold items-center gap-2 hover:bg-brand-700 hover:-translate-y-0.5 shadow-lg shadow-brand-500/30 transition-all active:scale-95 text-sm">
                             <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Contrato
                         </button>
                     </header>
 
-                    <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden w-full">
+                    <div class="bg-white rounded-[2rem] border border-slate-200/60 shadow-soft overflow-hidden w-full relative min-h-[300px]">
+                        <div id="loader-dashboard" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+                            <i data-lucide="loader-2" class="w-10 h-10 text-brand-600 animate-spin mb-3"></i>
+                            <p class="text-slate-500 font-bold text-sm uppercase tracking-widest">Sincronizando con la nube...</p>
+                        </div>
                         <div class="overflow-x-auto w-full">
-                            <table class="w-full text-left min-w-[800px]">
-                                <thead class="bg-slate-50 border-b border-slate-100">
+                            <table class="w-full text-left min-w-[900px]">
+                                <thead class="bg-slate-50/80 border-b border-slate-100">
                                     <tr>
-                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Estado / ID</th>
-                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Cliente</th>
-                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Servicio y Platos</th>
-                                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Finanzas</th>
-                                        <th class="px-6 py-4 text-center text-[10px] font-black uppercase text-slate-400">Acciones Rápida</th>
+                                        <th class="px-8 py-5 text-[11px] font-black uppercase text-slate-400 tracking-wider">Estado / ID</th>
+                                        <th class="px-8 py-5 text-[11px] font-black uppercase text-slate-400 tracking-wider">Cliente</th>
+                                        <th class="px-8 py-5 text-[11px] font-black uppercase text-slate-400 tracking-wider">Servicio y Platos</th>
+                                        <th class="px-8 py-5 text-[11px] font-black uppercase text-slate-400 tracking-wider">Finanzas</th>
+                                        <th class="px-8 py-5 text-center text-[11px] font-black uppercase text-slate-400 tracking-wider">Acciones Rápida</th>
                                     </tr>
                                 </thead>
-                                <tbody id="table-body" class="divide-y divide-slate-50">
-                                    <!-- Filas de tabla inyectadas vía JS -->
+                                <tbody id="table-body" class="divide-y divide-slate-100/80">
+                                    <!-- Filas inyectadas vía JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= VISTA: COCINA DASHBOARD ================ -->
+                <section id="view-admin-kitchen" class="hidden space-y-8 animate-fade-in">
+                    <header class="flex flex-col md:flex-row md:justify-between md:items-end gap-5">
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="bg-orange-100 p-2 rounded-xl text-orange-600"><i data-lucide="flame" class="w-6 h-6"></i></div>
+                                <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Control de Cocina</h1>
+                            </div>
+                            <p class="text-slate-500 font-medium text-sm md:text-base">Organiza la preparación exacta por día.</p>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-soft w-full md:w-auto">
+                            <div class="bg-slate-100 p-2 rounded-lg"><i data-lucide="calendar" class="w-4 h-4 text-slate-600"></i></div>
+                            <input type="date" id="kitchen-date" onchange="renderKitchen()" class="px-2 py-1 text-sm font-bold text-slate-700 outline-none cursor-pointer w-full md:w-auto bg-transparent">
+                        </div>
+                    </header>
+
+                    <!-- Resumen de Platos -->
+                    <div id="kitchen-summary" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                        <!-- Inyectado por JS -->
+                    </div>
+
+                    <!-- Cronograma -->
+                    <div class="bg-white rounded-[2rem] border border-slate-200/60 shadow-soft overflow-hidden w-full">
+                        <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                            <div class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg"><i data-lucide="clock" class="w-5 h-5"></i></div>
+                            <h2 class="font-bold text-slate-800 text-lg tracking-tight">Cronograma de Pedidos</h2>
+                        </div>
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left min-w-[700px]">
+                                <thead class="bg-white border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-8 py-4 text-[11px] font-black uppercase text-slate-400 tracking-wider">Hora</th>
+                                        <th class="px-8 py-4 text-[11px] font-black uppercase text-slate-400 tracking-wider">Cliente / Modalidad</th>
+                                        <th class="px-8 py-4 text-[11px] font-black uppercase text-slate-400 tracking-wider">Platos a Servir</th>
+                                        <th class="px-8 py-4 text-[11px] font-black uppercase text-slate-400 tracking-wider">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kitchen-table-body" class="divide-y divide-slate-100">
+                                    <!-- Filas de cocina inyectadas vía JS -->
                                 </tbody>
                             </table>
                         </div>
@@ -173,232 +334,346 @@
                 </section>
 
                 <!-- ================= VISTA: ADMIN CREAR ==================== -->
-                <section id="view-admin-create" class="hidden max-w-5xl mx-auto space-y-6 animate-fade-in">
-                    <header class="flex justify-between items-center">
+                <section id="view-admin-create" class="hidden space-y-8 animate-fade-in max-w-6xl mx-auto">
+                    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 class="text-3xl font-black">Nuevo Contrato</h1>
-                            <p class="text-slate-500 text-sm font-medium">Arma el pedido oficial del cliente.</p>
+                            <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Nuevo Contrato</h1>
+                            <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Genera un contrato oficial al instante.</p>
                         </div>
-                        <div class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-black text-xl border border-blue-100" id="create-next-id">
-                            #826
+                        <div class="bg-white px-5 py-3 rounded-2xl font-black text-xl border border-slate-200 text-slate-700 shadow-sm flex items-center gap-3">
+                            <span class="text-xs uppercase text-slate-400 tracking-widest">Contrato</span>
+                            <span id="create-next-id" class="text-brand-600">#NUEVO</span>
                         </div>
                     </header>
 
-                    <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-xl">
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-soft">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                             
                             <!-- Columna Izquierda: Configuración -->
-                            <div class="space-y-6">
-                                <!-- Sección 1: Cliente -->
-                                <div class="space-y-4 border-b border-slate-100 pb-6">
-                                    <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> 1. Datos del Comprador</h3>
-                                    <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
-                                        <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                            <div class="lg:col-span-7 space-y-8">
+                                <!-- Cliente -->
+                                <div class="space-y-5">
+                                    <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 pb-2 border-b border-slate-100">
+                                        <div class="bg-slate-100 p-1.5 rounded-md"><i data-lucide="user" class="w-4 h-4 text-slate-600"></i></div> Datos del Cliente
+                                    </h3>
+                                    <input type="text" id="adm-name" placeholder="Nombre Completo" oninput="validateCreateForm()" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-slate-400">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <input type="text" id="adm-dni" placeholder="DNI / RUC" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-slate-400">
+                                        <input type="tel" id="adm-phone" placeholder="Celular WhatsApp" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-slate-400">
                                     </div>
                                 </div>
 
-                                <!-- Sección 2: Productos -->
-                                <div class="space-y-4 border-b border-slate-100 pb-6">
-                                    <div class="flex justify-between items-center">
-                                        <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="beef" class="w-4 h-4"></i> 2. Platos a Preparar</h3>
-                                        <button onclick="addItem()" class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-all">+ Añadir Plato</button>
+                                <!-- Productos -->
+                                <div class="space-y-5">
+                                    <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                        <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                            <div class="bg-orange-50 p-1.5 rounded-md"><i data-lucide="beef" class="w-4 h-4 text-orange-500"></i></div> Platos a Preparar
+                                        </h3>
+                                        <button onclick="addItem()" class="text-[11px] font-bold text-brand-600 bg-brand-50 px-3 py-2 rounded-lg hover:bg-brand-100 transition-all flex items-center gap-1">
+                                            <i data-lucide="plus" class="w-3 h-3"></i> Añadir Plato
+                                        </button>
                                     </div>
                                     
-                                    <div id="items-container" class="space-y-2">
+                                    <div id="items-container" class="space-y-3">
                                         <!-- Lista de items inyectada vía JS -->
                                     </div>
                                 </div>
 
-                                <!-- Sección 3: Logística -->
-                                <div class="space-y-4">
-                                    <h3 class="text-[10px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 3. Logística del Evento</h3>
+                                <!-- Logística -->
+                                <div class="space-y-5">
+                                    <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 pb-2 border-b border-slate-100">
+                                        <div class="bg-indigo-50 p-1.5 rounded-md"><i data-lucide="map-pin" class="w-4 h-4 text-indigo-500"></i></div> Logística del Evento
+                                    </h3>
                                     
-                                    <div class="flex bg-slate-100 p-1 rounded-xl" id="srv-buttons">
-                                        <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Recojo</button>
-                                        <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-sm text-blue-600">Delivery</button>
-                                        <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400">Sitio</button>
+                                    <div class="flex bg-slate-100/80 p-1.5 rounded-2xl" id="srv-buttons">
+                                        <button type="button" onclick="setAdminServiceType('pickup')" id="btn-adm-pickup" class="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-700">Recojo</button>
+                                        <button type="button" onclick="setAdminServiceType('delivery')" id="btn-adm-delivery" class="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all bg-white shadow-md text-brand-600">Delivery</button>
+                                        <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-700">Sitio</button>
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <input type="date" id="adm-date" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                        <input type="time" id="adm-time" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <input type="date" id="adm-date" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
+                                        <input type="time" id="adm-time" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
                                     </div>
 
-                                    <div id="adm-location-fields" class="space-y-3">
-                                        <select id="adm-district" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                    <div id="adm-location-fields" class="space-y-4">
+                                        <select id="adm-district" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all appearance-none cursor-pointer">
                                             <option value="">Distrito (Solo Lima)</option>
                                             <option>Miraflores</option><option>San Isidro</option><option>Santiago de Surco</option><option>San Borja</option><option>La Molina</option><option>Barranco</option><option>Jesús María</option><option>Lince</option><option>Magdalena del Mar</option><option>Pueblo Libre</option><option>San Miguel</option><option>Surquillo</option><option>Chorrillos</option><option>Ate</option><option>Santa Anita</option><option>S.J.L.</option><option>Otros</option>
                                         </select>
-                                        <input type="text" id="adm-location" placeholder="Dirección exacta del evento" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
-                                        <input type="text" id="adm-ref" placeholder="Referencia / Cruce principal" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm outline-none">
+                                        <input type="text" id="adm-location" placeholder="Dirección exacta del evento" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-slate-400">
+                                        <input type="text" id="adm-ref" placeholder="Referencia / Cruce principal" class="w-full px-5 py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-slate-400">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Columna Derecha: Resumen Financiero -->
-                            <div class="flex flex-col h-full">
-                                <div class="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex-1 flex flex-col justify-center relative overflow-hidden">
-                                    <i data-lucide="calculator" class="absolute top-4 right-4 w-24 h-24 opacity-5"></i>
-                                    <h3 class="text-slate-400 text-[10px] font-black uppercase mb-6 tracking-widest text-center relative z-10">Resumen Financiero</h3>
+                            <div class="lg:col-span-5 flex flex-col h-full">
+                                <div class="bg-navy-900 rounded-[2rem] p-8 text-white shadow-2xl flex-1 flex flex-col justify-center relative overflow-hidden border border-navy-700/50">
+                                    <!-- Decoración -->
+                                    <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-500/20 rounded-full blur-[60px] pointer-events-none"></div>
                                     
-                                    <div class="space-y-4 relative z-10">
-                                        <div class="flex justify-between items-center text-sm font-bold text-slate-300">
+                                    <h3 class="text-slate-400 text-[11px] font-bold uppercase mb-8 tracking-widest flex items-center gap-2 z-10">
+                                        <i data-lucide="receipt" class="w-4 h-4"></i> Liquidación
+                                    </h3>
+                                    
+                                    <div class="space-y-5 relative z-10">
+                                        <div class="flex justify-between items-center text-[15px] font-medium text-slate-300">
                                             <span>Total Platos (<span id="preview-total-qty">0</span>)</span>
                                             <span>S/ <span id="preview-subtotal">0.00</span></span>
                                         </div>
-                                        <div id="preview-fee-container" class="hidden flex justify-between items-center text-sm font-bold text-blue-400">
-                                            <span>Cargo Adicional (Delivery/Otros)</span>
+                                        <div id="preview-fee-container" class="hidden flex justify-between items-center text-[15px] font-medium text-amber-400">
+                                            <span>Cargo Adicional (Logística)</span>
                                             <span>S/ <span id="preview-fee">0.00</span></span>
                                         </div>
                                         
-                                        <div class="h-px bg-slate-700 my-4"></div>
+                                        <div class="h-px bg-slate-700/50 my-6"></div>
                                         
-                                        <div class="flex justify-between items-end">
+                                        <div class="space-y-6">
                                             <div>
-                                                <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Monto de Adelanto</p>
-                                                <p class="text-3xl font-black text-emerald-400">S/ <span id="preview-deposit">0.00</span></p>
+                                                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest">Monto de Adelanto</p>
+                                                <p class="text-4xl font-black text-emerald-400 tracking-tight">S/ <span id="preview-deposit">0.00</span></p>
                                             </div>
-                                            <div class="text-right">
-                                                <p class="text-slate-500 text-[10px] font-black uppercase mb-1">Importe Total</p>
-                                                <p class="text-2xl font-black text-white">S/ <span id="preview-total">0.00</span></p>
+                                            <div>
+                                                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 tracking-widest">Importe Total</p>
+                                                <p class="text-2xl font-bold text-white tracking-tight">S/ <span id="preview-total">0.00</span></p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-3 mt-4">
-                                    <button id="btn-preview" onclick="openPreview()" disabled class="col-span-1 bg-slate-100 disabled:opacity-50 text-slate-700 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed border border-slate-200">
-                                        <i data-lucide="eye" class="w-4 h-4"></i> Vista Previa
+                                <div class="grid grid-cols-2 gap-4 mt-6">
+                                    <button id="btn-preview" onclick="openPreview()" disabled class="col-span-1 bg-white text-slate-700 py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-all cursor-pointer disabled:cursor-not-allowed border border-slate-200 shadow-sm disabled:opacity-60">
+                                        <i data-lucide="file-search" class="w-5 h-5"></i> Previsualizar
                                     </button>
-                                    <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-blue-600 disabled:opacity-50 text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-700 shadow-lg active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed">
-                                        <i data-lucide="save" class="w-4 h-4"></i> Guardar
+                                    <button id="btn-generate" onclick="generateContract()" disabled class="col-span-1 bg-brand-600 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-brand-700 hover:-translate-y-0.5 shadow-lg shadow-brand-500/30 transition-all cursor-pointer disabled:cursor-not-allowed active:scale-95 disabled:opacity-60 disabled:hover:translate-y-0">
+                                        <i data-lucide="cloud-upload" class="w-5 h-5"></i> Guardar
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= VISTA: ADMIN BILLING (Suscripción) ================= -->
+                <section id="view-admin-billing" class="hidden space-y-8 animate-fade-in max-w-5xl mx-auto">
+                    <header>
+                        <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Mi Suscripción</h1>
+                        <p class="text-slate-500 font-medium mt-2 text-sm md:text-base">Gestiona tu plan y acceso al sistema.</p>
+                    </header>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Detalles de Plan -->
+                        <div class="md:col-span-2 bg-navy-900 rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden border border-navy-700">
+                            <!-- Decoración -->
+                            <div class="absolute -top-20 -right-20 w-80 h-80 bg-brand-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+                            
+                            <div class="relative z-10">
+                                <div class="flex justify-between items-start mb-8">
+                                    <div>
+                                        <span class="bg-brand-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-brand-400 shadow-glow">Plan Actual</span>
+                                        <h2 class="text-3xl md:text-4xl font-black mt-4 tracking-tight" id="billing-plan-name">Pro Mensual</h2>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-slate-400 text-[10px] font-bold uppercase tracking-widest block mb-1">Estado</span>
+                                        <span class="text-emerald-400 font-black flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Activo</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+                                    <div class="bg-navy-800/60 p-5 rounded-2xl border border-navy-700/50">
+                                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Próximo Vencimiento</p>
+                                        <p class="text-xl font-bold text-white" id="billing-exp-date">27 Abril, 2026</p>
+                                    </div>
+                                    <div class="bg-navy-800/60 p-5 rounded-2xl border border-navy-700/50">
+                                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Costo de Renovación</p>
+                                        <p class="text-xl font-bold text-white"><span id="billing-price">S/ 49.00</span> <span class="text-xs text-slate-500 font-medium">/mes</span></p>
+                                    </div>
+                                </div>
+
+                                <button onclick="renewSubscription()" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold hover:bg-brand-500 hover:-translate-y-0.5 transition-all active:scale-95 shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
+                                    <i data-lucide="zap" class="w-5 h-5"></i> Renovar Suscripción Ahora
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Beneficios / Soporte -->
+                        <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-soft p-8 md:p-10 flex flex-col h-full">
+                            <div class="flex-1">
+                                <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest mb-6">Beneficios Activos</h3>
+                                <ul class="space-y-5">
+                                    <li class="flex items-start gap-3 text-sm font-medium text-slate-600">
+                                        <div class="bg-emerald-100 p-1 rounded-full text-emerald-600 mt-0.5 shrink-0"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                        Sincronización con la Nube
+                                    </li>
+                                    <li class="flex items-start gap-3 text-sm font-medium text-slate-600">
+                                        <div class="bg-emerald-100 p-1 rounded-full text-emerald-600 mt-0.5 shrink-0"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                        Descarga de PDFs
+                                    </li>
+                                    <li class="flex items-start gap-3 text-sm font-medium text-slate-600">
+                                        <div class="bg-emerald-100 p-1 rounded-full text-emerald-600 mt-0.5 shrink-0"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                        Integración con WhatsApp
+                                    </li>
+                                    <li class="flex items-start gap-3 text-sm font-medium text-slate-600">
+                                        <div class="bg-emerald-100 p-1 rounded-full text-emerald-600 mt-0.5 shrink-0"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                        Módulo de Control de Cocina
+                                    </li>
+                                    <li class="flex items-start gap-3 text-sm font-medium text-slate-600">
+                                        <div class="bg-emerald-100 p-1 rounded-full text-emerald-600 mt-0.5 shrink-0"><i data-lucide="check" class="w-3 h-3"></i></div>
+                                        Seguridad Criptográfica
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Soporte Técnico</p>
+                                <button onclick="contactSupport()" class="text-brand-600 font-bold text-sm hover:underline flex items-center justify-center gap-1.5 w-full">
+                                    <i data-lucide="headphones" class="w-4 h-4"></i> Contactar Soporte
+                                </button>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- ================= VISTA: ADMIN SETTINGS ================= -->
-                <section id="view-admin-settings" class="hidden max-w-2xl mx-auto space-y-6 animate-fade-in">
-                    <h1 class="text-3xl font-black">Ajustes Legales</h1>
-                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl space-y-6">
-                        
-                        <div class="space-y-4">
-                            <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Datos de la Empresa</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">Representante Legal</label>
-                                    <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                <section id="view-admin-settings" class="hidden max-w-5xl mx-auto space-y-6 animate-fade-in">
+                    <header class="mb-8">
+                        <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900">Ajustes Legales</h1>
+                        <p class="text-slate-500 font-medium mt-1 text-sm md:text-base">Configura la información de la empresa, métodos de pago y catálogo.</p>
+                    </header>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Columna Legal y Pagos -->
+                        <div class="space-y-8">
+                            <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-soft h-fit space-y-5">
+                                <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest flex items-center gap-2 pb-2 border-b border-slate-100">
+                                    <div class="bg-slate-100 p-1.5 rounded-md"><i data-lucide="building-2" class="w-4 h-4 text-slate-600"></i></div> Empresa
+                                </h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Representante</label>
+                                        <input type="text" id="set-sellerName" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">DNI Representante</label>
+                                        <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    </div>
+                                    <div class="space-y-1.5 col-span-1 sm:col-span-2">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Razón Social / Nombre Comercial</label>
+                                        <div class="flex gap-3">
+                                            <input type="text" id="set-sellerRuc" placeholder="RUC (Opcional)" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">DNI Representante</label>
-                                    <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                            </div>
+
+                            <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-soft h-fit space-y-5">
+                                <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                    <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest flex items-center gap-2">
+                                        <div class="bg-emerald-50 p-1.5 rounded-md"><i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i></div> Métodos de Pago
+                                    </h3>
                                 </div>
-                                <div class="space-y-1 col-span-1 md:col-span-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">Razón Social y RUC</label>
-                                    <div class="flex gap-2">
-                                        <input type="text" id="set-sellerRuc" placeholder="RUC" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                        <input type="text" id="set-sellerBusiness" placeholder="Razón Social" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Yape</label>
+                                        <input type="text" id="set-yape" placeholder="Número Yape" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Plin</label>
+                                        <input type="text" id="set-plin" placeholder="Número Plin" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-100">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Cuentas Bancarias</label>
+                                        <button type="button" onclick="addSettingBank()" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded hover:bg-brand-100 transition-all">+ Añadir Banco</button>
+                                    </div>
+                                    <div id="settings-banks-container" class="space-y-3">
+                                        <!-- Bancos inyectados -->
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4 pt-2">
-                            <h3 class="text-xs font-black uppercase border-b border-slate-100 pb-2">Información de Recepción y Pagos</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">WhatsApp para Notificaciones</label>
-                                    <input type="text" id="set-whatsapp" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold text-emerald-600 outline-none">
+                        <!-- Columna Catálogo y Guardado -->
+                        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-200/60 shadow-soft flex flex-col h-fit">
+                            <div class="space-y-5 flex-1">
+                                <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                    <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest flex items-center gap-2">
+                                        <div class="bg-orange-50 p-1.5 rounded-md"><i data-lucide="book-open" class="w-4 h-4 text-orange-500"></i></div> Catálogo Base
+                                    </h3>
+                                    <button type="button" onclick="addSettingProduct()" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-2 rounded-lg hover:bg-brand-100 transition-all">+ Añadir Plato</button>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">Yape / Plim</label>
-                                    <input type="text" id="set-yapePlim" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                </div>
-                                <div class="space-y-1 col-span-1 md:col-span-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-400">Cta BCP (Soles y CCI)</label>
-                                    <div class="flex gap-2">
-                                        <input type="text" id="set-bcpCta" placeholder="Nº Cuenta" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                        <input type="text" id="set-bcpCci" placeholder="CCI" class="w-1/2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                    </div>
+                                <div id="settings-products-container" class="space-y-3">
+                                    <!-- Productos inyectados -->
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="pt-4">
-                            <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 shadow-lg active:scale-95 transition-all">
-                                Guardar Ajustes Legales
-                            </button>
+                            
+                            <div class="pt-8 mt-4 border-t border-slate-100 flex flex-col gap-3">
+                                <button id="btn-save-settings" onclick="saveSettings()" class="w-full bg-navy-900 text-white py-4 rounded-2xl font-bold hover:bg-navy-800 hover:-translate-y-0.5 shadow-lg shadow-navy-900/20 active:scale-95 transition-all flex justify-center items-center gap-2">
+                                    <i data-lucide="cloud-upload" class="w-5 h-5"></i> Guardar Configuración
+                                </button>
+                                <!-- Botón de Salir solo visible en móvil dentro de ajustes -->
+                                <button onclick="logout()" class="md:hidden w-full bg-rose-50 text-rose-600 py-4 rounded-2xl font-bold hover:bg-rose-100 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar Sesión
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- ================= VISTA: SUCCESS ======================== -->
-                <section id="view-success" class="hidden min-h-[70vh] flex items-center justify-center p-4 animate-fade-in">
-                    <div class="text-center max-w-md w-full bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100">
-                        <div class="bg-emerald-100 w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-emerald-600 mx-auto mb-6">
-                            <i data-lucide="check-circle" class="w-10 h-10"></i>
+                <section id="view-success" class="hidden min-h-[60vh] flex items-center justify-center animate-fade-in">
+                    <div class="text-center max-w-md w-full bg-white p-10 md:p-14 rounded-[3rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+                        <!-- BG glow -->
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-emerald-400 rounded-full mix-blend-multiply filter blur-[60px] opacity-20 pointer-events-none"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-br from-emerald-400 to-emerald-500 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/40 transform animate-[bounce_2s_infinite]">
+                                <i data-lucide="check" class="w-12 h-12 text-white stroke-[3]"></i>
+                            </div>
+                            <h1 class="text-3xl font-black mb-3 tracking-tight text-slate-900">¡Contrato en la Nube!</h1>
+                            <p class="text-slate-500 font-medium mb-10 text-sm leading-relaxed">
+                                El contrato ha sido guardado exitosamente en tu base de datos. Vuelve a ventas para generar el PDF.
+                            </p>
+                            <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 shadow-xl transition-all active:scale-95">
+                                Volver a Ventas
+                            </button>
                         </div>
-                        <h1 class="text-3xl font-black mb-2 uppercase text-slate-900" id="success-title">¡Guardado!</h1>
-                        <p class="text-slate-500 font-medium mb-8 text-sm leading-relaxed">
-                            El contrato ha sido registrado con éxito. Vuelve al panel para <b>generar el PDF</b> o notificar al cliente.
-                        </p>
-                        <button onclick="switchView('admin-dashboard')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black hover:bg-slate-800 transition-all shadow-lg active:scale-95">
-                        Ir a Mis Ventas
-                    </button>
-                </div>
-            </section>
+                    </div>
+                </section>
 
-            </main>
+            </div>
+        </main>
+    </div>
 
-            <!-- ================= NAV MOBILE (ADMIN) ==================== -->
-            <!-- Visible en pantallas móviles y tablets (hasta lg) -->
-            <nav id="nav-mobile" class="lg:hidden flex-none w-full bg-[#090E17] text-white flex justify-around items-center p-2 pb-4 border-t border-slate-800 z-40 relative">
-                <button onclick="switchView('admin-dashboard')" id="btn-mob-dash" class="flex flex-col items-center gap-1 p-2 text-blue-500 transition-colors w-20">
-                    <i data-lucide="truck" class="w-5 h-5"></i>
-                    <span class="text-[10px] font-bold">Envíos</span>
-                </button>
-                <div class="relative w-14 h-14 flex items-center justify-center">
-                    <button onclick="switchView('admin-create')" id="btn-mob-create" class="absolute -top-6 flex flex-col items-center gap-1 p-2 bg-blue-600 rounded-full w-14 h-14 justify-center shadow-lg shadow-blue-900/50 border-4 border-[#f8fafc] text-white transition-all z-10">
-                        <i data-lucide="share-2" class="w-6 h-6"></i>
-                    </button>
-                </div>
-                <button onclick="switchView('admin-settings')" id="btn-mob-set" class="flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                    <span class="text-[10px] font-bold">Ajustes</span>
-                </button>
-            </nav>
-
-        </div> <!-- Fin de Contenedor Principal (Main/Header/NavMobile) -->
-
-    </div> <!-- Fin del Wrapper global -->
-
-    <!-- ================= MODAL: VISTA PREVIA Y CONTRATO ================= -->
-    <div id="modal-contract" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] flex items-center justify-center p-2 md:p-6 no-print">
-        <div class="bg-white w-full max-w-4xl h-[95vh] rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
+    <!-- ================= MODAL: VISTA PREVIA Y CONTRATO (DISEÑO FÍSICO) ================= -->
+    <div id="modal-contract" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] flex items-center justify-center p-4 md:p-8 no-print">
+        <div class="bg-white w-full max-w-4xl h-full max-h-[90vh] rounded-[2rem] shadow-2xl flex flex-col relative overflow-hidden">
             
-            <!-- Header (Solo en pantalla) -->
-            <div class="no-print bg-slate-100 flex justify-between items-center p-4 border-b border-slate-200">
-               <h3 class="font-black text-slate-800 flex items-center gap-2" id="modal-title">
-                   <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i> Vista Previa del Documento
+            <!-- Header Pantalla -->
+            <div class="no-print bg-slate-50 flex justify-between items-center px-6 py-4 border-b border-slate-200">
+               <h3 class="font-black text-slate-800 flex items-center gap-2 text-sm uppercase tracking-widest" id="modal-title">
+                   <i data-lucide="file-text" class="w-5 h-5 text-brand-600"></i> Vista Previa
                </h3>
-               <button onclick="closeContractModal()" class="p-1.5 bg-slate-200 rounded-full hover:bg-slate-300 transition-colors">
-                 <i data-lucide="x" class="w-5 h-5"></i>
+               <button onclick="closeContractModal()" class="p-2 bg-white rounded-full hover:bg-slate-200 transition-colors border border-slate-200 shadow-sm">
+                 <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
                </button>
             </div>
 
-            <!-- Área de impresión (El documento en sí) -->
-            <div id="printable-area" class="flex-1 overflow-y-auto p-8 md:p-12 bg-white" style="font-family: 'Times New Roman', serif; color: #000; font-size: 11pt; line-height: 1.5;">
-                <div style="text-align: right; margin-bottom: 25px; font-weight: bold;">Lima, <span id="pr-date"></span></div>
-                <h1 style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 25px; font-size: 15pt; text-transform: uppercase;">
+            <!-- Área de impresión (Hoja A4 Style) -->
+            <div id="printable-area" class="flex-1 overflow-y-auto p-10 md:p-16 bg-white mx-auto w-full" style="max-width: 21cm; font-family: 'Times New Roman', Times, serif; color: #000; font-size: 11pt; line-height: 1.5; box-shadow: 0 0 20px rgba(0,0,0,0.05);">
+                <div style="text-align: right; margin-bottom: 30px; font-weight: bold; font-size: 10pt;">Lima, <span id="pr-date"></span></div>
+                
+                <h1 style="text-align: center; font-weight: 900; text-decoration: underline; margin-bottom: 30px; font-size: 16pt; text-transform: uppercase; letter-spacing: 1px;">
                     CONTRATO DE COMPRAVENTA #<span id="pr-id"></span>
                 </h1>
                 
-                <div style="text-align: justify; margin-bottom: 15px;">
-                    <p style="margin-bottom: 10px;">
+                <div style="text-align: justify; margin-bottom: 20px;">
+                    <p style="margin-bottom: 12px;">
                         El señor <b id="pr-seller"></b> identificado con DNI N° <b id="pr-sellerDni"></b>, representante legal de <b id="pr-company"></b>, quien en adelante se denominará EL VENDEDOR. (Con RUC <span id="pr-ruc"></span>).
                     </p>
                     <p>
@@ -406,59 +681,59 @@
                     </p>
                 </div>
 
-                <div style="margin-top: 20px;">
-                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 1px solid #000; margin-bottom: 5px;">PRIMERA. OBJETO:</span>
+                <div style="margin-top: 25px;">
+                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 2px solid #000; margin-bottom: 8px; padding-bottom: 2px;">PRIMERA. OBJETO:</span>
                     <p>Día del evento: <b id="pr-eventDate"></b><br/>En la dirección: <b id="pr-location"></b><br/>Referencia: <b id="pr-ref"></b> / Hora: <b id="pr-time"></b></p>
                 </div>
                 
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1.5px solid #000;">
+                <table style="width: 100%; border-collapse: collapse; margin: 25px 0; border: 1px solid #000;">
                     <thead>
-                        <tr style="background-color: #f8fafc;">
-                            <th style="border: 1px solid #000; padding: 8px; text-align: center; width: 10%;">CANT.</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: left;">DESCRIPCIÓN</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: center; width: 15%;">P. UNIT.</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: center; width: 15%;">IMPORTE</th>
+                        <tr style="background-color: #f3f4f6;">
+                            <th style="border: 1px solid #000; padding: 10px; text-align: center; width: 12%;">CANT.</th>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: left;">DESCRIPCIÓN</th>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: center; width: 18%;">P. UNIT.</th>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: center; width: 18%;">IMPORTE</th>
                         </tr>
                     </thead>
                     <tbody id="pr-items-tbody">
-                        <!-- Filas de items inyectadas aquí -->
+                        <!-- Filas inyectadas -->
                     </tbody>
                 </table>
 
-                <div style="margin-top: 20px;">
-                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 1px solid #000; margin-bottom: 5px;">SEGUNDA. PRECIO:</span>
+                <div style="margin-top: 25px;">
+                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 2px solid #000; margin-bottom: 8px; padding-bottom: 2px;">SEGUNDA. PRECIO:</span>
                     <p>Las partes pactan la suma de <b id="pr-total2"></b> nuevos soles por el total de los servicios acordados.</p>
                 </div>
 
-                <div style="margin-top: 20px;">
-                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 1px solid #000; margin-bottom: 5px;">TERCERA. FORMA DE PAGO:</span>
+                <div style="margin-top: 25px;">
+                    <span style="font-weight: bold; display: block; font-size: 11pt; border-bottom: 2px solid #000; margin-bottom: 8px; padding-bottom: 2px;">TERCERA. FORMA DE PAGO:</span>
                     <p>EL COMPRADOR paga el precio en la siguiente forma: <b>ADELANTO de <span id="pr-dep"></span> NUEVOS SOLES</b> por concepto de separación y el saldo restante de <span id="pr-bal"></span> NUEVOS SOLES <b>CONTRAENTREGA</b>.</p>
                 </div>
 
-                <div style="border: 1.5px solid #000; padding: 15px; margin-top: 30px; font-size: 10.5pt; background: #fafafa;">
-                    <b style="display: block; margin-bottom: 5px;">MÉTODO DE PAGO OFICIAL:</b>
-                    YAPE / PLIM al número: <b id="pr-yape"></b><br/>
-                    Cta BCP Soles: <b id="pr-bcp"></b><br/>
-                    CCI BCP: <b id="pr-cci"></b>
+                <div style="border: 2px solid #000; padding: 20px; margin-top: 35px; font-size: 11pt; background: #fafafa;">
+                    <b style="display: block; margin-bottom: 8px; text-decoration: underline;">MÉTODO DE PAGO OFICIAL:</b>
+                    <div id="pr-payment-methods" style="line-height: 1.6;">
+                        <!-- Métodos de pago inyectados dinámicamente -->
+                    </div>
                 </div>
 
-                <div style="margin-top: 80px; display: flex; justify-content: space-around; padding-bottom: 40px;">
-                    <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;">
+                <div style="margin-top: 100px; display: flex; justify-content: space-around; padding-bottom: 50px;">
+                    <div style="border-top: 1px solid #000; width: 280px; text-align: center; padding-top: 8px; font-size: 10pt;">
                         <b>VENDEDOR</b><br/><span id="pr-sig-seller"></span><br/>DNI: <span id="pr-sig-sellerDni"></span>
                     </div>
-                    <div style="border-top: 1.5px solid #000; width: 250px; text-align: center; padding-top: 5px; font-size: 10pt;">
+                    <div style="border-top: 1px solid #000; width: 280px; text-align: center; padding-top: 8px; font-size: 10pt;">
                         <b>COMPRADOR</b><br/><span id="pr-sig-client"></span><br/>DNI: <span id="pr-sig-clientDni"></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Footer con Botones (Solo en pantalla) -->
-            <div class="no-print bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-200">
-                <button id="btn-modal-print" onclick="window.print()" class="hidden bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black flex items-center gap-2 hover:bg-slate-800 transition-all">
-                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
+            <!-- Footer Pantalla -->
+            <div class="no-print bg-slate-50 p-5 flex justify-end gap-3 border-t border-slate-200">
+                <button id="btn-modal-print" onclick="window.print()" class="hidden bg-slate-900 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Imprimir / Guardar PDF
                 </button>
-                <button id="btn-modal-save" onclick="generateFromPreview()" class="hidden bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-black flex items-center gap-2 hover:bg-emerald-700 shadow-lg transition-all">
-                    <i data-lucide="check" class="w-4 h-4"></i> Confirmar y Guardar
+                <button id="btn-modal-save" onclick="generateFromPreview()" class="hidden bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <span id="btn-modal-save-text" class="flex items-center gap-2"><i data-lucide="cloud-upload" class="w-5 h-5"></i> Confirmar y Guardar Contrato</span>
                 </button>
             </div>
         </div>
@@ -468,166 +743,406 @@
     <!-- ================== LÓGICA JAVASCRIPT ==================== -->
     <!-- ========================================================= -->
     <script>
-        // Inicializar Iconos la primera vez
         lucide.createIcons();
 
-        // --- DATOS POR DEFECTO ---
+        // --- CONEXIÓN BACKEND (GOOGLE APPS SCRIPT) ---
+        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbwWxzaCv81-OPFwoMOiwPNFo3XN0iBvd-hwrLrpx5pMTL-0QuLYw2Bt898Tzm0iIHF_qA/exec";
+
+        // --- CONFIGURACIÓN DEL DUEÑO DEL SAAS ---
+        const saasConfig = {
+            ownerPhone: "51900000000",
+            planName: "Pro Mensual",
+            price: "49.00",
+            expirationDate: "Activo"
+        };
+
+        // --- DATOS Y REGLAS LOCALES ---
+        // Se inicializan vacíos para cuentas nuevas
         const defaultRules = {
-            companyName: "NIDOS CHICKENS", whatsappNumber: "51960078506", 
-            sellerName: "Brayan Smith Sánchez Rafaile", sellerDni: "47058826",
-            sellerRuc: "10436370984", sellerBusiness: "Distribuidora VIRGEN DE GUADALUPE",
-            yapePlim: "960078506", bcpCta: "19105667430075", bcpCci: "00219110566743007552",
-            priceRecojo: 9.5, priceDelivery: 10.5, pricePresencial: 10.0,
-            minPlatesFreeShipping: 120, deliveryFee: 25, depositFixed: 100,
-            depositOnsitePercent: 40, nextContractNumber: 826 
+            sellerName: "", sellerDni: "",
+            sellerRuc: "", sellerBusiness: "Mi Empresa",
+            yape: "", plin: "", banks: [],
+            minPlatesFreeShipping: 120, deliveryFee: 25, depositFixed: 100, depositOnsitePercent: 40, 
+            nextContractNumber: 826,
+            products: []
         };
 
         let rules = JSON.parse(localStorage.getItem('nidos_rules')) || defaultRules;
-        let rawSubmissions = JSON.parse(localStorage.getItem('nidos_submissions')) || [];
-        
-        // Migración de datos antiguos (soporte multi-item)
-        let submissions = rawSubmissions.map(s => {
-            if (!s.items) {
-                let qty = Number(s.guestCount) || 0;
-                let tot = Number(s.total) || 0;
-                let fee = (s.serviceType === 'delivery' && qty > 0 && qty < 120) ? 25 : 0;
-                let price = qty > 0 ? ((tot - fee) / qty) : 0;
-                
-                s.items = [{
-                    id: Math.random(),
-                    product: s.productType || 'Pollada',
-                    qty: qty,
-                    price: price
-                }];
-                s.fee = fee;
-            }
-            return s;
-        });
+        if (!rules.password) rules.password = "1234";
+        if (!rules.products) rules.products = [];
+        if (!rules.banks) rules.banks = [];
 
-        // Si no hay datos, insertar el de prueba
-        if (submissions.length === 0) {
-            submissions = [{
-                id: 825, clientName: 'Julio Geldres Montoya', clientDni: '41607475', clientPhone: '987654321',
-                serviceType: 'onsite', eventDate: '2026-03-27', district: 'Lince',
-                eventLocation: 'Jirón Mariscal Miller 2411', reference: 'Altura 23 y 24 de Arenales',
-                startTime: '12:00', guestCount: 200, status: 'Aceptado', submittedAt: '26/02/2026',
-                fee: 0, deposit: 800, total: 2000,
-                items: [{ id: 1, product: 'Pollada', qty: 200, price: 10 }]
-            }];
+        let submissions = []; 
+
+        // --- FUNCIONES DE SEGURIDAD Y BACKEND ---
+        async function hashPassword(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
         }
 
-        // --- ESTADO DE CREACIÓN ---
-        let adminServiceType = 'delivery';
-        let currentItems = []; // Array de platos
+        async function loadDataFromBackend(phone) {
+            try {
+                const response = await fetch(GOOGLE_API_URL, {
+                    redirect: "follow",
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getOrders', phone: phone }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                
+                if (!response.ok) throw new Error("Error HTTP " + response.status);
+                
+                const textResponse = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("Google devolvió HTML en vez de JSON. Revisa permisos de Apps Script.");
+                }
 
-        // Utilidad para generar IDs
+                if (result.success) {
+                    submissions = result.orders || [];
+                    submissions.sort((a, b) => b.id - a.id);
+                    
+                    if (result.config) {
+                        rules = { ...rules, ...result.config };
+                        if (!rules.banks) rules.banks = [];
+                        if (!rules.products) rules.products = [];
+                        localStorage.setItem('nidos_rules', JSON.stringify(rules));
+                    }
+                }
+            } catch (err) {
+                console.error("Error al descargar datos de la nube:", err);
+            }
+        }
+
+        // --- SISTEMA DE LOGIN Y CUENTAS ---
+        async function initApp() {
+            const phone = sessionStorage.getItem('nidos_auth_phone');
+            const requirePwdChange = sessionStorage.getItem('nidos_require_pwd_change') === 'true';
+
+            if (phone) {
+                document.getElementById('login-wrapper').classList.add('hidden');
+                
+                if (requirePwdChange) {
+                    document.getElementById('force-pwd-wrapper').classList.remove('hidden');
+                    document.getElementById('app-wrapper').classList.add('hidden');
+                    document.getElementById('app-wrapper').classList.remove('flex');
+                    lucide.createIcons();
+                } else {
+                    document.getElementById('force-pwd-wrapper').classList.add('hidden');
+                    document.getElementById('app-wrapper').classList.remove('hidden');
+                    document.getElementById('app-wrapper').classList.add('flex');
+                    
+                    document.getElementById('loader-dashboard').classList.remove('hidden');
+                    
+                    await loadDataFromBackend(phone);
+                    
+                    if(document.getElementById('sidebar-phone')) document.getElementById('sidebar-phone').innerText = phone;
+                    if(document.getElementById('sidebar-company-name')) document.getElementById('sidebar-company-name').innerText = rules.sellerBusiness;
+                    
+                    if(document.getElementById('sidebar-plan-name')) document.getElementById('sidebar-plan-name').innerText = "Plan " + saasConfig.planName;
+                    if(document.getElementById('billing-plan-name')) document.getElementById('billing-plan-name').innerText = saasConfig.planName;
+                    if(document.getElementById('billing-exp-date')) document.getElementById('billing-exp-date').innerText = saasConfig.expirationDate;
+                    if(document.getElementById('billing-price')) document.getElementById('billing-price').innerText = "S/ " + saasConfig.price;
+
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('kitchen-date').value = today;
+                    
+                    switchView('admin-dashboard');
+                    document.getElementById('loader-dashboard').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('login-wrapper').classList.remove('hidden');
+                document.getElementById('force-pwd-wrapper').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('flex');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            const errorMsg = document.getElementById('login-error');
+            const submitBtn = document.getElementById('btn-login-submit');
+
+            if (!/^\d{9}$/.test(user)) {
+                errorMsg.innerText = "El usuario debe ser tu número de WhatsApp (9 dígitos).";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Autenticando...';
+                lucide.createIcons();
+
+                const hashedPass = await hashPassword(pass);
+                
+                const response = await fetch(GOOGLE_API_URL, {
+                    redirect: "follow",
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'login', phone: user, hash: hashedPass }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                });
+                
+                if (!response.ok) throw new Error("Error HTTP " + response.status);
+                
+                const textResponse = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("Google devolvió HTML. Revisa permisos de Apps Script.");
+                }
+
+                if (result.success) {
+                    sessionStorage.setItem('nidos_auth_phone', user);
+                    errorMsg.classList.add('hidden');
+                    document.getElementById('login-pass').value = '';
+
+                    if (pass === '1234') {
+                        sessionStorage.setItem('nidos_require_pwd_change', 'true');
+                        // Limpiamos la caché local para garantizar un catálogo vacío a los usuarios nuevos
+                        localStorage.removeItem('nidos_rules');
+                        rules = JSON.parse(JSON.stringify(defaultRules));
+                        initApp();
+                    } else {
+                        sessionStorage.removeItem('nidos_require_pwd_change');
+                        initApp();
+                    }
+                } else {
+                    errorMsg.innerText = "Usuario o contraseña incorrectos.";
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = "Error de conexión o permisos en Google Apps Script.";
+                errorMsg.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Ingresar al Sistema <i data-lucide="arrow-right" class="w-5 h-5"></i>';
+                lucide.createIcons();
+            }
+        }
+
+        async function handleForcePwd(e) {
+            e.preventDefault();
+            const p1 = document.getElementById('force-new-pass').value;
+            const p2 = document.getElementById('force-conf-pass').value;
+            const err = document.getElementById('force-pwd-error');
+            const submitBtn = document.getElementById('btn-force-pwd-submit');
+            const phone = sessionStorage.getItem('nidos_auth_phone');
+            
+            if (p1 !== p2) {
+                err.innerText = "Las contraseñas no coinciden.";
+                err.classList.remove('hidden');
+                return;
+            }
+            if (p1 === '1234') {
+                err.innerText = "Debes elegir una contraseña diferente a 1234.";
+                err.classList.remove('hidden');
+                return;
+            }
+            
+            err.classList.add('hidden');
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Actualizando...';
+                lucide.createIcons();
+
+                const hashedNewPass = await hashPassword(p1);
+
+                const response = await fetch(GOOGLE_API_URL, {
+                    redirect: "follow",
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'changePassword', phone: phone, newHash: hashedNewPass }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+
+                if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                const textResponse = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("Google devolvió HTML. Revisa permisos de Apps Script.");
+                }
+
+                if (result.success) {
+                    sessionStorage.removeItem('nidos_require_pwd_change');
+                    initApp();
+                } else {
+                    err.innerText = "Error en la base de datos: " + (result.error || "Desconocido");
+                    err.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error(error);
+                err.innerText = "Error de conexión. Inténtalo de nuevo.";
+                err.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Guardar y Entrar <i data-lucide="arrow-right" class="w-5 h-5"></i>';
+                lucide.createIcons();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('nidos_auth_phone');
+            sessionStorage.removeItem('nidos_require_pwd_change');
+            submissions = []; 
+            // Limpiamos la caché local para que no se mezclen los catálogos ni ajustes entre cuentas
+            localStorage.removeItem('nidos_rules');
+            rules = JSON.parse(JSON.stringify(defaultRules));
+            initApp();
+        }
+
+        // --- MÓDULO SAAS (FACTURACIÓN) ---
+        function renewSubscription() {
+            const msg = `Hola, quiero renovar mi suscripción del Sistema de Contratos (Plan ${saasConfig.planName}).`;
+            window.open(`https://wa.me/${saasConfig.ownerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function contactSupport() {
+            const msg = `Hola Soporte Latam5S, necesito ayuda con mi Sistema de Contratos.`;
+            window.open(`https://wa.me/${saasConfig.ownerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // --- ESTADOS TEMPORALES ---
+        let adminServiceType = 'delivery';
+        let currentItems = []; 
+        let tempSettingsProducts = [];
+        let tempSettingsBanks = [];
+
         function generateId() { return Math.floor(Math.random() * 1000000); }
+        function generateOrderId() {
+            if (submissions.length === 0) return 826; 
+            const maxId = Math.max(...submissions.map(s => Number(s.id)));
+            return maxId + 1;
+        }
 
         // --- CONTROL DE VISTAS ---
         function switchView(viewName) {
-            // Ocultar todas las vistas principales
-            ['admin-dashboard', 'admin-create', 'admin-settings', 'success'].forEach(v => {
-                document.getElementById('view-' + v).classList.add('hidden');
+            ['admin-dashboard', 'admin-create', 'admin-settings', 'admin-kitchen', 'admin-billing', 'success'].forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if(el) el.classList.add('hidden');
             });
             document.getElementById('view-' + viewName).classList.remove('hidden');
 
-            const activeClass = "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#111827] text-blue-500 font-medium transition-all";
-            const inactiveClass = "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border border-transparent text-slate-300 hover:text-white font-medium transition-all";
+            const activeClassDesk = "w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-navy-700/50 bg-navy-800 text-brand-500 font-semibold transition-all shadow-[0_0_20px_rgba(37,99,235,0.15)]";
+            const inactiveClassDesk = "w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border border-transparent text-slate-400 hover:text-white hover:bg-navy-800/50 font-medium transition-all";
 
-            // Actualizar colores de navegación (Desktop & Mobile)
-            ['dash', 'create', 'set'].forEach(btn => {
+            ['dash', 'create', 'set', 'kitchen', 'billing'].forEach(btn => {
                 let elD = document.getElementById('btn-nav-' + btn);
-                if(elD) elD.className = inactiveClass;
+                if(elD) elD.className = inactiveClassDesk;
                 let elM = document.getElementById('btn-mob-' + btn);
-                if(elM && btn !== 'create') elM.className = `flex flex-col items-center gap-1 p-2 text-slate-400 transition-colors w-20`;
+                if(elM && btn !== 'create') elM.className = `flex flex-col items-center gap-1.5 p-2 text-slate-400 hover:text-slate-200 transition-colors flex-1 pb-2`;
             });
             
             if(viewName === 'admin-dashboard' || viewName === 'success') {
                 let dashBtn = document.getElementById('btn-nav-dash');
-                if(dashBtn) dashBtn.className = activeClass;
+                if(dashBtn) dashBtn.className = activeClassDesk;
                 let mobDash = document.getElementById('btn-mob-dash');
-                if(mobDash) mobDash.classList.replace('text-slate-400', 'text-blue-500');
+                if(mobDash) mobDash.className = "flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2";
                 if(viewName === 'admin-dashboard') renderDashboard();
             }
             if(viewName === 'admin-create') {
                 let createBtn = document.getElementById('btn-nav-create');
-                if(createBtn) createBtn.className = activeClass;
-                document.getElementById('create-next-id').innerText = '#' + rules.nextContractNumber;
+                if(createBtn) createBtn.className = activeClassDesk;
+                document.getElementById('create-next-id').innerText = '#' + generateOrderId();
                 resetCreateForm();
             }
             if(viewName === 'admin-settings') {
                 let setBtn = document.getElementById('btn-nav-set');
-                if(setBtn) setBtn.className = activeClass;
+                if(setBtn) setBtn.className = activeClassDesk;
                 let mobSet = document.getElementById('btn-mob-set');
-                if(mobSet) mobSet.classList.replace('text-slate-400', 'text-blue-500');
+                if(mobSet) mobSet.className = "flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2";
                 loadSettings();
             }
+            if(viewName === 'admin-kitchen') {
+                let kitBtn = document.getElementById('btn-nav-kitchen');
+                if(kitBtn) kitBtn.className = activeClassDesk;
+                let mobKit = document.getElementById('btn-mob-kitchen');
+                if(mobKit) mobKit.className = "flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2";
+                renderKitchen();
+            }
+            if(viewName === 'admin-billing') {
+                let bilBtn = document.getElementById('btn-nav-billing');
+                if(bilBtn) bilBtn.className = activeClassDesk;
+                let mobBil = document.getElementById('btn-mob-billing');
+                if(mobBil) mobBil.className = "flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2";
+            }
             
-            // Cerrar modales si existen
             closeContractModal();
         }
 
         // --- DASHBOARD (TABLA) ---
         function updateSummaryCard() {
-            let countDelivery = 0;
-            let countOnsite = 0;
-            let countPickup = 0;
-            
+            let countDelivery = 0; let countOnsite = 0; let countPickup = 0;
             submissions.forEach(s => {
                 if(s.serviceType === 'delivery') countDelivery++;
                 if(s.serviceType === 'onsite') countOnsite++;
                 if(s.serviceType === 'pickup') countPickup++;
             });
-
-            document.getElementById('sum-delivery').innerText = countDelivery;
-            document.getElementById('sum-onsite').innerText = countOnsite;
-            document.getElementById('sum-pickup').innerText = countPickup;
-            document.getElementById('sum-total').innerText = submissions.length;
+            if(document.getElementById('sum-delivery')) document.getElementById('sum-delivery').innerText = countDelivery;
+            if(document.getElementById('sum-onsite')) document.getElementById('sum-onsite').innerText = countOnsite;
+            if(document.getElementById('sum-pickup')) document.getElementById('sum-pickup').innerText = countPickup;
+            if(document.getElementById('sum-total')) document.getElementById('sum-total').innerText = submissions.length;
         }
 
         function renderDashboard() {
             updateSummaryCard();
             let tbody = '';
-            submissions.forEach(s => {
-                let badgeClass = s.status === 'Emitido' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                                 s.status === 'Aceptado' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-                                 s.status === 'Pagado' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                 'bg-slate-100 text-slate-600 border-slate-200';
+            
+            if(submissions.length === 0) {
+                 tbody = `<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">No hay contratos registrados en la nube. ¡Crea el primero!</td></tr>`;
+            }
 
-                // Generar texto de los productos
+            submissions.forEach(s => {
+                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200 focus:border-amber-300' :
+                                 s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200 focus:border-blue-300' :
+                                 s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 focus:border-emerald-300' :
+                                 'bg-slate-100 text-slate-700 border-slate-200 focus:border-slate-300';
+
                 let itemsDesc = s.items.map(i => `${i.qty} ${i.product}`).join(', ');
 
                 tbody += `
-                    <tr class="hover:bg-slate-50 transition-colors group border-b border-slate-50">
-                        <td class="px-6 py-5">
-                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border outline-none cursor-pointer transition-all ${badgeClass}">
+                    <tr class="hover:bg-slate-50/80 transition-colors group border-b border-slate-100/50">
+                        <td class="px-8 py-5">
+                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border outline-none cursor-pointer transition-all focus:ring-2 focus:ring-opacity-50 ${badgeClass}">
                                 <option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option>
                                 <option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option>
                                 <option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option>
                                 <option value="Entregado" ${s.status==='Entregado'?'selected':''}>Entregado</option>
                             </select>
-                            <div class="font-black text-slate-400 mt-2 ml-1 text-xs">#${s.id}</div>
+                            <div class="font-black text-slate-300 mt-2 ml-1 text-xs tracking-wider">#${s.id}</div>
                         </td>
-                        <td class="px-6 py-5">
-                            <div class="font-bold text-slate-900 text-sm line-clamp-1">${s.clientName}</div>
-                            <div class="text-[10px] font-bold text-slate-500 mt-0.5">DNI: ${s.clientDni} • Cel: ${s.clientPhone}</div>
+                        <td class="px-8 py-5">
+                            <div class="font-bold text-slate-800 text-sm line-clamp-1">${s.clientName}</div>
+                            <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide">DNI: ${s.clientDni} • ${s.clientPhone}</div>
                         </td>
-                        <td class="px-6 py-5">
-                            <div class="text-xs font-black text-slate-700 uppercase">${s.serviceType}</div>
-                            <div class="text-[10px] font-bold text-rose-500 mt-0.5 max-w-[150px] truncate" title="${itemsDesc}">${itemsDesc}</div>
-                            <div class="text-[10px] font-bold text-slate-400 mt-0.5">${s.eventDate}</div>
+                        <td class="px-8 py-5">
+                            <div class="text-xs font-black text-slate-600 uppercase tracking-wide">${s.serviceType}</div>
+                            <div class="text-[11px] font-bold text-brand-600 mt-1 max-w-[180px] truncate" title="${itemsDesc}">${itemsDesc}</div>
+                            <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${s.eventDate}</div>
                         </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
-                            <div class="font-black text-slate-900 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
-                            <div class="text-[9px] font-bold text-slate-500 uppercase">Seña: S/ ${Number(s.deposit).toFixed(2)}</div>
+                        <td class="px-8 py-5 whitespace-nowrap">
+                            <div class="font-black text-slate-800 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
+                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mt-1">Seña: <span class="text-emerald-600">S/ ${Number(s.deposit).toFixed(2)}</span></div>
                         </td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="openPrintModal(${s.id})" title="Ver o Imprimir PDF" class="bg-blue-50 text-blue-700 p-2 rounded-xl hover:bg-blue-100 transition-all border border-blue-200 shadow-sm">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center justify-center gap-3">
+                                <button onclick="openPrintModal(${s.id})" title="Ver o Imprimir PDF" class="bg-slate-100 text-slate-600 p-2.5 rounded-xl hover:bg-slate-200 hover:text-slate-900 transition-all border border-slate-200 shadow-sm active:scale-95">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="shareWhatsApp(${s.id})" title="Avisar por WhatsApp" class="bg-[#25D366] text-white p-2 rounded-xl hover:bg-[#128C7E] transition-all shadow-sm">
-                                    <i data-lucide="smartphone" class="w-4 h-4"></i>
+                                <button onclick="shareWhatsApp(${s.id})" title="Avisar por WhatsApp" class="bg-emerald-50 text-emerald-600 border border-emerald-200 p-2.5 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm active:scale-95">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </td>
@@ -636,21 +1151,62 @@
             });
             document.getElementById('table-body').innerHTML = tbody;
             lucide.createIcons();
-            document.getElementById('sidebar-phone').innerText = rules.whatsappNumber || "Sin Teléfono";
         }
 
-        function updateStatus(id, newStatus) {
-            submissions = submissions.map(s => s.id === id ? { ...s, status: newStatus } : s);
-            localStorage.setItem('nidos_submissions', JSON.stringify(submissions));
-            renderDashboard();
+        async function updateStatus(id, newStatus) {
+            const orderIndex = submissions.findIndex(s => s.id === id);
+            if(orderIndex === -1) return;
+            
+            const oldStatus = submissions[orderIndex].status;
+            submissions[orderIndex].status = newStatus;
+            
+            if(!document.getElementById('view-admin-dashboard').classList.contains('hidden')) renderDashboard();
+            if(!document.getElementById('view-admin-kitchen').classList.contains('hidden')) renderKitchen();
+
+            const phone = sessionStorage.getItem('nidos_auth_phone');
+            try {
+                const res = await fetch(GOOGLE_API_URL, {
+                    redirect: "follow",
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'updateStatus', phone: phone, orderId: id, status: newStatus }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                
+                if (!res.ok) throw new Error("Error HTTP " + res.status);
+                
+                const textResponse = await res.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("Google devolvió HTML. Revisa permisos de Apps Script.");
+                }
+
+                if(!result.success) throw new Error("Backend devolvió error");
+            } catch (err) {
+                console.error(err);
+                submissions[orderIndex].status = oldStatus;
+                renderDashboard();
+                alert("Hubo un error al sincronizar el cambio de estado con la base de datos en la nube.");
+            }
         }
 
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
-            
             let itemsTxt = s.items.map(i => `${i.qty} ${i.product}`).join(' y ');
 
-            const msg = `Hola *${s.clientName}*, un placer saludarte.\n\nTe escribimos de parte de *${rules.companyName}*. Aquí te adjuntamos tu *CONTRATO OFICIAL #${s.id}* en formato PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${itemsTxt}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n📲 *YAPE/PLIM:* ${rules.yapePlim}\n🏦 *BCP SOLES:* ${rules.bcpCta}\n\nPor favor, envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
+            // Generar string de métodos de pago para WP
+            let paymentMsg = '';
+            if(rules.yape) paymentMsg += `📲 *YAPE:* ${rules.yape}\n`;
+            if(rules.plin) paymentMsg += `📲 *PLIN:* ${rules.plin}\n`;
+            if(rules.banks && rules.banks.length > 0) {
+                rules.banks.forEach(b => {
+                    paymentMsg += `🏦 *Cta ${b.name}:* ${b.cta} ${b.cci ? `(CCI: ${b.cci})` : ''}\n`;
+                });
+            }
+            if(!paymentMsg) paymentMsg = "Coordinar método de pago por interno.\n";
+
+            const msg = `Hola *${s.clientName}*, un placer saludarte.\n\nTe escribimos de parte de *${rules.sellerBusiness}*. Aquí te adjuntamos tu *CONTRATO OFICIAL #${s.id}* en formato PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${itemsTxt}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n${paymentMsg}\nPor favor, envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
             
             let phone = s.clientPhone.replace(/\D/g, '');
             if(phone.length === 9) phone = '51' + phone;
@@ -659,52 +1215,146 @@
             window.open(url, '_blank');
         }
 
-        // --- GESTIÓN DE ITEMS (MULTIPLE PRODUCTOS) ---
+        // --- COCINA DASHBOARD ---
+        function renderKitchen() {
+            const targetDate = document.getElementById('kitchen-date').value;
+            if(!targetDate) return;
+
+            const dayOrders = submissions.filter(s => s.eventDate === targetDate);
+            let totalsByProduct = {};
+            rules.products.forEach(p => totalsByProduct[p.name] = 0);
+
+            dayOrders.forEach(order => {
+                order.items.forEach(item => {
+                    const prodName = item.product;
+                    const qty = Number(item.qty) || 0;
+                    if (totalsByProduct[prodName] !== undefined) totalsByProduct[prodName] += qty;
+                    else totalsByProduct[prodName] = qty;
+                });
+            });
+
+            let summaryHtml = '';
+            Object.keys(totalsByProduct).forEach(prod => {
+                if (totalsByProduct[prod] > 0 || rules.products.find(p => p.name === prod)) {
+                    summaryHtml += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-soft relative overflow-hidden">
+                        <i data-lucide="beef" class="absolute top-3 right-3 w-16 h-16 opacity-[0.03] text-slate-900"></i>
+                        <p class="text-[10px] font-bold uppercase text-slate-400 mb-1 tracking-widest">${prod}</p>
+                        <div class="text-3xl font-black text-brand-600">${totalsByProduct[prod]}</div>
+                    </div>`;
+                }
+            });
+            
+            if(Object.keys(totalsByProduct).length === 0) {
+                summaryHtml = '<div class="col-span-4 text-slate-400 text-sm font-medium">No hay productos en el catálogo.</div>';
+            }
+            
+            document.getElementById('kitchen-summary').innerHTML = summaryHtml;
+
+            let tbody = '';
+            dayOrders.sort((a, b) => {
+                if(!a.startTime) return 1;
+                if(!b.startTime) return -1;
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            if(dayOrders.length === 0) {
+                 tbody = `<tr><td colspan="4" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">Día libre. No hay pedidos programados para esta fecha.</td></tr>`;
+            }
+
+            dayOrders.forEach(s => {
+                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                                 s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                 s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                 'bg-slate-100 text-slate-700 border-slate-200';
+
+                let itemsDesc = s.items.map(i => `<span class="font-black text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">${i.qty}</span> <span class="font-medium text-slate-700">${i.product}</span>`).join('<span class="text-slate-300 mx-1">+</span>');
+                let srvBadge = s.serviceType === 'delivery' ? 'bg-blue-50 text-blue-600 border-blue-100' : s.serviceType === 'onsite' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-slate-100 text-slate-600 border-slate-200';
+
+                tbody += `
+                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100/50">
+                        <td class="px-8 py-5">
+                            <div class="font-black text-xl text-slate-800 tracking-tight">${s.startTime || '-:-'}</div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="font-bold text-slate-800 text-sm line-clamp-1">${s.clientName}</div>
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase border tracking-widest ${srvBadge}">${s.serviceType}</span>
+                                <span class="text-[10px] font-medium text-slate-500 truncate max-w-[180px]"><i data-lucide="map-pin" class="w-3 h-3 inline pb-0.5"></i> ${s.district || 'Local'} ${s.eventLocation ? '- '+s.eventLocation : ''}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="text-sm flex flex-wrap items-center gap-1">${itemsDesc}</div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase border outline-none cursor-pointer transition-all tracking-wider ${badgeClass}">
+                                <option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option>
+                                <option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option>
+                                <option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option>
+                                <option value="Entregado" ${s.status==='Entregado'?'selected':''}>Entregado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('kitchen-table-body').innerHTML = tbody;
+            lucide.createIcons();
+        }
+
+        // --- ADMIN CREAR ---
         function getBasePrice() {
-            if(adminServiceType === 'pickup') return rules.priceRecojo;
-            if(adminServiceType === 'delivery') return rules.priceDelivery;
-            return rules.pricePresencial;
+            if(adminServiceType === 'pickup') return rules.priceRecojo || 10;
+            if(adminServiceType === 'delivery') return rules.priceDelivery || 10;
+            return rules.pricePresencial || 10;
         }
 
         function addItem() {
-            currentItems.push({
-                id: generateId(),
-                product: 'Pollada',
-                qty: '',
-                price: getBasePrice()
-            });
-            renderItems();
+            if (!rules.products || rules.products.length === 0) {
+                alert("⚠️ Por favor, configura al menos un plato en los 'Ajustes' antes de crear un contrato.");
+                return;
+            }
+            let defaultProd = rules.products[0];
+            currentItems.push({ id: generateId(), product: defaultProd.name, qty: '', price: defaultProd.price });
+            renderCreateItems();
         }
 
-        function removeItem(id) {
+        function removeCreateItem(id) {
             currentItems = currentItems.filter(i => i.id !== id);
-            renderItems();
+            renderCreateItems();
         }
 
-        function updateItem(id, field, value) {
+        function updateCreateItem(id, field, value) {
             const item = currentItems.find(i => i.id === id);
             if(item) {
-                item[field] = value;
-                updatePricing();
+                item[field] = field === 'price' || field === 'qty' ? Number(value) || value : value;
+                if(field === 'product') {
+                    let prodConfig = rules.products.find(p => p.name === value);
+                    if(prodConfig) item.price = prodConfig.price;
+                    renderCreateItems(); 
+                } else {
+                    updatePricing();
+                }
             }
         }
 
-        function renderItems() {
+        function renderCreateItems() {
             let html = '';
             currentItems.forEach((item) => {
+                let optionsHtml = rules.products.map(p => `<option value="${p.name}" ${item.product === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
+                if (!rules.products.find(p => p.name === item.product)) optionsHtml += `<option value="${item.product}" selected>${item.product}</option>`;
+
                 html += `
-                <div class="flex items-center gap-2 animate-fade-in">
-                    <select onchange="updateItem(${item.id}, 'product', this.value)" class="flex-[3] px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700">
-                        <option value="Pollada" ${item.product==='Pollada'?'selected':''}>Pollada</option>
-                        <option value="Chuleta" ${item.product==='Chuleta'?'selected':''}>Chuleta</option>
-                        <option value="Parrilla" ${item.product==='Parrilla'?'selected':''}>Parrilla</option>
+                <div class="flex items-center gap-3 animate-fade-in group">
+                    <select onchange="updateCreateItem(${item.id}, 'product', this.value)" class="flex-[3] px-4 py-3.5 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold text-sm outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 text-slate-700 transition-all appearance-none cursor-pointer">
+                        ${optionsHtml}
                     </select>
-                    <input type="number" oninput="updateItem(${item.id}, 'qty', this.value); validateCreateForm()" value="${item.qty}" placeholder="Cant." class="flex-[2] px-2 py-3 rounded-xl bg-blue-50 border border-blue-200 font-black text-blue-700 text-xs outline-none text-center">
+                    <input type="number" oninput="updateCreateItem(${item.id}, 'qty', this.value); validateCreateForm()" value="${item.qty}" placeholder="Cant." class="flex-[2] px-3 py-3.5 rounded-xl bg-brand-50 border border-brand-200 font-black text-brand-700 text-sm outline-none text-center focus:bg-white focus:ring-4 focus:ring-brand-500/20 transition-all">
                     <div class="flex-[2] relative">
-                        <span class="absolute left-2 top-3 text-[10px] font-bold text-slate-400">S/</span>
-                        <input type="number" step="0.1" oninput="updateItem(${item.id}, 'price', this.value)" value="${item.price}" class="w-full pl-6 pr-2 py-3 rounded-xl bg-slate-50 border border-slate-200 font-bold text-xs outline-none">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">S/</span>
+                        <input type="number" step="0.1" oninput="updateCreateItem(${item.id}, 'price', this.value)" value="${item.price}" class="w-full pl-8 pr-3 py-3.5 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold text-sm outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all">
                     </div>
-                    <button type="button" onclick="removeItem(${item.id})" class="flex-none p-2.5 text-rose-500 hover:bg-rose-100 rounded-lg transition-colors">
+                    <button type="button" onclick="removeCreateItem(${item.id})" class="flex-none p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -716,9 +1366,7 @@
             validateCreateForm();
         }
 
-        // --- ADMIN CREAR ---
         function resetCreateForm() {
-            setAdminServiceType('delivery'); // Esto llama a resetear items
             document.getElementById('adm-name').value = '';
             document.getElementById('adm-dni').value = '';
             document.getElementById('adm-phone').value = '';
@@ -727,52 +1375,43 @@
             document.getElementById('adm-location').value = '';
             document.getElementById('adm-ref').value = '';
             document.getElementById('adm-time').value = '';
+            
+            currentItems = [];
+            
+            // Solo añadir un item si hay productos disponibles
+            if (rules.products && rules.products.length > 0) {
+                addItem(); 
+            }
+            
+            setAdminServiceType('delivery');
         }
 
         function setAdminServiceType(type) {
             adminServiceType = type;
             ['pickup', 'delivery', 'onsite'].forEach(t => {
-                document.getElementById('btn-adm-' + t).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all text-slate-400 hover:bg-slate-200";
+                document.getElementById('btn-adm-' + t).className = "flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-700";
             });
-            document.getElementById('btn-adm-' + type).className = "flex-1 py-2 rounded-lg text-xs font-black uppercase transition-all bg-white shadow-md text-blue-600 border border-slate-200";
+            document.getElementById('btn-adm-' + type).className = "flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all bg-white shadow-md text-brand-600";
             
-            if(type === 'pickup') {
-                document.getElementById('adm-location-fields').classList.add('hidden');
-            } else {
-                document.getElementById('adm-location-fields').classList.remove('hidden');
-            }
+            if(type === 'pickup') document.getElementById('adm-location-fields').classList.add('hidden');
+            else document.getElementById('adm-location-fields').classList.remove('hidden');
 
-            // Actualizar precio de los items actuales al nuevo default si no hay customización (opcional)
-            let defaultPrice = getBasePrice();
-            if(currentItems.length === 0) {
-                currentItems = [{ id: generateId(), product: 'Pollada', qty: '', price: defaultPrice }];
-            } else {
-                currentItems.forEach(i => i.price = defaultPrice);
-            }
-            renderItems();
+            updatePricing();
         }
 
         function getPricing() {
-            let subtotal = 0; 
-            let totalQty = 0;
-
+            let subtotal = 0; let totalQty = 0;
             currentItems.forEach(item => {
-                const q = Number(item.qty) || 0;
-                const p = Number(item.price) || 0;
-                subtotal += (q * p);
-                totalQty += q;
+                const q = Number(item.qty) || 0; const p = Number(item.price) || 0;
+                subtotal += (q * p); totalQty += q;
             });
 
             let fee = 0;
-            if (adminServiceType === 'delivery' && totalQty > 0 && totalQty < rules.minPlatesFreeShipping) {
-                fee = rules.deliveryFee;
-            }
+            if (adminServiceType === 'delivery' && totalQty > 0 && totalQty < rules.minPlatesFreeShipping) fee = rules.deliveryFee;
 
             const total = subtotal + fee;
             let dep = rules.depositFixed;
-            if (adminServiceType === 'onsite') {
-                dep = (total * rules.depositOnsitePercent) / 100;
-            }
+            if (adminServiceType === 'onsite') dep = (total * rules.depositOnsitePercent) / 100;
 
             return { subtotal, fee, total, deposit: dep, totalQty };
         }
@@ -799,27 +1438,22 @@
         function validateCreateForm() {
             const name = document.getElementById('adm-name').value;
             const p = getPricing();
-            
             const btnPrev = document.getElementById('btn-preview');
             const btnGen = document.getElementById('btn-generate');
             
             if(name && p.totalQty > 0) {
-                btnPrev.disabled = false;
-                btnGen.disabled = false;
+                btnPrev.disabled = false; btnGen.disabled = false;
             } else {
-                btnPrev.disabled = true;
-                btnGen.disabled = true;
+                btnPrev.disabled = true; btnGen.disabled = true;
             }
         }
 
-        // Crea el objeto del formulario actual (sin guardarlo aún)
         function getFormDataAsOrder() {
             const p = getPricing();
-            // Filtrar items sin cantidad
             const validItems = currentItems.filter(i => Number(i.qty) > 0);
 
             return {
-                id: rules.nextContractNumber,
+                id: generateOrderId(),
                 clientName: document.getElementById('adm-name').value || 'Cliente General',
                 clientDni: document.getElementById('adm-dni').value || '-',
                 clientPhone: document.getElementById('adm-phone').value || '-',
@@ -839,58 +1473,203 @@
             };
         }
 
-        // Abre la vista previa
         function openPreview() {
-            const tempOrder = getFormDataAsOrder();
-            populateContractModal(tempOrder);
-            
-            document.getElementById('modal-title').innerHTML = '<i data-lucide="eye" class="w-5 h-5 text-blue-600"></i> Vista Previa (No Guardado)';
+            populateContractModal(getFormDataAsOrder());
+            document.getElementById('modal-title').innerHTML = '<i data-lucide="file-search" class="w-4 h-4 text-brand-600"></i> Vista Previa (Borrador)';
             document.getElementById('btn-modal-print').classList.add('hidden');
             document.getElementById('btn-modal-save').classList.remove('hidden');
-            
             document.getElementById('modal-contract').classList.remove('hidden');
             lucide.createIcons();
         }
 
-        function generateFromPreview() {
+        async function generateFromPreview() {
             closeContractModal();
-            generateContract();
+            await generateContract();
         }
 
-        function generateContract() {
-            const newEntry = getFormDataAsOrder();
+        async function generateContract() {
+            const btn = document.getElementById('btn-generate');
+            const originalHTML = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Guardando en Nube...';
+                btn.disabled = true;
+                lucide.createIcons();
 
-            submissions.unshift(newEntry);
-            rules.nextContractNumber++;
-            
-            localStorage.setItem('nidos_submissions', JSON.stringify(submissions));
-            localStorage.setItem('nidos_rules', JSON.stringify(rules));
-            
-            switchView('success');
+                const newEntry = getFormDataAsOrder();
+                const phone = sessionStorage.getItem('nidos_auth_phone');
+
+                const response = await fetch(GOOGLE_API_URL, {
+                    redirect: "follow",
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'saveOrder', phone: phone, order: newEntry }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                
+                if (!response.ok) throw new Error("Error HTTP " + response.status);
+                
+                const textResponse = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("Google devolvió HTML en vez de JSON. Revisa permisos de Apps Script.");
+                }
+                
+                if (result.success) {
+                    submissions.unshift(newEntry);
+                    switchView('success');
+                } else {
+                    alert("Error en la base de datos: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error de conexión. " + err.message);
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
         }
 
         // --- ADMIN SETTINGS ---
         function loadSettings() {
-            document.getElementById('set-sellerName').value = rules.sellerName;
-            document.getElementById('set-sellerDni').value = rules.sellerDni;
-            document.getElementById('set-sellerRuc').value = rules.sellerRuc;
-            document.getElementById('set-sellerBusiness').value = rules.sellerBusiness;
-            document.getElementById('set-whatsapp').value = rules.whatsappNumber;
-            document.getElementById('set-bcpCta').value = rules.bcpCta;
-            document.getElementById('set-bcpCci').value = rules.bcpCci;
-            document.getElementById('set-yapePlim').value = rules.yapePlim;
+            document.getElementById('set-sellerName').value = rules.sellerName || '';
+            document.getElementById('set-sellerDni').value = rules.sellerDni || '';
+            document.getElementById('set-sellerRuc').value = rules.sellerRuc || '';
+            document.getElementById('set-sellerBusiness').value = rules.sellerBusiness || '';
+            
+            document.getElementById('set-yape').value = rules.yape || '';
+            document.getElementById('set-plin').value = rules.plin || '';
+            
+            tempSettingsProducts = JSON.parse(JSON.stringify(rules.products || []));
+            tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks || []));
+            
+            renderSettingsProducts();
+            renderSettingsBanks();
         }
 
-        function saveSettings() {
+        // Config Productos
+        function addSettingProduct() {
+            tempSettingsProducts.push({ id: generateId(), name: '', price: 0 });
+            renderSettingsProducts();
+        }
+        function removeSettingProduct(id) {
+            tempSettingsProducts = tempSettingsProducts.filter(p => p.id !== id);
+            renderSettingsProducts();
+        }
+        function updateSettingProduct(id, field, value) {
+            let p = tempSettingsProducts.find(p => p.id === id);
+            if(p) p[field] = field === 'price' ? Number(value) || 0 : value;
+        }
+        function renderSettingsProducts() {
+            let html = '';
+            if(tempSettingsProducts.length === 0) {
+                html = '<p class="text-xs text-slate-400 italic">No hay platos configurados. Añade uno para empezar.</p>';
+            }
+            tempSettingsProducts.forEach(p => {
+                html += `
+                <div class="flex items-center gap-3 animate-fade-in group">
+                    <input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id}, 'name', this.value)" class="flex-[3] px-4 py-3.5 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm" placeholder="Nombre del plato">
+                    <div class="flex-[2] relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">S/</span>
+                        <input type="number" step="0.1" value="${p.price}" oninput="updateSettingProduct(${p.id}, 'price', this.value)" class="w-full pl-8 pr-3 py-3.5 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm" placeholder="Precio">
+                    </div>
+                    <button type="button" onclick="removeSettingProduct(${p.id})" class="flex-none p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                `;
+            });
+            document.getElementById('settings-products-container').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // Config Bancos
+        function addSettingBank() {
+            tempSettingsBanks.push({ id: generateId(), name: '', cta: '', cci: '' });
+            renderSettingsBanks();
+        }
+        function removeSettingBank(id) {
+            tempSettingsBanks = tempSettingsBanks.filter(b => b.id !== id);
+            renderSettingsBanks();
+        }
+        function updateSettingBank(id, field, value) {
+            let b = tempSettingsBanks.find(b => b.id === id);
+            if(b) b[field] = value;
+        }
+        function renderSettingsBanks() {
+            let html = '';
+            if(tempSettingsBanks.length === 0) {
+                html = '<p class="text-xs text-slate-400 italic">No hay bancos adicionales configurados.</p>';
+            }
+            tempSettingsBanks.forEach(b => {
+                html += `
+                <div class="flex items-center gap-2 animate-fade-in group bg-slate-50/50 p-2 rounded-xl border border-slate-100">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 flex-1">
+                        <input type="text" value="${b.name}" oninput="updateSettingBank(${b.id}, 'name', this.value)" class="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 font-semibold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-xs" placeholder="Banco (Ej: BCP)">
+                        <input type="text" value="${b.cta}" oninput="updateSettingBank(${b.id}, 'cta', this.value)" class="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 font-semibold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-xs" placeholder="Nº Cuenta">
+                        <input type="text" value="${b.cci}" oninput="updateSettingBank(${b.id}, 'cci', this.value)" class="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 font-semibold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-xs" placeholder="CCI (Opcional)">
+                    </div>
+                    <button type="button" onclick="removeSettingBank(${b.id})" class="flex-none p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                `;
+            });
+            document.getElementById('settings-banks-container').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        async function saveSettings() {
+            const btnSave = document.getElementById('btn-save-settings');
+            const originalHTML = btnSave ? btnSave.innerHTML : 'Guardar Configuración en la Nube';
+            
+            if (btnSave) {
+                btnSave.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Subiendo a la Nube...';
+                btnSave.disabled = true;
+                lucide.createIcons();
+            }
+
             rules.sellerName = document.getElementById('set-sellerName').value;
             rules.sellerDni = document.getElementById('set-sellerDni').value;
             rules.sellerRuc = document.getElementById('set-sellerRuc').value;
             rules.sellerBusiness = document.getElementById('set-sellerBusiness').value;
-            rules.whatsappNumber = document.getElementById('set-whatsapp').value;
-            rules.bcpCta = document.getElementById('set-bcpCta').value;
-            rules.bcpCci = document.getElementById('set-bcpCci').value;
-            rules.yapePlim = document.getElementById('set-yapePlim').value;
+            
+            rules.yape = document.getElementById('set-yape').value;
+            rules.plin = document.getElementById('set-plin').value;
+            
+            rules.products = tempSettingsProducts.filter(p => p.name.trim() !== '');
+            rules.banks = tempSettingsBanks.filter(b => b.name.trim() !== '' || b.cta.trim() !== '');
+
             localStorage.setItem('nidos_rules', JSON.stringify(rules));
+            
+            try {
+                const phone = sessionStorage.getItem('nidos_auth_phone');
+                if (phone) {
+                    const response = await fetch(GOOGLE_API_URL, {
+                        redirect: "follow",
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'saveSettings', phone: phone, config: rules }),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    });
+                    const result = await response.json();
+                    if (!result.success) console.error("Error al guardar config en BD:", result.error);
+                }
+            } catch (err) {
+                console.error("Error de red al guardar configuración:", err);
+                alert("Se guardó en tu dispositivo local, pero hubo un error de internet al subir a la nube.");
+            }
+
+            if (btnSave) {
+                btnSave.innerHTML = originalHTML;
+                btnSave.disabled = false;
+                lucide.createIcons();
+            }
+            
+            if(document.getElementById('sidebar-company-name')){
+               document.getElementById('sidebar-company-name').innerText = rules.sellerBusiness || 'Mi Empresa';
+            }
             switchView('admin-dashboard');
         }
 
@@ -900,10 +1679,11 @@
             
             document.getElementById('pr-date').innerText = order.submittedAt;
             document.getElementById('pr-id').innerText = order.id;
-            document.getElementById('pr-seller').innerText = rules.sellerName;
-            document.getElementById('pr-sellerDni').innerText = rules.sellerDni;
-            document.getElementById('pr-company').innerText = rules.companyName;
-            document.getElementById('pr-ruc').innerText = rules.sellerRuc;
+            document.getElementById('pr-seller').innerText = rules.sellerName || '';
+            document.getElementById('pr-sellerDni').innerText = rules.sellerDni || '';
+            // Para el PDF se usa la compañía de las reglas, aunque puede ser dinámico
+            document.getElementById('pr-company').innerText = rules.sellerBusiness || 'LA EMPRESA';
+            document.getElementById('pr-ruc').innerText = rules.sellerRuc || '';
             document.getElementById('pr-client').innerText = order.clientName;
             document.getElementById('pr-clientDni').innerText = order.clientDni;
             
@@ -912,26 +1692,24 @@
             document.getElementById('pr-ref').innerText = order.reference || '-';
             document.getElementById('pr-time').innerText = order.startTime;
 
-            // Llenar tabla de items
             let itemsHtml = '';
             order.items.forEach(item => {
                 itemsHtml += `
                 <tr>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>${item.qty}</b></td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: left;">Plato de ${item.product} - Modalidad: ${order.serviceType.toUpperCase()}</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;">S/ ${Number(item.price).toFixed(2)}</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>S/ ${(item.qty * item.price).toFixed(2)}</b></td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>${item.qty}</b></td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: left;">Plato de ${item.product} - Modalidad: ${order.serviceType.toUpperCase()}</td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${Number(item.price).toFixed(2)}</td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>S/ ${(item.qty * item.price).toFixed(2)}</b></td>
                 </tr>`;
             });
 
-            // Si hay fee de delivery, añadir como fila
             if (order.fee > 0) {
                 itemsHtml += `
                 <tr>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>1</b></td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: left;">Cargo por Delivery (Menos de ${rules.minPlatesFreeShipping} platos)</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;">S/ ${Number(order.fee).toFixed(2)}</td>
-                    <td style="border: 1px solid #000; padding: 8px; text-align: center;"><b>S/ ${Number(order.fee).toFixed(2)}</b></td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>1</b></td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: left;">Cargo por Transporte/Logística (Menos de ${rules.minPlatesFreeShipping} platos)</td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${Number(order.fee).toFixed(2)}</td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>S/ ${Number(order.fee).toFixed(2)}</b></td>
                 </tr>`;
             }
 
@@ -941,24 +1719,29 @@
             document.getElementById('pr-dep').innerText = Number(order.deposit).toFixed(2);
             document.getElementById('pr-bal').innerText = (order.total - order.deposit).toFixed(2);
             
-            document.getElementById('pr-yape').innerText = rules.yapePlim;
-            document.getElementById('pr-bcp').innerText = rules.bcpCta;
-            document.getElementById('pr-cci').innerText = rules.bcpCci || '-';
+            // Renderizar métodos de pago dinámicamente
+            let paymentHtml = '';
+            if(rules.yape) paymentHtml += `YAPE: <b>${rules.yape}</b><br/>`;
+            if(rules.plin) paymentHtml += `PLIN: <b>${rules.plin}</b><br/>`;
+            if(rules.banks && rules.banks.length > 0) {
+                rules.banks.forEach(b => {
+                    paymentHtml += `Cta ${b.name}: <b>${b.cta}</b> ${b.cci ? `(CCI: ${b.cci})` : ''}<br/>`;
+                });
+            }
+            if(paymentHtml === '') paymentHtml = '<i>A coordinar por interno.</i>';
+            document.getElementById('pr-payment-methods').innerHTML = paymentHtml;
             
-            document.getElementById('pr-sig-seller').innerText = rules.sellerName;
-            document.getElementById('pr-sig-sellerDni').innerText = rules.sellerDni;
+            document.getElementById('pr-sig-seller').innerText = rules.sellerName || '';
+            document.getElementById('pr-sig-sellerDni').innerText = rules.sellerDni || '';
             document.getElementById('pr-sig-client').innerText = order.clientName;
             document.getElementById('pr-sig-clientDni').innerText = order.clientDni;
         }
 
         function openPrintModal(id) {
-            const order = submissions.find(s => s.id === id);
-            populateContractModal(order);
-            
-            document.getElementById('modal-title').innerHTML = '<i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i> Documento Legal';
+            populateContractModal(submissions.find(s => s.id === id));
+            document.getElementById('modal-title').innerHTML = '<i data-lucide="printer" class="w-4 h-4 text-brand-600"></i> Documento Legal';
             document.getElementById('btn-modal-save').classList.add('hidden');
             document.getElementById('btn-modal-print').classList.remove('hidden');
-            
             document.getElementById('modal-contract').classList.remove('hidden');
             lucide.createIcons();
         }
@@ -967,13 +1750,9 @@
             document.getElementById('modal-contract').classList.add('hidden');
         }
 
-        // --- INICIO ---
-        switchView('admin-dashboard');
+        // --- ARRANQUE ---
+        initApp();
         
-        // Inicializar el número de teléfono en el Sidebar si está presente
-        if(document.getElementById('sidebar-phone')){
-           document.getElementById('sidebar-phone').innerText = rules.whatsappNumber;
-        }
     </script>
 </body>
 </html>
