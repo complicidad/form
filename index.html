@@ -841,14 +841,28 @@
 
         function isPlanActive() {
             if (!saasConfig.expirationDate) return false; 
+            let dStr = saasConfig.expirationDate;
+            if (dStr.includes('T')) dStr = dStr.split('T')[0]; // Limpiar formato de Google
+
             const today = new Date();
             today.setHours(0,0,0,0);
             
-            const parts = saasConfig.expirationDate.split('-');
-            if(parts.length !== 3) return false;
+            const parts = dStr.split('-');
+            if(parts.length < 3) return false;
             
-            const exp = new Date(parts[0], parts[1]-1, parts[2]);
+            const exp = new Date(parts[0], parts[1]-1, parseInt(parts[2]));
             return today <= exp;
+        }
+
+        function formatExpDateUI(dStr) {
+            if (!dStr) return 'Sin asignar';
+            if (dStr.includes('T')) dStr = dStr.split('T')[0]; // Limpiar formato de Google
+            const parts = dStr.split('-');
+            if(parts.length >= 3) {
+                const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                return `${parseInt(parts[2])} de ${meses[parseInt(parts[1])-1]}, ${parts[0]}`;
+            }
+            return dStr;
         }
 
         // --- SISTEMA DE LOGIN Y CUENTAS ---
@@ -884,7 +898,7 @@
                     if(document.getElementById('sidebar-plan-name')) document.getElementById('sidebar-plan-name').innerText = "Plan " + saasConfig.planName;
                     if(document.getElementById('billing-plan-name')) document.getElementById('billing-plan-name').innerText = saasConfig.planName;
                     if(document.getElementById('billing-exp-date')) {
-                        document.getElementById('billing-exp-date').innerText = saasConfig.expirationDate ? saasConfig.expirationDate : 'Sin asignar';
+                        document.getElementById('billing-exp-date').innerText = formatExpDateUI(saasConfig.expirationDate);
                         document.getElementById('billing-exp-date').className = active ? 'text-xl font-bold text-white' : 'text-xl font-bold text-rose-500';
                     }
                     if(document.getElementById('billing-price')) document.getElementById('billing-price').innerText = "S/ " + saasConfig.price;
@@ -1144,8 +1158,6 @@
                 let mobBil = document.getElementById('btn-mob-billing');
                 if(mobBil) mobBil.className = "flex flex-col items-center gap-1.5 p-2 text-brand-400 transition-colors flex-1 pb-2";
             }
-            
-            closeContractModal();
         }
 
         // --- DASHBOARD (TABLA) ---
