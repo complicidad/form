@@ -509,7 +509,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
                                     <div class="bg-navy-800/60 p-5 rounded-2xl border border-navy-700/50">
                                         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Fecha Límite</p>
-                                        <p class="text-xl font-bold text-white" id="billing-exp-date">Cargando...</p>
+                                        <p class="text-xl font-bold text-white" id="billing-exp-date">Sin asignar</p>
                                     </div>
                                     <div class="bg-navy-800/60 p-5 rounded-2xl border border-navy-700/50">
                                         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Costo de Renovación</p>
@@ -585,10 +585,10 @@
                                         <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                                     </div>
                                     <div class="space-y-1.5 col-span-1 sm:col-span-2">
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Razón Social / Nombre Comercial</label>
-                                        <div class="flex gap-3">
-                                            <input type="text" id="set-sellerRuc" placeholder="RUC (Opcional)" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Empresa / Razón Social</label>
+                                        <div class="flex flex-col sm:flex-row gap-3">
+                                            <input type="text" id="set-sellerRuc" placeholder="RUC (Opcional)" class="w-full sm:w-1/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-full sm:w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all font-bold">
                                         </div>
                                     </div>
                                 </div>
@@ -642,7 +642,7 @@
                                     <h3 class="text-xs font-black uppercase text-slate-800 tracking-widest flex items-center gap-2">
                                         <div class="bg-orange-50 p-1.5 rounded-md"><i data-lucide="book-open" class="w-4 h-4 text-orange-500"></i></div> Catálogo Base
                                     </h3>
-                                    <button type="button" onclick="addSettingProduct()" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-2 rounded-lg hover:bg-brand-100 transition-all">+ Plato</button>
+                                    <button type="button" onclick="addSettingProduct()" class="text-[10px] font-bold text-brand-600 bg-brand-50 px-3 py-2 rounded-lg hover:bg-brand-100 transition-all">+ Añadir Plato</button>
                                 </div>
                                 <div id="settings-products-container" class="space-y-3">
                                     <!-- Productos inyectados -->
@@ -835,7 +835,7 @@
 
         function formatExpDateUI(dStr) {
             if (!dStr) return 'Sin asignar';
-            let cleaned = dStr;
+            let cleaned = String(dStr);
             if (cleaned.includes('T')) cleaned = cleaned.split('T')[0];
             
             const parts = cleaned.split('-');
@@ -871,7 +871,7 @@
                 try {
                     result = JSON.parse(textResponse);
                 } catch (e) {
-                    throw new Error("Google devolvió datos inválidos.");
+                    throw new Error("Google devolvió HTML en vez de JSON. Revisa permisos de Apps Script.");
                 }
 
                 if (result.success) {
@@ -885,11 +885,11 @@
                         localStorage.setItem('nidos_rules', JSON.stringify(rules));
                     }
                     
-                    if (result.expirationDate) {
+                    if (result.expirationDate !== undefined) {
                         saasConfig.expirationDate = result.expirationDate;
                         sessionStorage.setItem('nidos_saas_exp', saasConfig.expirationDate);
                         
-                        // Actualizar UI del plan inmediatamente
+                        // Actualizar UI inmediatamente
                         const expEl = document.getElementById('billing-exp-date');
                         if (expEl) {
                             expEl.innerText = formatExpDateUI(saasConfig.expirationDate);
@@ -904,7 +904,7 @@
 
         function isPlanActive() {
             if (!saasConfig.expirationDate) return false; 
-            let dStr = saasConfig.expirationDate;
+            let dStr = String(saasConfig.expirationDate);
             if (dStr.includes('T')) dStr = dStr.split('T')[0];
 
             const today = new Date();
@@ -963,6 +963,9 @@
                             : 'text-rose-500 font-black flex items-center gap-1.5';
                     }
 
+                    const todayInput = document.getElementById('kitchen-date');
+                    if(todayInput) todayInput.value = new Date().toISOString().split('T')[0];
+                    
                     switchView('admin-dashboard');
                     document.getElementById('loader-dashboard').classList.add('hidden');
                 }
@@ -1013,7 +1016,8 @@
 
                 if (result.success) {
                     sessionStorage.setItem('nidos_auth_phone', user);
-                    if (result.expirationDate) {
+                    
+                    if (result.expirationDate !== undefined) {
                         saasConfig.expirationDate = result.expirationDate;
                         sessionStorage.setItem('nidos_saas_exp', saasConfig.expirationDate);
                     }
@@ -1119,6 +1123,17 @@
             initApp();
         }
 
+        // --- MÓDULO SAAS (FACTURACIÓN) ---
+        function renewSubscription() {
+            const msg = `Hola, quiero renovar mi suscripción del Sistema de Contratos (Plan ${saasConfig.planName}).`;
+            window.open(`https://wa.me/${saasConfig.ownerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function contactSupport() {
+            const msg = `Hola Soporte Latam5S, necesito ayuda con mi Sistema de Contratos.`;
+            window.open(`https://wa.me/${saasConfig.ownerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
         // --- ESTADOS TEMPORALES ---
         let adminServiceType = 'delivery';
         let currentItems = []; 
@@ -1197,6 +1212,19 @@
         }
 
         // --- DASHBOARD ---
+        function updateSummaryCard() {
+            let countDelivery = 0; let countOnsite = 0; let countPickup = 0;
+            submissions.forEach(s => {
+                if(s.serviceType === 'delivery') countDelivery++;
+                if(s.serviceType === 'onsite') countOnsite++;
+                if(s.serviceType === 'pickup') countPickup++;
+            });
+            if(document.getElementById('sum-delivery')) document.getElementById('sum-delivery').innerText = countDelivery;
+            if(document.getElementById('sum-onsite')) document.getElementById('sum-onsite').innerText = countOnsite;
+            if(document.getElementById('sum-pickup')) document.getElementById('sum-pickup').innerText = countPickup;
+            if(document.getElementById('sum-total')) document.getElementById('sum-total').innerText = submissions.length;
+        }
+
         function renderDashboard() {
             updateSummaryCard();
             let tbody = '';
@@ -1212,21 +1240,40 @@
         async function updateStatus(id, newStatus) {
             const orderIndex = submissions.findIndex(s => s.id === id);
             if(orderIndex === -1) return;
+            const oldStatus = submissions[orderIndex].status;
             submissions[orderIndex].status = newStatus;
+            
             renderDashboard();
+
+            const phone = sessionStorage.getItem('nidos_auth_phone');
             try {
-                const phone = sessionStorage.getItem('nidos_auth_phone');
-                await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'updateStatus', phone: phone, orderId: id, status: newStatus }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-            } catch (err) { console.error(err); }
+                await fetch(GOOGLE_API_URL, {
+                    redirect: "follow",
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'updateStatus', phone: phone, orderId: id, status: newStatus }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+            } catch (err) {
+                console.error(err);
+                submissions[orderIndex].status = oldStatus;
+                renderDashboard();
+            }
         }
 
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
+            let itemsTxt = s.items.map(i => `${i.qty} ${i.product}`).join(' y ');
+            let paymentMsg = '';
+            if(rules.yape) paymentMsg += `📲 *YAPE:* ${rules.yape}\n`;
+            if(rules.plin) paymentMsg += `📲 *PLIN:* ${rules.plin}\n`;
+            if(rules.banks && rules.banks.length > 0) rules.banks.forEach(b => { paymentMsg += `🏦 *Cta ${b.name}:* ${b.cta}\n`; });
+            const msg = `Hola *${s.clientName}*, aquí adjunto tu *CONTRATO #${s.id}*.\n\nResumen: ${itemsTxt}\nTotal: S/ ${Number(s.total).toFixed(2)}\nAdelanto: S/ ${Number(s.deposit).toFixed(2)}\n\nCuentas:\n${paymentMsg}`;
             let phone = s.clientPhone.replace(/\D/g, '');
             if(phone.length === 9) phone = '51' + phone;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent('Hola, envío tu contrato.')}`, '_blank');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        // --- COCINA DASHBOARD ---
         function renderKitchen() {
             const targetDate = document.getElementById('kitchen-date').value;
             if(!targetDate) return;
@@ -1234,8 +1281,18 @@
             let summaryHtml = '';
             let totals = {};
             dayOrders.forEach(o => o.items.forEach(i => { totals[i.product] = (totals[i.product] || 0) + Number(i.qty); }));
-            Object.keys(totals).forEach(p => { summaryHtml += `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-soft"><p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">${p}</p><div class="text-3xl font-black text-brand-600">${totals[p]}</div></div>`; });
-            document.getElementById('kitchen-summary').innerHTML = summaryHtml || '<p class="text-slate-400 italic">Día sin pedidos.</p>';
+            
+            Object.keys(totals).forEach(p => {
+                summaryHtml += `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-soft"><p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">${p}</p><div class="text-3xl font-black text-brand-600">${totals[p]}</div></div>`;
+            });
+            document.getElementById('kitchen-summary').innerHTML = summaryHtml || '<p class="text-slate-400">Sin pedidos.</p>';
+
+            let tbody = '';
+            dayOrders.forEach(s => {
+                tbody += `<tr class="border-b border-slate-100"><td class="px-8 py-4 font-black">${s.startTime}</td><td class="px-8 py-4 font-bold text-sm">${s.clientName}</td><td class="px-8 py-4 text-xs">${s.items.map(i => i.qty + ' ' + i.product).join(', ')}</td><td class="px-8 py-4"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100">${s.status}</span></td></tr>`;
+            });
+            document.getElementById('kitchen-table-body').innerHTML = tbody || '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Día sin programaciones.</td></tr>';
+            lucide.createIcons();
         }
 
         // --- NUEVO CONTRATO ---
@@ -1257,32 +1314,43 @@
             let html = '';
             currentItems.forEach(item => {
                 let opts = rules.products.map(p => `<option value="${p.name}" ${item.product===p.name?'selected':''}>${p.name}</option>`).join('');
-                html += `<div class="grid grid-cols-12 gap-2 mb-3 items-center bg-slate-50 p-3 rounded-2xl">
-                    <div class="col-span-12 md:col-span-6"><select onchange="updateCreateItem(${item.id},'product',this.value)" class="w-full p-3 rounded-xl border border-slate-200">${opts}</select></div>
-                    <div class="col-span-5 md:col-span-2"><input type="number" oninput="updateCreateItem(${item.id},'qty',this.value);validateCreateForm()" value="${item.qty}" placeholder="Cant." class="w-full p-3 rounded-xl border border-slate-200 text-center font-bold"></div>
-                    <div class="col-span-5 md:col-span-3 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" oninput="updateCreateItem(${item.id},'price',this.value)" value="${item.price}" class="w-full pl-8 p-3 rounded-xl border border-slate-200"></div>
+                html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
+                    <div class="col-span-12 md:col-span-6"><select onchange="updateCreateItem(${item.id},'product',this.value)" class="w-full p-3 rounded-xl border">${opts}</select></div>
+                    <div class="col-span-5 md:col-span-2"><input type="number" oninput="updateCreateItem(${item.id},'qty',this.value);validateCreateForm()" value="${item.qty}" placeholder="Cant." class="w-full p-3 rounded-xl border text-center font-bold"></div>
+                    <div class="col-span-5 md:col-span-3 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" oninput="updateCreateItem(${item.id},'price',this.value)" value="${item.price}" class="w-full pl-8 p-3 rounded-xl border"></div>
                     <div class="col-span-2 md:col-span-1 flex justify-center"><button onclick="removeCreateItem(${item.id})" class="text-rose-500"><i data-lucide="trash-2"></i></button></div>
                 </div>`;
             });
             document.getElementById('items-container').innerHTML = html;
-            updatePricing(); lucide.createIcons();
+            updatePricing();
+            lucide.createIcons();
         }
 
         function resetCreateForm() {
             document.getElementById('adm-name').value = '';
             document.getElementById('adm-dni').value = '';
             document.getElementById('adm-phone').value = '';
+            document.getElementById('adm-location').value = '';
+            document.getElementById('adm-ref').value = '';
+            
+            // Establecemos la fecha y la hora actual local del usuario al abrir el formulario
             const now = new Date();
-            document.getElementById('adm-date').value = now.toISOString().split('T')[0];
-            document.getElementById('adm-time').value = now.toTimeString().split(' ')[0].substring(0, 5);
-            currentItems = []; isDepositManuallyEdited = false;
+            const localDate = now.toLocaleDateString('en-CA'); // Format YYYY-MM-DD
+            const localTime = now.toTimeString().substring(0,5); // Format HH:MM
+            document.getElementById('adm-date').value = localDate;
+            document.getElementById('adm-time').value = localTime;
+            
+            currentItems = [];
+            isDepositManuallyEdited = false;
             if (rules.products.length > 0) addItem();
             setAdminServiceType('delivery');
         }
 
         function setAdminServiceType(t) {
             adminServiceType = t;
-            ['pickup', 'delivery', 'onsite'].forEach(id => { document.getElementById('btn-adm-'+id).className = (id===t) ? "flex-1 py-3 rounded-xl bg-white shadow-md text-brand-600 font-bold uppercase text-[11px]" : "flex-1 py-3 rounded-xl text-slate-500 font-bold uppercase text-[11px]"; });
+            ['pickup', 'delivery', 'onsite'].forEach(id => {
+                document.getElementById('btn-adm-'+id).className = (id===t) ? "flex-1 py-3 rounded-xl bg-white shadow-md text-brand-600 font-bold uppercase text-[11px]" : "flex-1 py-3 rounded-xl text-slate-500 font-bold uppercase text-[11px]";
+            });
             document.getElementById('adm-location-fields').className = (t==='pickup') ? "hidden" : "space-y-4";
             updatePricing();
         }
@@ -1291,7 +1359,9 @@
             let sub = 0; let qty = 0;
             currentItems.forEach(i => { sub += (Number(i.qty)*Number(i.price)); qty += Number(i.qty); });
             let fee = (adminServiceType === 'delivery' && qty > 0 && qty < rules.minPlatesFreeShipping) ? rules.deliveryFee : 0;
-            let total = sub + fee; let dep = total * (rules.depositPercent / 100);
+            let total = sub + fee;
+            let dep = total * ((rules.depositPercent || 0) / 100);
+            
             document.getElementById('preview-total-qty').innerText = qty;
             document.getElementById('preview-subtotal').innerText = sub.toFixed(2);
             document.getElementById('preview-total').innerText = total.toFixed(2);
@@ -1316,24 +1386,31 @@
             const btn = document.getElementById('btn-generate');
             btn.disabled = true;
             try {
-                const order = { id: generateOrderId(), clientName: document.getElementById('adm-name').value, clientDni: document.getElementById('adm-dni').value || '-', clientPhone: document.getElementById('adm-phone').value || '-', serviceType: adminServiceType, eventDate: document.getElementById('adm-date').value, startTime: document.getElementById('adm-time').value, items: currentItems.filter(i => Number(i.qty) > 0), total: Number(document.getElementById('preview-total').innerText), deposit: Number(document.getElementById('adm-deposit').value), submittedAt: new Date().toLocaleDateString(), status: 'Emitido' };
+                const order = {
+                    id: generateOrderId(), clientName: document.getElementById('adm-name').value, clientDni: document.getElementById('adm-dni').value || '-',
+                    clientPhone: document.getElementById('adm-phone').value || '-', serviceType: adminServiceType,
+                    eventDate: document.getElementById('adm-date').value, startTime: document.getElementById('adm-time').value,
+                    items: currentItems.filter(i => Number(i.qty) > 0), total: Number(document.getElementById('preview-total').innerText),
+                    deposit: Number(document.getElementById('adm-deposit').value), submittedAt: new Date().toLocaleDateString(), status: 'Emitido'
+                };
                 const phone = sessionStorage.getItem('nidos_auth_phone');
-                await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'saveOrder', phone: phone, order: order }) });
-                submissions.unshift(order); switchView('success');
+                const res = await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'saveOrder', phone: phone, order: order }) });
+                const result = await res.json();
+                if(result.success) { submissions.unshift(order); switchView('success'); }
             } catch (err) { console.error(err); }
             btn.disabled = false;
         }
 
-        // --- AJUSTES Y CATÁLOGO ---
+        // --- AJUSTES ---
         function loadSettings() {
             document.getElementById('set-sellerName').value = rules.sellerName || '';
             document.getElementById('set-sellerDni').value = rules.sellerDni || '';
             document.getElementById('set-sellerBusiness').value = rules.sellerBusiness || '';
             document.getElementById('set-yape').value = rules.yape || '';
             document.getElementById('set-plin').value = rules.plin || '';
-            document.getElementById('set-deposit-percent').value = rules.depositPercent || 40;
-            tempSettingsProducts = JSON.parse(JSON.stringify(rules.products));
-            tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks));
+            document.getElementById('set-deposit-percent').value = rules.depositPercent !== undefined ? rules.depositPercent : 40;
+            tempSettingsProducts = JSON.parse(JSON.stringify(rules.products || []));
+            tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks || []));
             renderSettingsProducts(); renderSettingsBanks();
         }
 
@@ -1355,7 +1432,7 @@
                 html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
                     <div class="col-span-12 md:col-span-7"><input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id},'name',this.value)" class="w-full p-3 rounded-xl border border-slate-200" placeholder="Nombre plato"></div>
                     <div class="col-span-9 md:col-span-4 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" value="${p.price}" oninput="updateSettingProduct(${p.id},'price',this.value)" class="w-full pl-8 p-3 rounded-xl border border-slate-200"></div>
-                    <div class="col-span-3 md:col-span-1 flex justify-center"><button onclick="removeSettingProduct(${p.id})"><i data-lucide="trash-2" class="text-rose-500"></i></button></div>
+                    <div class="col-span-3 md:col-span-1 flex justify-center"><button type="button" onclick="removeSettingProduct(${p.id})"><i data-lucide="trash-2" class="text-rose-500"></i></button></div>
                 </div>`;
             });
             document.getElementById('settings-products-container').innerHTML = html || '<p class="text-xs italic text-slate-400">Añade platos.</p>';
@@ -1368,7 +1445,14 @@
         function renderSettingsBanks() {
             let html = '';
             tempSettingsBanks.forEach(b => {
-                html += `<div class="bg-slate-50 p-3 rounded-2xl mb-2 flex gap-2"><input type="text" placeholder="Banco" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="flex-1 p-2 rounded-lg border text-xs"><input type="text" placeholder="Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="flex-1 p-2 rounded-lg border text-xs"><button onclick="removeSettingBank(${b.id})" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+                html += `<div class="bg-slate-50 p-3 rounded-2xl mb-2 flex flex-col md:flex-row gap-2">
+                    <input type="text" placeholder="Banco (Ej: BCP)" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="flex-1 p-3 rounded-lg border border-slate-200 text-sm">
+                    <input type="text" placeholder="Nº Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="flex-1 p-3 rounded-lg border border-slate-200 text-sm">
+                    <div class="flex flex-1 gap-2">
+                        <input type="text" placeholder="CCI (Opcional)" value="${b.cci}" oninput="updateSettingBank(${b.id},'cci',this.value)" class="w-full p-3 rounded-lg border border-slate-200 text-sm">
+                        <button type="button" onclick="removeSettingBank(${b.id})" class="text-rose-500 bg-white border border-slate-200 p-3 rounded-lg"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>
+                </div>`;
             });
             document.getElementById('settings-banks-container').innerHTML = html || '<p class="text-xs italic text-slate-400">Añade bancos.</p>';
             lucide.createIcons();
@@ -1389,6 +1473,7 @@
             btn.disabled = false; switchView('admin-dashboard');
         }
 
+        // --- IMPRESIÓN ---
         function printContractDirectly(id) {
             let o = submissions.find(x => x.id === id);
             document.getElementById('pr-date').innerText = o.submittedAt;
@@ -1410,18 +1495,10 @@
             if(rules.plin) pay += `PLIN: ${rules.plin}<br/>`;
             rules.banks.forEach(b => { pay += `${b.name}: ${b.cta}<br/>`; });
             document.getElementById('pr-payment-methods').innerHTML = pay || 'A coordinar.';
+
             const container = document.getElementById('modal-contract');
             container.classList.remove('hidden');
             setTimeout(() => { window.print(); container.classList.add('hidden'); }, 150);
-        }
-
-        function updateSummaryCard() {
-            let c = { delivery: 0, onsite: 0, pickup: 0 };
-            submissions.forEach(s => { if(c[s.serviceType] !== undefined) c[s.serviceType]++; });
-            if(document.getElementById('sum-delivery')) document.getElementById('sum-delivery').innerText = c.delivery;
-            if(document.getElementById('sum-onsite')) document.getElementById('sum-onsite').innerText = c.onsite;
-            if(document.getElementById('sum-pickup')) document.getElementById('sum-pickup').innerText = c.pickup;
-            if(document.getElementById('sum-total')) document.getElementById('sum-total').innerText = submissions.length;
         }
 
         initApp();
