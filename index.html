@@ -835,17 +835,13 @@
 
         function formatExpDateUI(dStr) {
             if (!dStr) return 'Sin asignar';
-            // Limpieza robusta de la fecha enviada por Google
             let cleaned = dStr;
             if (cleaned.includes('T')) cleaned = cleaned.split('T')[0];
             
             const parts = cleaned.split('-');
             if(parts.length >= 3) {
                 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-                const dia = parseInt(parts[2]);
-                const mes = meses[parseInt(parts[1])-1];
-                const anio = parts[0];
-                return `${dia} de ${mes}, ${anio}`;
+                return `${parseInt(parts[2])} de ${meses[parseInt(parts[1])-1]}, ${parts[0]}`;
             }
             return cleaned;
         }
@@ -875,7 +871,7 @@
                 try {
                     result = JSON.parse(textResponse);
                 } catch (e) {
-                    throw new Error("Google devolvió HTML en vez de JSON.");
+                    throw new Error("Google devolvió datos inválidos.");
                 }
 
                 if (result.success) {
@@ -889,11 +885,11 @@
                         localStorage.setItem('nidos_rules', JSON.stringify(rules));
                     }
                     
-                    if (result.expirationDate !== undefined) {
+                    if (result.expirationDate) {
                         saasConfig.expirationDate = result.expirationDate;
                         sessionStorage.setItem('nidos_saas_exp', saasConfig.expirationDate);
                         
-                        // Actualizar UI inmediatamente
+                        // Actualizar UI del plan inmediatamente
                         const expEl = document.getElementById('billing-exp-date');
                         if (expEl) {
                             expEl.innerText = formatExpDateUI(saasConfig.expirationDate);
@@ -949,7 +945,6 @@
                     if(document.getElementById('sidebar-phone')) document.getElementById('sidebar-phone').innerText = phone;
                     if(document.getElementById('sidebar-company-name')) document.getElementById('sidebar-company-name').innerText = rules.sellerBusiness;
                     
-                    // Actualizar UI del SaaS
                     const active = isPlanActive();
                     if(document.getElementById('sidebar-plan-name')) document.getElementById('sidebar-plan-name').innerText = "Plan " + saasConfig.planName;
                     if(document.getElementById('billing-plan-name')) document.getElementById('billing-plan-name').innerText = saasConfig.planName;
@@ -968,9 +963,6 @@
                             : 'text-rose-500 font-black flex items-center gap-1.5';
                     }
 
-                    const todayInput = document.getElementById('kitchen-date');
-                    if(todayInput) todayInput.value = new Date().toISOString().split('T')[0];
-                    
                     switchView('admin-dashboard');
                     document.getElementById('loader-dashboard').classList.add('hidden');
                 }
@@ -1021,8 +1013,7 @@
 
                 if (result.success) {
                     sessionStorage.setItem('nidos_auth_phone', user);
-                    
-                    if (result.expirationDate !== undefined) {
+                    if (result.expirationDate) {
                         saasConfig.expirationDate = result.expirationDate;
                         sessionStorage.setItem('nidos_saas_exp', saasConfig.expirationDate);
                     }
@@ -1128,17 +1119,6 @@
             initApp();
         }
 
-        // --- MÓDULO SAAS (FACTURACIÓN) ---
-        function renewSubscription() {
-            const msg = `Hola, quiero renovar mi suscripción del Sistema de Contratos (Plan ${saasConfig.planName}).`;
-            window.open(`https://wa.me/${saasConfig.ownerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        function contactSupport() {
-            const msg = `Hola Soporte Latam5S, necesito ayuda con mi Sistema de Contratos.`;
-            window.open(`https://wa.me/${saasConfig.ownerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
         // --- ESTADOS TEMPORALES ---
         let adminServiceType = 'delivery';
         let currentItems = []; 
@@ -1216,71 +1196,14 @@
             }
         }
 
-        // --- DASHBOARD (TABLA) ---
-        function updateSummaryCard() {
-            let countDelivery = 0; let countOnsite = 0; let countPickup = 0;
-            submissions.forEach(s => {
-                if(s.serviceType === 'delivery') countDelivery++;
-                if(s.serviceType === 'onsite') countOnsite++;
-                if(s.serviceType === 'pickup') countPickup++;
-            });
-            if(document.getElementById('sum-delivery')) document.getElementById('sum-delivery').innerText = countDelivery;
-            if(document.getElementById('sum-onsite')) document.getElementById('sum-onsite').innerText = countOnsite;
-            if(document.getElementById('sum-pickup')) document.getElementById('sum-pickup').innerText = countPickup;
-            if(document.getElementById('sum-total')) document.getElementById('sum-total').innerText = submissions.length;
-        }
-
+        // --- DASHBOARD ---
         function renderDashboard() {
             updateSummaryCard();
             let tbody = '';
-            
-            if(submissions.length === 0) {
-                 tbody = `<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">No hay contratos registrados.</td></tr>`;
-            }
-
+            if(submissions.length === 0) tbody = `<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">No hay contratos registrados.</td></tr>`;
             submissions.forEach(s => {
-                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                 s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                 s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                 'bg-slate-100 text-slate-700 border-slate-200';
-
-                let itemsDesc = s.items.map(i => `${i.qty} ${i.product}`).join(', ');
-
-                tbody += `
-                    <tr class="hover:bg-slate-50/80 transition-colors group border-b border-slate-100/50">
-                        <td class="px-8 py-5">
-                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border outline-none cursor-pointer transition-all ${badgeClass}">
-                                <option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option>
-                                <option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option>
-                                <option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option>
-                                <option value="Entregado" ${s.status==='Entregado'?'selected':''}>Entregado</option>
-                            </select>
-                            <div class="font-black text-slate-300 mt-2 ml-1 text-xs tracking-wider">#${s.id}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="font-bold text-slate-800 text-sm line-clamp-1">${s.clientName}</div>
-                            <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide">DNI: ${s.clientDni}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="text-xs font-black text-slate-600 uppercase tracking-wide">${s.serviceType}</div>
-                            <div class="text-[11px] font-bold text-brand-600 mt-1 truncate max-w-[150px]">${itemsDesc}</div>
-                        </td>
-                        <td class="px-8 py-5 whitespace-nowrap">
-                            <div class="font-black text-slate-800 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
-                            <div class="text-[10px] font-bold text-slate-500 mt-1">Seña: S/ ${Number(s.deposit).toFixed(2)}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="flex items-center justify-center gap-3">
-                                <button onclick="printContractDirectly(${s.id})" class="bg-slate-100 text-slate-600 p-2.5 rounded-xl hover:bg-slate-200 transition-all border border-slate-200 shadow-sm active:scale-95">
-                                    <i data-lucide="printer" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="shareWhatsApp(${s.id})" class="bg-emerald-50 text-emerald-600 border border-emerald-200 p-2.5 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm active:scale-95">
-                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200' : s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200' : s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-700 border-slate-200';
+                tbody += `<tr class="hover:bg-slate-50/80 group border-b border-slate-100/50"><td class="px-8 py-5"><select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase border outline-none ${badgeClass}"><option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option><option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option><option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option><option value="Entregado" ${s.status==='Entregado'?'selected':''}>Entregado</option></select><div class="font-black text-slate-300 mt-2 ml-1 text-xs tracking-wider">#${s.id}</div></td><td class="px-8 py-5"><div class="font-bold text-slate-800 text-sm">${s.clientName}</div><div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide">DNI: ${s.clientDni}</div></td><td class="px-8 py-5"><div class="text-xs font-black text-slate-600 uppercase tracking-wide">${s.serviceType}</div></td><td class="px-8 py-5 whitespace-nowrap"><div class="font-black text-slate-800 text-sm">S/ ${Number(s.total).toFixed(2)}</div></td><td class="px-8 py-5 flex items-center justify-center gap-3"><button onclick="printContractDirectly(${s.id})" class="bg-slate-100 p-2.5 rounded-xl border border-slate-200"><i data-lucide="printer" class="w-4 h-4 text-slate-600"></i></button><button onclick="shareWhatsApp(${s.id})" class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200"><i data-lucide="message-circle" class="w-4 h-4 text-emerald-600"></i></button></td></tr>`;
             });
             document.getElementById('table-body').innerHTML = tbody;
             lucide.createIcons();
@@ -1289,40 +1212,21 @@
         async function updateStatus(id, newStatus) {
             const orderIndex = submissions.findIndex(s => s.id === id);
             if(orderIndex === -1) return;
-            const oldStatus = submissions[orderIndex].status;
             submissions[orderIndex].status = newStatus;
-            
             renderDashboard();
-
-            const phone = sessionStorage.getItem('nidos_auth_phone');
             try {
-                await fetch(GOOGLE_API_URL, {
-                    redirect: "follow",
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'updateStatus', phone: phone, orderId: id, status: newStatus }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-            } catch (err) {
-                console.error(err);
-                submissions[orderIndex].status = oldStatus;
-                renderDashboard();
-            }
+                const phone = sessionStorage.getItem('nidos_auth_phone');
+                await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'updateStatus', phone: phone, orderId: id, status: newStatus }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+            } catch (err) { console.error(err); }
         }
 
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
-            let itemsTxt = s.items.map(i => `${i.qty} ${i.product}`).join(' y ');
-            let paymentMsg = '';
-            if(rules.yape) paymentMsg += `📲 *YAPE:* ${rules.yape}\n`;
-            if(rules.plin) paymentMsg += `📲 *PLIN:* ${rules.plin}\n`;
-            if(rules.banks && rules.banks.length > 0) rules.banks.forEach(b => { paymentMsg += `🏦 *Cta ${b.name}:* ${b.cta}\n`; });
-            const msg = `Hola *${s.clientName}*, aquí adjunto tu *CONTRATO #${s.id}*.\n\nResumen: ${itemsTxt}\nTotal: S/ ${Number(s.total).toFixed(2)}\nAdelanto: S/ ${Number(s.deposit).toFixed(2)}\n\nCuentas:\n${paymentMsg}`;
             let phone = s.clientPhone.replace(/\D/g, '');
             if(phone.length === 9) phone = '51' + phone;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent('Hola, envío tu contrato.')}`, '_blank');
         }
 
-        // --- COCINA DASHBOARD ---
         function renderKitchen() {
             const targetDate = document.getElementById('kitchen-date').value;
             if(!targetDate) return;
@@ -1330,32 +1234,17 @@
             let summaryHtml = '';
             let totals = {};
             dayOrders.forEach(o => o.items.forEach(i => { totals[i.product] = (totals[i.product] || 0) + Number(i.qty); }));
-            
-            Object.keys(totals).forEach(p => {
-                summaryHtml += `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-soft"><p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">${p}</p><div class="text-3xl font-black text-brand-600">${totals[p]}</div></div>`;
-            });
-            document.getElementById('kitchen-summary').innerHTML = summaryHtml || '<p class="text-slate-400">Sin pedidos.</p>';
-
-            let tbody = '';
-            dayOrders.forEach(s => {
-                tbody += `<tr class="border-b border-slate-100"><td class="px-8 py-4 font-black">${s.startTime}</td><td class="px-8 py-4 font-bold text-sm">${s.clientName}</td><td class="px-8 py-4 text-xs">${s.items.map(i => i.qty + ' ' + i.product).join(', ')}</td><td class="px-8 py-4"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100">${s.status}</span></td></tr>`;
-            });
-            document.getElementById('kitchen-table-body').innerHTML = tbody || '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Día sin programaciones.</td></tr>';
-            lucide.createIcons();
+            Object.keys(totals).forEach(p => { summaryHtml += `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-soft"><p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">${p}</p><div class="text-3xl font-black text-brand-600">${totals[p]}</div></div>`; });
+            document.getElementById('kitchen-summary').innerHTML = summaryHtml || '<p class="text-slate-400 italic">Día sin pedidos.</p>';
         }
 
-        // --- ADMIN CREAR ---
+        // --- NUEVO CONTRATO ---
         function addItem() {
             if (!rules.products || rules.products.length === 0) return alert("Configura platos en Ajustes.");
             currentItems.push({ id: generateId(), product: rules.products[0].name, qty: '', price: rules.products[0].price });
             renderCreateItems();
         }
-
-        function removeCreateItem(id) {
-            currentItems = currentItems.filter(i => i.id !== id);
-            renderCreateItems();
-        }
-
+        function removeCreateItem(id) { currentItems = currentItems.filter(i => i.id !== id); renderCreateItems(); }
         function updateCreateItem(id, field, value) {
             const item = currentItems.find(i => i.id === id);
             if(item) {
@@ -1364,21 +1253,19 @@
                 renderCreateItems();
             }
         }
-
         function renderCreateItems() {
             let html = '';
             currentItems.forEach(item => {
                 let opts = rules.products.map(p => `<option value="${p.name}" ${item.product===p.name?'selected':''}>${p.name}</option>`).join('');
-                html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
-                    <div class="col-span-12 md:col-span-6"><select onchange="updateCreateItem(${item.id},'product',this.value)" class="w-full p-3 rounded-xl border">${opts}</select></div>
-                    <div class="col-span-5 md:col-span-2"><input type="number" oninput="updateCreateItem(${item.id},'qty',this.value);validateCreateForm()" value="${item.qty}" placeholder="Cant." class="w-full p-3 rounded-xl border text-center font-bold"></div>
-                    <div class="col-span-5 md:col-span-3 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" oninput="updateCreateItem(${item.id},'price',this.value)" value="${item.price}" class="w-full pl-8 p-3 rounded-xl border"></div>
+                html += `<div class="grid grid-cols-12 gap-2 mb-3 items-center bg-slate-50 p-3 rounded-2xl">
+                    <div class="col-span-12 md:col-span-6"><select onchange="updateCreateItem(${item.id},'product',this.value)" class="w-full p-3 rounded-xl border border-slate-200">${opts}</select></div>
+                    <div class="col-span-5 md:col-span-2"><input type="number" oninput="updateCreateItem(${item.id},'qty',this.value);validateCreateForm()" value="${item.qty}" placeholder="Cant." class="w-full p-3 rounded-xl border border-slate-200 text-center font-bold"></div>
+                    <div class="col-span-5 md:col-span-3 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" oninput="updateCreateItem(${item.id},'price',this.value)" value="${item.price}" class="w-full pl-8 p-3 rounded-xl border border-slate-200"></div>
                     <div class="col-span-2 md:col-span-1 flex justify-center"><button onclick="removeCreateItem(${item.id})" class="text-rose-500"><i data-lucide="trash-2"></i></button></div>
                 </div>`;
             });
             document.getElementById('items-container').innerHTML = html;
-            updatePricing();
-            lucide.createIcons();
+            updatePricing(); lucide.createIcons();
         }
 
         function resetCreateForm() {
@@ -1388,17 +1275,14 @@
             const now = new Date();
             document.getElementById('adm-date').value = now.toISOString().split('T')[0];
             document.getElementById('adm-time').value = now.toTimeString().split(' ')[0].substring(0, 5);
-            currentItems = [];
-            isDepositManuallyEdited = false;
+            currentItems = []; isDepositManuallyEdited = false;
             if (rules.products.length > 0) addItem();
             setAdminServiceType('delivery');
         }
 
         function setAdminServiceType(t) {
             adminServiceType = t;
-            ['pickup', 'delivery', 'onsite'].forEach(id => {
-                document.getElementById('btn-adm-'+id).className = (id===t) ? "flex-1 py-3 rounded-xl bg-white shadow-md text-brand-600 font-bold uppercase text-[11px]" : "flex-1 py-3 rounded-xl text-slate-500 font-bold uppercase text-[11px]";
-            });
+            ['pickup', 'delivery', 'onsite'].forEach(id => { document.getElementById('btn-adm-'+id).className = (id===t) ? "flex-1 py-3 rounded-xl bg-white shadow-md text-brand-600 font-bold uppercase text-[11px]" : "flex-1 py-3 rounded-xl text-slate-500 font-bold uppercase text-[11px]"; });
             document.getElementById('adm-location-fields').className = (t==='pickup') ? "hidden" : "space-y-4";
             updatePricing();
         }
@@ -1407,9 +1291,7 @@
             let sub = 0; let qty = 0;
             currentItems.forEach(i => { sub += (Number(i.qty)*Number(i.price)); qty += Number(i.qty); });
             let fee = (adminServiceType === 'delivery' && qty > 0 && qty < rules.minPlatesFreeShipping) ? rules.deliveryFee : 0;
-            let total = sub + fee;
-            let dep = total * (rules.depositPercent / 100);
-            
+            let total = sub + fee; let dep = total * (rules.depositPercent / 100);
             document.getElementById('preview-total-qty').innerText = qty;
             document.getElementById('preview-subtotal').innerText = sub.toFixed(2);
             document.getElementById('preview-total').innerText = total.toFixed(2);
@@ -1434,22 +1316,15 @@
             const btn = document.getElementById('btn-generate');
             btn.disabled = true;
             try {
-                const order = {
-                    id: generateOrderId(), clientName: document.getElementById('adm-name').value, clientDni: document.getElementById('adm-dni').value || '-',
-                    clientPhone: document.getElementById('adm-phone').value || '-', serviceType: adminServiceType,
-                    eventDate: document.getElementById('adm-date').value, startTime: document.getElementById('adm-time').value,
-                    items: currentItems.filter(i => Number(i.qty) > 0), total: Number(document.getElementById('preview-total').innerText),
-                    deposit: Number(document.getElementById('adm-deposit').value), submittedAt: new Date().toLocaleDateString(), status: 'Emitido'
-                };
+                const order = { id: generateOrderId(), clientName: document.getElementById('adm-name').value, clientDni: document.getElementById('adm-dni').value || '-', clientPhone: document.getElementById('adm-phone').value || '-', serviceType: adminServiceType, eventDate: document.getElementById('adm-date').value, startTime: document.getElementById('adm-time').value, items: currentItems.filter(i => Number(i.qty) > 0), total: Number(document.getElementById('preview-total').innerText), deposit: Number(document.getElementById('adm-deposit').value), submittedAt: new Date().toLocaleDateString(), status: 'Emitido' };
                 const phone = sessionStorage.getItem('nidos_auth_phone');
-                const res = await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'saveOrder', phone: phone, order: order }) });
-                const result = await res.json();
-                if(result.success) { submissions.unshift(order); switchView('success'); }
+                await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'saveOrder', phone: phone, order: order }) });
+                submissions.unshift(order); switchView('success');
             } catch (err) { console.error(err); }
             btn.disabled = false;
         }
 
-        // --- AJUSTES ---
+        // --- AJUSTES Y CATÁLOGO ---
         function loadSettings() {
             document.getElementById('set-sellerName').value = rules.sellerName || '';
             document.getElementById('set-sellerDni').value = rules.sellerDni || '';
@@ -1459,38 +1334,45 @@
             document.getElementById('set-deposit-percent').value = rules.depositPercent || 40;
             tempSettingsProducts = JSON.parse(JSON.stringify(rules.products));
             tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks));
-            renderSettingsProducts();
-            renderSettingsBanks();
+            renderSettingsProducts(); renderSettingsBanks();
         }
 
+        function addSettingProduct() {
+            tempSettingsProducts.push({ id: generateId(), name: '', price: 0 });
+            renderSettingsProducts();
+        }
+        function updateSettingProduct(id, field, value) {
+            let p = tempSettingsProducts.find(x => x.id === id);
+            if(p) p[field] = field === 'price' ? Number(value) || 0 : value;
+        }
+        function removeSettingProduct(id) {
+            tempSettingsProducts = tempSettingsProducts.filter(x => x.id !== id);
+            renderSettingsProducts();
+        }
         function renderSettingsProducts() {
             let html = '';
             tempSettingsProducts.forEach(p => {
                 html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
-                    <div class="col-span-12 md:col-span-7"><input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id},'name',this.value)" class="w-full p-3 rounded-xl border"></div>
-                    <div class="col-span-9 md:col-span-4 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" value="${p.price}" oninput="updateSettingProduct(${p.id},'price',this.value)" class="w-full pl-8 p-3 rounded-xl border"></div>
-                    <div class="col-span-3 md:col-span-1 flex justify-center"><button onclick="removeSettingProduct(${p.id})"><i data-lucide="trash-2"></i></button></div>
+                    <div class="col-span-12 md:col-span-7"><input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id},'name',this.value)" class="w-full p-3 rounded-xl border border-slate-200" placeholder="Nombre plato"></div>
+                    <div class="col-span-9 md:col-span-4 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" value="${p.price}" oninput="updateSettingProduct(${p.id},'price',this.value)" class="w-full pl-8 p-3 rounded-xl border border-slate-200"></div>
+                    <div class="col-span-3 md:col-span-1 flex justify-center"><button onclick="removeSettingProduct(${p.id})"><i data-lucide="trash-2" class="text-rose-500"></i></button></div>
                 </div>`;
             });
-            document.getElementById('settings-products-container').innerHTML = html || '<p class="text-xs italic">Añade platos.</p>';
+            document.getElementById('settings-products-container').innerHTML = html || '<p class="text-xs italic text-slate-400">Añade platos.</p>';
             lucide.createIcons();
         }
 
         function addSettingBank() { tempSettingsBanks.push({ id: generateId(), name: '', cta: '', cci: '' }); renderSettingsBanks(); }
+        function updateSettingBank(id, f, v) { let b = tempSettingsBanks.find(x => x.id === id); if(b) b[f] = v; }
+        function removeSettingBank(id) { tempSettingsBanks = tempSettingsBanks.filter(x => x.id !== id); renderSettingsBanks(); }
         function renderSettingsBanks() {
             let html = '';
             tempSettingsBanks.forEach(b => {
-                html += `<div class="bg-slate-50 p-3 rounded-2xl mb-2 flex gap-2">
-                    <input type="text" placeholder="Banco" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="flex-1 p-2 rounded-lg border text-xs">
-                    <input type="text" placeholder="Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="flex-1 p-2 rounded-lg border text-xs">
-                    <button onclick="removeSettingBank(${b.id})" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </div>`;
+                html += `<div class="bg-slate-50 p-3 rounded-2xl mb-2 flex gap-2"><input type="text" placeholder="Banco" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="flex-1 p-2 rounded-lg border text-xs"><input type="text" placeholder="Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="flex-1 p-2 rounded-lg border text-xs"><button onclick="removeSettingBank(${b.id})" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
             });
-            document.getElementById('settings-banks-container').innerHTML = html || '<p class="text-xs italic">Añade bancos.</p>';
+            document.getElementById('settings-banks-container').innerHTML = html || '<p class="text-xs italic text-slate-400">Añade bancos.</p>';
             lucide.createIcons();
         }
-        function updateSettingBank(id, f, v) { let b = tempSettingsBanks.find(x => x.id === id); if(b) b[f] = v; }
-        function removeSettingBank(id) { tempSettingsBanks = tempSettingsBanks.filter(x => x.id !== id); renderSettingsBanks(); }
 
         async function saveSettings() {
             const btn = document.getElementById('btn-save-settings'); btn.disabled = true;
@@ -1507,7 +1389,6 @@
             btn.disabled = false; switchView('admin-dashboard');
         }
 
-        // --- IMPRESIÓN ---
         function printContractDirectly(id) {
             let o = submissions.find(x => x.id === id);
             document.getElementById('pr-date').innerText = o.submittedAt;
@@ -1521,24 +1402,29 @@
             document.getElementById('pr-total2').innerText = 'S/ ' + o.total.toFixed(2);
             document.getElementById('pr-dep').innerText = o.deposit.toFixed(2);
             document.getElementById('pr-bal').innerText = (o.total - o.deposit).toFixed(2);
-            
             let itemsHtml = '';
             o.items.forEach(i => { itemsHtml += `<tr><td style="border: 1px solid #000; padding: 10px; text-align: center;">${i.qty}</td><td style="border: 1px solid #000; padding: 10px;">Plato de ${i.product}</td><td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${Number(i.price).toFixed(2)}</td><td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${(i.qty*i.price).toFixed(2)}</td></tr>`; });
             document.getElementById('pr-items-tbody').innerHTML = itemsHtml;
-            
             let pay = '';
             if(rules.yape) pay += `YAPE: ${rules.yape}<br/>`;
             if(rules.plin) pay += `PLIN: ${rules.plin}<br/>`;
             rules.banks.forEach(b => { pay += `${b.name}: ${b.cta}<br/>`; });
             document.getElementById('pr-payment-methods').innerHTML = pay || 'A coordinar.';
-
             const container = document.getElementById('modal-contract');
             container.classList.remove('hidden');
             setTimeout(() => { window.print(); container.classList.add('hidden'); }, 150);
         }
 
+        function updateSummaryCard() {
+            let c = { delivery: 0, onsite: 0, pickup: 0 };
+            submissions.forEach(s => { if(c[s.serviceType] !== undefined) c[s.serviceType]++; });
+            if(document.getElementById('sum-delivery')) document.getElementById('sum-delivery').innerText = c.delivery;
+            if(document.getElementById('sum-onsite')) document.getElementById('sum-onsite').innerText = c.onsite;
+            if(document.getElementById('sum-pickup')) document.getElementById('sum-pickup').innerText = c.pickup;
+            if(document.getElementById('sum-total')) document.getElementById('sum-total').innerText = submissions.length;
+        }
+
         initApp();
-        
     </script>
 </body>
 </html>
