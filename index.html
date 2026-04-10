@@ -18,7 +18,7 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         navy: { 900: '#090E17', 800: '#0F172A', 700: '#1E293B' },
-                        brand: { 500: '#2563EB', 600: '#1D4ED8' } // Blue primary
+                        brand: { 500: '#2563EB', 600: '#1D4ED8' } // Azul primario
                     },
                     boxShadow: {
                         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
@@ -60,7 +60,7 @@
             #modal-contract * { visibility: visible; }
             
             #printable-area { 
-                padding: 0 !important; /* El margen lo da @page ahora */
+                padding: 0 !important;
                 height: auto !important; max-height: none !important; 
                 overflow: visible !important; box-shadow: none !important; 
             }
@@ -509,7 +509,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
                                     <div class="bg-navy-800/60 p-5 rounded-2xl border border-navy-700/50">
                                         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Fecha Límite</p>
-                                        <p class="text-xl font-bold text-white" id="billing-exp-date">Sin asignar</p>
+                                        <p class="text-xl font-bold text-white" id="billing-exp-date">Cargando...</p>
                                     </div>
                                     <div class="bg-navy-800/60 p-5 rounded-2xl border border-navy-700/50">
                                         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Costo de Renovación</p>
@@ -588,7 +588,7 @@
                                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Razón Social / Nombre Comercial</label>
                                         <div class="flex gap-3">
                                             <input type="text" id="set-sellerRuc" placeholder="RUC (Opcional)" class="w-1/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm shadow-sm md:shadow-none font-bold">
+                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all">
                                         </div>
                                     </div>
                                 </div>
@@ -785,7 +785,7 @@
         lucide.createIcons();
 
         // --- CONEXIÓN BACKEND (GOOGLE APPS SCRIPT) ---
-        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbyMn3qsvmSL3T3p2CQFUTJYso5Ny94VxfmavEnY35Tqdmee-E7IV95ZPlNzPLb0Lmr1hA/exec";
+        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbzUXttKuJi-o_z3i-rfpqKJwRnk8lzkI2GJEx7G_6nXz_-DffgPC1N2oejIPK7rG6cpZw/exec";
 
         // --- CONFIGURACIÓN DEL DUEÑO DEL SAAS ---
         let saasConfig = {
@@ -835,13 +835,19 @@
 
         function formatExpDateUI(dStr) {
             if (!dStr) return 'Sin asignar';
-            if (dStr.includes('T')) dStr = dStr.split('T')[0];
-            const parts = dStr.split('-');
+            // Limpieza robusta de la fecha enviada por Google
+            let cleaned = dStr;
+            if (cleaned.includes('T')) cleaned = cleaned.split('T')[0];
+            
+            const parts = cleaned.split('-');
             if(parts.length >= 3) {
                 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-                return `${parseInt(parts[2])} de ${meses[parseInt(parts[1])-1]}, ${parts[0]}`;
+                const dia = parseInt(parts[2]);
+                const mes = meses[parseInt(parts[1])-1];
+                const anio = parts[0];
+                return `${dia} de ${mes}, ${anio}`;
             }
-            return dStr;
+            return cleaned;
         }
 
         // --- FUNCIONES DE SEGURIDAD Y BACKEND ---
@@ -869,7 +875,7 @@
                 try {
                     result = JSON.parse(textResponse);
                 } catch (e) {
-                    throw new Error("Google devolvió HTML en vez de JSON. Revisa permisos de Apps Script.");
+                    throw new Error("Google devolvió HTML en vez de JSON.");
                 }
 
                 if (result.success) {
@@ -886,6 +892,13 @@
                     if (result.expirationDate !== undefined) {
                         saasConfig.expirationDate = result.expirationDate;
                         sessionStorage.setItem('nidos_saas_exp', saasConfig.expirationDate);
+                        
+                        // Actualizar UI inmediatamente
+                        const expEl = document.getElementById('billing-exp-date');
+                        if (expEl) {
+                            expEl.innerText = formatExpDateUI(saasConfig.expirationDate);
+                            expEl.className = isPlanActive() ? 'text-xl font-bold text-white' : 'text-xl font-bold text-rose-500';
+                        }
                     }
                 }
             } catch (err) {
@@ -936,6 +949,7 @@
                     if(document.getElementById('sidebar-phone')) document.getElementById('sidebar-phone').innerText = phone;
                     if(document.getElementById('sidebar-company-name')) document.getElementById('sidebar-company-name').innerText = rules.sellerBusiness;
                     
+                    // Actualizar UI del SaaS
                     const active = isPlanActive();
                     if(document.getElementById('sidebar-plan-name')) document.getElementById('sidebar-plan-name').innerText = "Plan " + saasConfig.planName;
                     if(document.getElementById('billing-plan-name')) document.getElementById('billing-plan-name').innerText = saasConfig.planName;
@@ -1002,7 +1016,7 @@
                 try {
                     result = JSON.parse(textResponse);
                 } catch (e) {
-                    throw new Error("Google devolvió HTML. Revisa permisos de Apps Script.");
+                    throw new Error("Google devolvió HTML.");
                 }
 
                 if (result.success) {
@@ -1031,7 +1045,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                errorMsg.innerText = "Error de conexión o permisos en Google Apps Script.";
+                errorMsg.innerText = "Error de conexión o permisos.";
                 errorMsg.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
@@ -1082,20 +1096,20 @@
                 try {
                     result = JSON.parse(textResponse);
                 } catch (e) {
-                    throw new Error("Google devolvió HTML. Revisa permisos de Apps Script.");
+                    throw new Error("Google devolvió HTML.");
                 }
 
                 if (result.success) {
                     sessionStorage.removeItem('nidos_require_pwd_change');
                     initApp();
                 } else {
-                    err.innerText = "Error en la base de datos: " + (result.error || "Desconocido");
+                    err.innerText = "Error: " + (result.error || "Desconocido");
                     err.classList.remove('hidden');
                 }
 
             } catch (error) {
                 console.error(error);
-                err.innerText = "Error de conexión. Inténtalo de nuevo.";
+                err.innerText = "Error de conexión.";
                 err.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
@@ -1221,21 +1235,21 @@
             let tbody = '';
             
             if(submissions.length === 0) {
-                 tbody = `<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">No hay contratos registrados en la nube. ¡Crea el primero!</td></tr>`;
+                 tbody = `<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">No hay contratos registrados.</td></tr>`;
             }
 
             submissions.forEach(s => {
-                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200 focus:border-amber-300' :
-                                 s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200 focus:border-blue-300' :
-                                 s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 focus:border-emerald-300' :
-                                 'bg-slate-100 text-slate-700 border-slate-200 focus:border-slate-300';
+                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                                 s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                 s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                 'bg-slate-100 text-slate-700 border-slate-200';
 
                 let itemsDesc = s.items.map(i => `${i.qty} ${i.product}`).join(', ');
 
                 tbody += `
                     <tr class="hover:bg-slate-50/80 transition-colors group border-b border-slate-100/50">
                         <td class="px-8 py-5">
-                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border outline-none cursor-pointer transition-all focus:ring-2 focus:ring-opacity-50 ${badgeClass}">
+                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border outline-none cursor-pointer transition-all ${badgeClass}">
                                 <option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option>
                                 <option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option>
                                 <option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option>
@@ -1245,23 +1259,22 @@
                         </td>
                         <td class="px-8 py-5">
                             <div class="font-bold text-slate-800 text-sm line-clamp-1">${s.clientName}</div>
-                            <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide">DNI: ${s.clientDni} • ${s.clientPhone}</div>
+                            <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide">DNI: ${s.clientDni}</div>
                         </td>
                         <td class="px-8 py-5">
                             <div class="text-xs font-black text-slate-600 uppercase tracking-wide">${s.serviceType}</div>
-                            <div class="text-[11px] font-bold text-brand-600 mt-1 max-w-[180px] truncate" title="${itemsDesc}">${itemsDesc}</div>
-                            <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${s.eventDate}</div>
+                            <div class="text-[11px] font-bold text-brand-600 mt-1 truncate max-w-[150px]">${itemsDesc}</div>
                         </td>
                         <td class="px-8 py-5 whitespace-nowrap">
                             <div class="font-black text-slate-800 text-sm">S/ ${Number(s.total).toFixed(2)}</div>
-                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mt-1">Seña: <span class="text-emerald-600">S/ ${Number(s.deposit).toFixed(2)}</span></div>
+                            <div class="text-[10px] font-bold text-slate-500 mt-1">Seña: S/ ${Number(s.deposit).toFixed(2)}</div>
                         </td>
                         <td class="px-8 py-5">
                             <div class="flex items-center justify-center gap-3">
-                                <button onclick="printContractDirectly(${s.id})" title="Imprimir Contrato" class="bg-slate-100 text-slate-600 p-2.5 rounded-xl hover:bg-slate-200 hover:text-slate-900 transition-all border border-slate-200 shadow-sm active:scale-95">
+                                <button onclick="printContractDirectly(${s.id})" class="bg-slate-100 text-slate-600 p-2.5 rounded-xl hover:bg-slate-200 transition-all border border-slate-200 shadow-sm active:scale-95">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="shareWhatsApp(${s.id})" title="Avisar por WhatsApp" class="bg-emerald-50 text-emerald-600 border border-emerald-200 p-2.5 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm active:scale-95">
+                                <button onclick="shareWhatsApp(${s.id})" class="bg-emerald-50 text-emerald-600 border border-emerald-200 p-2.5 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm active:scale-95">
                                     <i data-lucide="message-circle" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -1276,159 +1289,65 @@
         async function updateStatus(id, newStatus) {
             const orderIndex = submissions.findIndex(s => s.id === id);
             if(orderIndex === -1) return;
-            
             const oldStatus = submissions[orderIndex].status;
             submissions[orderIndex].status = newStatus;
             
-            if(!document.getElementById('view-admin-dashboard').classList.contains('hidden')) renderDashboard();
-            if(!document.getElementById('view-admin-kitchen').classList.contains('hidden')) renderKitchen();
+            renderDashboard();
 
             const phone = sessionStorage.getItem('nidos_auth_phone');
             try {
-                const res = await fetch(GOOGLE_API_URL, {
+                await fetch(GOOGLE_API_URL, {
                     redirect: "follow",
                     method: 'POST',
                     body: JSON.stringify({ action: 'updateStatus', phone: phone, orderId: id, status: newStatus }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                
-                if (!res.ok) throw new Error("Error HTTP " + res.status);
-                
-                const textResponse = await res.text();
-                let result;
-                try {
-                    result = JSON.parse(textResponse);
-                } catch (e) {
-                    throw new Error("Google devolvió HTML. Revisa permisos de Apps Script.");
-                }
-
-                if(!result.success) throw new Error("Backend devolvió error");
             } catch (err) {
                 console.error(err);
                 submissions[orderIndex].status = oldStatus;
                 renderDashboard();
-                alert("Hubo un error al sincronizar el cambio de estado con la base de datos en la nube.");
             }
         }
 
         function shareWhatsApp(id) {
             const s = submissions.find(c => c.id === id);
             let itemsTxt = s.items.map(i => `${i.qty} ${i.product}`).join(' y ');
-
             let paymentMsg = '';
             if(rules.yape) paymentMsg += `📲 *YAPE:* ${rules.yape}\n`;
             if(rules.plin) paymentMsg += `📲 *PLIN:* ${rules.plin}\n`;
-            if(rules.banks && rules.banks.length > 0) {
-                rules.banks.forEach(b => {
-                    paymentMsg += `🏦 *Cta ${b.name}:* ${b.cta} ${b.cci ? `(CCI: ${b.cci})` : ''}\n`;
-                });
-            }
-            if(!paymentMsg) paymentMsg = "Coordinar método de pago por interno.\n";
-
-            const msg = `Hola *${s.clientName}*, un placer saludarte.\n\nTe escribimos de parte de *${rules.sellerBusiness}*. Aquí te adjuntamos tu *CONTRATO OFICIAL #${s.id}* en formato PDF con todos los detalles de tu evento.\n\n🔹 *Resumen de tu pedido:*\n- Fecha: ${s.eventDate}\n- Modalidad: ${s.serviceType.toUpperCase()}\n- Platos: ${itemsTxt}\n- Importe Total: S/ ${Number(s.total).toFixed(2)}\n\nPara confirmar tu pedido y separar la fecha, por favor realiza el adelanto de *S/ ${Number(s.deposit).toFixed(2)}* a nuestras cuentas:\n\n${paymentMsg}\nPor favor, envíanos la captura de tu voucher por este medio para validar tu contrato. ¡Gracias!`;
-            
+            if(rules.banks && rules.banks.length > 0) rules.banks.forEach(b => { paymentMsg += `🏦 *Cta ${b.name}:* ${b.cta}\n`; });
+            const msg = `Hola *${s.clientName}*, aquí adjunto tu *CONTRATO #${s.id}*.\n\nResumen: ${itemsTxt}\nTotal: S/ ${Number(s.total).toFixed(2)}\nAdelanto: S/ ${Number(s.deposit).toFixed(2)}\n\nCuentas:\n${paymentMsg}`;
             let phone = s.clientPhone.replace(/\D/g, '');
             if(phone.length === 9) phone = '51' + phone;
-
-            const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         // --- COCINA DASHBOARD ---
         function renderKitchen() {
             const targetDate = document.getElementById('kitchen-date').value;
             if(!targetDate) return;
-
             const dayOrders = submissions.filter(s => s.eventDate === targetDate);
-            let totalsByProduct = {};
-            rules.products.forEach(p => totalsByProduct[p.name] = 0);
-
-            dayOrders.forEach(order => {
-                order.items.forEach(item => {
-                    const prodName = item.product;
-                    const qty = Number(item.qty) || 0;
-                    if (totalsByProduct[prodName] !== undefined) totalsByProduct[prodName] += qty;
-                    else totalsByProduct[prodName] = qty;
-                });
-            });
-
             let summaryHtml = '';
-            Object.keys(totalsByProduct).forEach(prod => {
-                if (totalsByProduct[prod] > 0 || rules.products.find(p => p.name === prod)) {
-                    summaryHtml += `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-soft relative overflow-hidden">
-                        <i data-lucide="beef" class="absolute top-3 right-3 w-16 h-16 opacity-[0.03] text-slate-900"></i>
-                        <p class="text-[10px] font-bold uppercase text-slate-400 mb-1 tracking-widest">${prod}</p>
-                        <div class="text-3xl font-black text-brand-600">${totalsByProduct[prod]}</div>
-                    </div>`;
-                }
+            let totals = {};
+            dayOrders.forEach(o => o.items.forEach(i => { totals[i.product] = (totals[i.product] || 0) + Number(i.qty); }));
+            
+            Object.keys(totals).forEach(p => {
+                summaryHtml += `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-soft"><p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">${p}</p><div class="text-3xl font-black text-brand-600">${totals[p]}</div></div>`;
             });
-            
-            if(Object.keys(totalsByProduct).length === 0) {
-                summaryHtml = '<div class="col-span-4 text-slate-400 text-sm font-medium">No hay productos en el catálogo.</div>';
-            }
-            
-            document.getElementById('kitchen-summary').innerHTML = summaryHtml;
+            document.getElementById('kitchen-summary').innerHTML = summaryHtml || '<p class="text-slate-400">Sin pedidos.</p>';
 
             let tbody = '';
-            dayOrders.sort((a, b) => {
-                if(!a.startTime) return 1;
-                if(!b.startTime) return -1;
-                return a.startTime.localeCompare(b.startTime);
-            });
-
-            if(dayOrders.length === 0) {
-                 tbody = `<tr><td colspan="4" class="px-8 py-16 text-center text-slate-400 font-bold bg-slate-50/50">Día libre. No hay pedidos programados para esta fecha.</td></tr>`;
-            }
-
             dayOrders.forEach(s => {
-                let badgeClass = s.status === 'Emitido' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                 s.status === 'Aceptado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                 s.status === 'Pagado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                 'bg-slate-100 text-slate-700 border-slate-200';
-
-                let itemsDesc = s.items.map(i => `<span class="font-black text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">${i.qty}</span> <span class="font-medium text-slate-700">${i.product}</span>`).join('<span class="text-slate-300 mx-1">+</span>');
-                let srvBadge = s.serviceType === 'delivery' ? 'bg-blue-50 text-blue-600 border-blue-100' : s.serviceType === 'onsite' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-slate-100 text-slate-600 border-slate-200';
-
-                tbody += `
-                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100/50">
-                        <td class="px-8 py-5">
-                            <div class="font-black text-xl text-slate-800 tracking-tight">${s.startTime || '-:-'}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="font-bold text-slate-800 text-sm line-clamp-1">${s.clientName}</div>
-                            <div class="flex items-center gap-2 mt-1.5">
-                                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase border tracking-widest ${srvBadge}">${s.serviceType}</span>
-                                <span class="text-[10px] font-medium text-slate-500 truncate max-w-[180px]"><i data-lucide="map-pin" class="w-3 h-3 inline pb-0.5"></i> ${s.district || 'Local'} ${s.eventLocation ? '- '+s.eventLocation : ''}</span>
-                            </div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="text-sm flex flex-wrap items-center gap-1">${itemsDesc}</div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <select onchange="updateStatus(${s.id}, this.value)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase border outline-none cursor-pointer transition-all tracking-wider ${badgeClass}">
-                                <option value="Emitido" ${s.status==='Emitido'?'selected':''}>Emitido</option>
-                                <option value="Aceptado" ${s.status==='Aceptado'?'selected':''}>Aceptado</option>
-                                <option value="Pagado" ${s.status==='Pagado'?'selected':''}>Pagado</option>
-                                <option value="Entregado" ${s.status==='Entregado'?'selected':''}>Entregado</option>
-                            </select>
-                        </td>
-                    </tr>
-                `;
+                tbody += `<tr class="border-b border-slate-100"><td class="px-8 py-4 font-black">${s.startTime}</td><td class="px-8 py-4 font-bold text-sm">${s.clientName}</td><td class="px-8 py-4 text-xs">${s.items.map(i => i.qty + ' ' + i.product).join(', ')}</td><td class="px-8 py-4"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100">${s.status}</span></td></tr>`;
             });
-
-            document.getElementById('kitchen-table-body').innerHTML = tbody;
+            document.getElementById('kitchen-table-body').innerHTML = tbody || '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Día sin programaciones.</td></tr>';
             lucide.createIcons();
         }
 
         // --- ADMIN CREAR ---
         function addItem() {
-            if (!rules.products || rules.products.length === 0) {
-                alert("⚠️ Por favor, configura al menos un plato en los 'Ajustes' antes de crear un contrato.");
-                return;
-            }
-            let defaultProd = rules.products[0];
-            currentItems.push({ id: generateId(), product: defaultProd.name, qty: '', price: defaultProd.price });
+            if (!rules.products || rules.products.length === 0) return alert("Configura platos en Ajustes.");
+            currentItems.push({ id: generateId(), product: rules.products[0].name, qty: '', price: rules.products[0].price });
             renderCreateItems();
         }
 
@@ -1440,385 +1359,182 @@
         function updateCreateItem(id, field, value) {
             const item = currentItems.find(i => i.id === id);
             if(item) {
-                item[field] = field === 'price' || field === 'qty' ? Number(value) || value : value;
-                if(field === 'product') {
-                    let prodConfig = rules.products.find(p => p.name === value);
-                    if(prodConfig) item.price = prodConfig.price;
-                    renderCreateItems(); 
-                } else {
-                    updatePricing();
-                }
+                item[field] = (field === 'price' || field === 'qty') ? Number(value) || value : value;
+                if(field === 'product') item.price = rules.products.find(p => p.name === value).price;
+                renderCreateItems();
             }
         }
 
         function renderCreateItems() {
             let html = '';
-            currentItems.forEach((item) => {
-                let optionsHtml = rules.products.map(p => `<option value="${p.name}" ${item.product === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
-                if (!rules.products.find(p => p.name === item.product)) optionsHtml += `<option value="${item.product}" selected>${item.product}</option>`;
-
-                html += `
-                <div class="grid grid-cols-12 gap-2 md:gap-3 animate-fade-in items-center bg-slate-50/50 md:bg-transparent p-3 md:p-0 rounded-2xl border border-slate-100 md:border-none">
-                    <div class="col-span-12 md:col-span-6 w-full">
-                        <select onchange="updateCreateItem(${item.id}, 'product', this.value)" class="w-full px-4 py-3 md:py-3.5 rounded-xl bg-white md:bg-slate-50/80 border border-slate-200 font-semibold text-sm outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 text-slate-700 transition-all appearance-none cursor-pointer shadow-sm md:shadow-none">
-                            ${optionsHtml}
-                        </select>
-                    </div>
-                    <div class="col-span-5 md:col-span-2 w-full">
-                        <input type="number" oninput="updateCreateItem(${item.id}, 'qty', this.value); validateCreateForm()" value="${item.qty}" placeholder="Cant." class="w-full px-2 md:px-3 py-3 md:py-3.5 rounded-xl bg-brand-50 border border-brand-200 font-black text-brand-700 text-sm outline-none text-center focus:bg-white focus:ring-4 focus:ring-brand-500/20 transition-all shadow-sm md:shadow-none">
-                    </div>
-                    <div class="col-span-5 md:col-span-3 w-full relative shadow-sm md:shadow-none rounded-xl">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">S/</span>
-                        <input type="number" step="0.1" oninput="updateCreateItem(${item.id}, 'price', this.value)" value="${item.price}" class="w-full pl-8 pr-3 py-3 md:py-3.5 rounded-xl bg-white md:bg-slate-50/80 border border-slate-200 font-semibold text-sm outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all">
-                    </div>
-                    <div class="col-span-2 md:col-span-1 flex justify-end md:justify-center w-full">
-                        <button type="button" onclick="removeCreateItem(${item.id})" class="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all bg-white md:bg-transparent border border-slate-200 md:border-none shadow-sm md:shadow-none">
-                            <i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i>
-                        </button>
-                    </div>
-                </div>
-                `;
+            currentItems.forEach(item => {
+                let opts = rules.products.map(p => `<option value="${p.name}" ${item.product===p.name?'selected':''}>${p.name}</option>`).join('');
+                html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
+                    <div class="col-span-12 md:col-span-6"><select onchange="updateCreateItem(${item.id},'product',this.value)" class="w-full p-3 rounded-xl border">${opts}</select></div>
+                    <div class="col-span-5 md:col-span-2"><input type="number" oninput="updateCreateItem(${item.id},'qty',this.value);validateCreateForm()" value="${item.qty}" placeholder="Cant." class="w-full p-3 rounded-xl border text-center font-bold"></div>
+                    <div class="col-span-5 md:col-span-3 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" oninput="updateCreateItem(${item.id},'price',this.value)" value="${item.price}" class="w-full pl-8 p-3 rounded-xl border"></div>
+                    <div class="col-span-2 md:col-span-1 flex justify-center"><button onclick="removeCreateItem(${item.id})" class="text-rose-500"><i data-lucide="trash-2"></i></button></div>
+                </div>`;
             });
             document.getElementById('items-container').innerHTML = html;
-            lucide.createIcons();
             updatePricing();
-            validateCreateForm();
+            lucide.createIcons();
         }
 
         function resetCreateForm() {
             document.getElementById('adm-name').value = '';
             document.getElementById('adm-dni').value = '';
             document.getElementById('adm-phone').value = '';
-            document.getElementById('adm-district').value = '';
-            document.getElementById('adm-location').value = '';
-            document.getElementById('adm-ref').value = '';
-            document.getElementById('adm-deposit').value = '';
-            
-            // Establecer fecha y hora actuales por defecto
             const now = new Date();
             document.getElementById('adm-date').value = now.toISOString().split('T')[0];
             document.getElementById('adm-time').value = now.toTimeString().split(' ')[0].substring(0, 5);
-
             currentItems = [];
             isDepositManuallyEdited = false;
-            if (rules.products && rules.products.length > 0) addItem(); 
+            if (rules.products.length > 0) addItem();
             setAdminServiceType('delivery');
         }
 
-        function setAdminServiceType(type) {
-            adminServiceType = type;
-            ['pickup', 'delivery', 'onsite'].forEach(t => {
-                document.getElementById('btn-adm-' + t).className = "flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-700";
+        function setAdminServiceType(t) {
+            adminServiceType = t;
+            ['pickup', 'delivery', 'onsite'].forEach(id => {
+                document.getElementById('btn-adm-'+id).className = (id===t) ? "flex-1 py-3 rounded-xl bg-white shadow-md text-brand-600 font-bold uppercase text-[11px]" : "flex-1 py-3 rounded-xl text-slate-500 font-bold uppercase text-[11px]";
             });
-            document.getElementById('btn-adm-' + type).className = "flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all bg-white shadow-md text-brand-600";
-            
-            if(type === 'pickup') document.getElementById('adm-location-fields').classList.add('hidden');
-            else document.getElementById('adm-location-fields').classList.remove('hidden');
-
+            document.getElementById('adm-location-fields').className = (t==='pickup') ? "hidden" : "space-y-4";
             updatePricing();
         }
 
-        function getPricing() {
-            let subtotal = 0; let totalQty = 0;
-            currentItems.forEach(item => {
-                const q = Number(item.qty) || 0; const p = Number(item.price) || 0;
-                subtotal += (q * p); totalQty += q;
-            });
-
-            let fee = 0;
-            if (adminServiceType === 'delivery' && totalQty > 0 && totalQty < rules.minPlatesFreeShipping) fee = rules.deliveryFee;
-
-            const total = subtotal + fee;
-            const defaultDeposit = total * ((rules.depositPercent || 0) / 100);
-
-            return { subtotal, fee, total, defaultDeposit, totalQty };
-        }
-
         function updatePricing() {
-            const p = getPricing();
+            let sub = 0; let qty = 0;
+            currentItems.forEach(i => { sub += (Number(i.qty)*Number(i.price)); qty += Number(i.qty); });
+            let fee = (adminServiceType === 'delivery' && qty > 0 && qty < rules.minPlatesFreeShipping) ? rules.deliveryFee : 0;
+            let total = sub + fee;
+            let dep = total * (rules.depositPercent / 100);
             
-            document.getElementById('preview-total-qty').innerText = p.totalQty;
-            document.getElementById('preview-subtotal').innerText = p.subtotal.toFixed(2);
-            
-            if(p.fee > 0) {
-                document.getElementById('preview-fee-container').classList.remove('hidden');
-                document.getElementById('preview-fee-container').classList.add('flex');
-                document.getElementById('preview-fee').innerText = p.fee.toFixed(2);
-            } else {
-                document.getElementById('preview-fee-container').classList.add('hidden');
-                document.getElementById('preview-fee-container').classList.remove('flex');
-            }
-
-            document.getElementById('preview-total').innerText = p.total.toFixed(2);
-            if (!isDepositManuallyEdited) document.getElementById('adm-deposit').value = p.defaultDeposit.toFixed(2);
+            document.getElementById('preview-total-qty').innerText = qty;
+            document.getElementById('preview-subtotal').innerText = sub.toFixed(2);
+            document.getElementById('preview-total').innerText = total.toFixed(2);
+            if(!isDepositManuallyEdited) document.getElementById('adm-deposit').value = dep.toFixed(2);
             updateBalance();
         }
 
-        function onManualDepositEdit() {
-            isDepositManuallyEdited = true;
-            updateBalance();
-            validateCreateForm();
-        }
-
+        function onManualDepositEdit() { isDepositManuallyEdited = true; updateBalance(); validateCreateForm(); }
         function updateBalance() {
-            const p = getPricing();
-            const deposit = Number(document.getElementById('adm-deposit').value) || 0;
-            const balance = p.total - deposit;
-            document.getElementById('preview-balance').innerText = balance.toFixed(2);
+            let total = Number(document.getElementById('preview-total').innerText);
+            let dep = Number(document.getElementById('adm-deposit').value);
+            document.getElementById('preview-balance').innerText = (total - dep).toFixed(2);
         }
 
         function validateCreateForm() {
-            const name = document.getElementById('adm-name').value;
-            const p = getPricing();
-            const btnGen = document.getElementById('btn-generate');
-            if(name && p.totalQty > 0) btnGen.disabled = false;
-            else btnGen.disabled = true;
-        }
-
-        function getFormDataAsOrder() {
-            const p = getPricing();
-            const validItems = currentItems.filter(i => Number(i.qty) > 0);
-            const deposit = Number(document.getElementById('adm-deposit').value) || 0;
-
-            return {
-                id: generateOrderId(),
-                clientName: document.getElementById('adm-name').value || 'Cliente General',
-                clientDni: document.getElementById('adm-dni').value || '-',
-                clientPhone: document.getElementById('adm-phone').value || '-',
-                serviceType: adminServiceType,
-                eventDate: document.getElementById('adm-date').value || '-',
-                district: document.getElementById('adm-district').value || '',
-                eventLocation: document.getElementById('adm-location').value || '',
-                reference: document.getElementById('adm-ref').value || '',
-                startTime: document.getElementById('adm-time').value || '-',
-                items: validItems,
-                guestCount: p.totalQty,
-                fee: p.fee,
-                total: p.total,
-                deposit: deposit,
-                submittedAt: new Date().toLocaleDateString(),
-                status: 'Emitido'
-            };
+            let name = document.getElementById('adm-name').value;
+            let qty = Number(document.getElementById('preview-total-qty').innerText);
+            document.getElementById('btn-generate').disabled = !(name && qty > 0);
         }
 
         async function generateContract() {
             const btn = document.getElementById('btn-generate');
-            const originalHTML = btn.innerHTML;
-            
+            btn.disabled = true;
             try {
-                btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Guardando en Nube...';
-                btn.disabled = true;
-                lucide.createIcons();
-
-                const newEntry = getFormDataAsOrder();
+                const order = {
+                    id: generateOrderId(), clientName: document.getElementById('adm-name').value, clientDni: document.getElementById('adm-dni').value || '-',
+                    clientPhone: document.getElementById('adm-phone').value || '-', serviceType: adminServiceType,
+                    eventDate: document.getElementById('adm-date').value, startTime: document.getElementById('adm-time').value,
+                    items: currentItems.filter(i => Number(i.qty) > 0), total: Number(document.getElementById('preview-total').innerText),
+                    deposit: Number(document.getElementById('adm-deposit').value), submittedAt: new Date().toLocaleDateString(), status: 'Emitido'
+                };
                 const phone = sessionStorage.getItem('nidos_auth_phone');
-
-                const response = await fetch(GOOGLE_API_URL, {
-                    redirect: "follow",
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'saveOrder', phone: phone, order: newEntry }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-                
-                if (!response.ok) throw new Error("Error HTTP " + response.status);
-                
-                const textResponse = await response.text();
-                let result;
-                try { result = JSON.parse(textResponse); } catch (e) { throw new Error("Google devolvió HTML en vez de JSON."); }
-                
-                if (result.success) {
-                    submissions.unshift(newEntry);
-                    switchView('success');
-                } else { alert("Error en la base de datos: " + result.error); }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión. " + err.message);
-            } finally {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-                lucide.createIcons();
-            }
+                const res = await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'saveOrder', phone: phone, order: order }) });
+                const result = await res.json();
+                if(result.success) { submissions.unshift(order); switchView('success'); }
+            } catch (err) { console.error(err); }
+            btn.disabled = false;
         }
 
-        // --- ADMIN SETTINGS ---
+        // --- AJUSTES ---
         function loadSettings() {
             document.getElementById('set-sellerName').value = rules.sellerName || '';
             document.getElementById('set-sellerDni').value = rules.sellerDni || '';
-            document.getElementById('set-sellerRuc').value = rules.sellerRuc || '';
             document.getElementById('set-sellerBusiness').value = rules.sellerBusiness || '';
             document.getElementById('set-yape').value = rules.yape || '';
             document.getElementById('set-plin').value = rules.plin || '';
-            document.getElementById('set-deposit-percent').value = rules.depositPercent !== undefined ? rules.depositPercent : 40;
-            
-            tempSettingsProducts = JSON.parse(JSON.stringify(rules.products || []));
-            tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks || []));
-            
+            document.getElementById('set-deposit-percent').value = rules.depositPercent || 40;
+            tempSettingsProducts = JSON.parse(JSON.stringify(rules.products));
+            tempSettingsBanks = JSON.parse(JSON.stringify(rules.banks));
             renderSettingsProducts();
             renderSettingsBanks();
         }
 
-        function addSettingProduct() {
-            tempSettingsProducts.push({ id: generateId(), name: '', price: 0 });
-            renderSettingsProducts();
-        }
-        function removeSettingProduct(id) {
-            tempSettingsProducts = tempSettingsProducts.filter(p => p.id !== id);
-            renderSettingsProducts();
-        }
-        function updateSettingProduct(id, field, value) {
-            let p = tempSettingsProducts.find(p => p.id === id);
-            if(p) p[field] = field === 'price' ? Number(value) || 0 : value;
-        }
-        
         function renderSettingsProducts() {
             let html = '';
-            if(tempSettingsProducts.length === 0) html = '<p class="text-xs text-slate-400 italic">No hay platos configurados.</p>';
             tempSettingsProducts.forEach(p => {
-                html += `
-                <div class="grid grid-cols-12 gap-2 md:gap-3 animate-fade-in items-center bg-slate-50/50 md:bg-transparent p-3 md:p-0 rounded-2xl border border-slate-100 md:border-none">
-                    <div class="col-span-12 md:col-span-7 w-full">
-                        <input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id}, 'name', this.value)" class="w-full px-4 py-3 md:py-3.5 rounded-xl bg-white md:bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm shadow-sm md:shadow-none" placeholder="Nombre del plato">
-                    </div>
-                    <div class="col-span-9 md:col-span-4 w-full relative shadow-sm md:shadow-none rounded-xl">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">S/</span>
-                        <input type="number" step="0.1" value="${p.price}" oninput="updateSettingProduct(${p.id}, 'price', this.value)" class="w-full pl-8 pr-3 py-3 md:py-3.5 rounded-xl bg-white md:bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm" placeholder="Precio Base">
-                    </div>
-                    <div class="col-span-3 md:col-span-1 flex justify-end md:justify-center w-full">
-                        <button type="button" onclick="removeSettingProduct(${p.id})" class="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all bg-white md:bg-transparent border border-slate-200 md:border-none shadow-sm md:shadow-none">
-                            <i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i>
-                        </button>
-                    </div>
-                </div>
-                `;
+                html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
+                    <div class="col-span-12 md:col-span-7"><input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id},'name',this.value)" class="w-full p-3 rounded-xl border"></div>
+                    <div class="col-span-9 md:col-span-4 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" value="${p.price}" oninput="updateSettingProduct(${p.id},'price',this.value)" class="w-full pl-8 p-3 rounded-xl border"></div>
+                    <div class="col-span-3 md:col-span-1 flex justify-center"><button onclick="removeSettingProduct(${p.id})"><i data-lucide="trash-2"></i></button></div>
+                </div>`;
             });
-            document.getElementById('settings-products-container').innerHTML = html;
+            document.getElementById('settings-products-container').innerHTML = html || '<p class="text-xs italic">Añade platos.</p>';
             lucide.createIcons();
         }
 
-        function addSettingBank() {
-            tempSettingsBanks.push({ id: generateId(), name: '', cta: '', cci: '' });
-            renderSettingsBanks();
-        }
-        function removeSettingBank(id) {
-            tempSettingsBanks = tempSettingsBanks.filter(b => b.id !== id);
-            renderSettingsBanks();
-        }
-        function updateSettingBank(id, field, value) {
-            let b = tempSettingsBanks.find(b => b.id === id);
-            if(b) b[field] = value;
-        }
+        function addSettingBank() { tempSettingsBanks.push({ id: generateId(), name: '', cta: '', cci: '' }); renderSettingsBanks(); }
         function renderSettingsBanks() {
             let html = '';
-            if(tempSettingsBanks.length === 0) html = '<p class="text-xs text-slate-400 italic">No hay bancos configurados.</p>';
             tempSettingsBanks.forEach(b => {
-                html += `
-                <div class="flex flex-col md:flex-row items-start md:items-center gap-2 animate-fade-in group bg-slate-50/50 p-3 md:p-2 rounded-xl border border-slate-100">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 w-full flex-1">
-                        <input type="text" value="${b.name}" oninput="updateSettingBank(${b.id}, 'name', this.value)" class="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 font-semibold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-xs shadow-sm md:shadow-none" placeholder="Banco (Ej: BCP)">
-                        <input type="text" value="${b.cta}" oninput="updateSettingBank(${b.id}, 'cta', this.value)" class="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 font-semibold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-xs shadow-sm md:shadow-none" placeholder="Nº Cuenta">
-                        <div class="flex items-center gap-2">
-                            <input type="text" value="${b.cci}" oninput="updateSettingBank(${b.id}, 'cci', this.value)" class="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 font-semibold outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-xs shadow-sm md:shadow-none" placeholder="CCI (Opcional)">
-                            <button type="button" onclick="removeSettingBank(${b.id})" class="md:hidden flex-none p-2.5 text-slate-400 hover:text-rose-500 bg-white border border-slate-200 rounded-lg shadow-sm">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="button" onclick="removeSettingBank(${b.id})" class="hidden md:block flex-none p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-                `;
+                html += `<div class="bg-slate-50 p-3 rounded-2xl mb-2 flex gap-2">
+                    <input type="text" placeholder="Banco" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="flex-1 p-2 rounded-lg border text-xs">
+                    <input type="text" placeholder="Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="flex-1 p-2 rounded-lg border text-xs">
+                    <button onclick="removeSettingBank(${b.id})" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>`;
             });
-            document.getElementById('settings-banks-container').innerHTML = html;
+            document.getElementById('settings-banks-container').innerHTML = html || '<p class="text-xs italic">Añade bancos.</p>';
             lucide.createIcons();
         }
+        function updateSettingBank(id, f, v) { let b = tempSettingsBanks.find(x => x.id === id); if(b) b[f] = v; }
+        function removeSettingBank(id) { tempSettingsBanks = tempSettingsBanks.filter(x => x.id !== id); renderSettingsBanks(); }
 
         async function saveSettings() {
-            const btnSave = document.getElementById('btn-save-settings');
-            const originalHTML = btnSave ? btnSave.innerHTML : 'Guardar Configuración';
-            if (btnSave) {
-                btnSave.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Subiendo...';
-                btnSave.disabled = true;
-                lucide.createIcons();
-            }
-
+            const btn = document.getElementById('btn-save-settings'); btn.disabled = true;
             rules.sellerName = document.getElementById('set-sellerName').value;
-            rules.sellerDni = document.getElementById('set-sellerDni').value;
-            rules.sellerRuc = document.getElementById('set-sellerRuc').value;
             rules.sellerBusiness = document.getElementById('set-sellerBusiness').value;
             rules.yape = document.getElementById('set-yape').value;
             rules.plin = document.getElementById('set-plin').value;
-            rules.depositPercent = Number(document.getElementById('set-deposit-percent').value) || 0;
-            rules.products = tempSettingsProducts.filter(p => p.name.trim() !== '');
-            rules.banks = tempSettingsBanks.filter(b => b.name.trim() !== '' || b.cta.trim() !== '');
+            rules.depositPercent = Number(document.getElementById('set-deposit-percent').value);
+            rules.products = tempSettingsProducts.filter(p => p.name);
+            rules.banks = tempSettingsBanks.filter(b => b.name);
             localStorage.setItem('nidos_rules', JSON.stringify(rules));
-            
-            try {
-                const phone = sessionStorage.getItem('nidos_auth_phone');
-                if (phone) {
-                    await fetch(GOOGLE_API_URL, {
-                        redirect: "follow",
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'saveSettings', phone: phone, config: rules }),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                    });
-                }
-            } catch (err) { console.error(err); }
-
-            if (btnSave) { btnSave.innerHTML = originalHTML; btnSave.disabled = false; lucide.createIcons(); }
-            if(document.getElementById('sidebar-company-name')) document.getElementById('sidebar-company-name').innerText = rules.sellerBusiness || 'Mi Empresa';
-            switchView('admin-dashboard');
+            const phone = sessionStorage.getItem('nidos_auth_phone');
+            await fetch(GOOGLE_API_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({ action: 'saveSettings', phone: phone, config: rules }) });
+            btn.disabled = false; switchView('admin-dashboard');
         }
 
-        // --- CONTRATO MODAL (IMPRESIÓN) ---
-        function populateContractModal(order) {
-            if(!order) return;
-            document.getElementById('pr-date').innerText = order.submittedAt;
-            document.getElementById('pr-id').innerText = order.id;
-            document.getElementById('pr-seller').innerText = rules.sellerName || '';
-            document.getElementById('pr-sellerDni').innerText = rules.sellerDni || '';
-            document.getElementById('pr-company').innerText = rules.sellerBusiness || 'LA EMPRESA';
-            document.getElementById('pr-ruc').innerText = rules.sellerRuc || '';
-            document.getElementById('pr-client').innerText = order.clientName;
-            document.getElementById('pr-clientDni').innerText = order.clientDni;
-            document.getElementById('pr-eventDate').innerText = order.eventDate;
-            document.getElementById('pr-location').innerText = order.serviceType === 'pickup' ? 'Recojo en Local' : `${order.eventLocation} ${order.district ? `(${order.district})` : ''}`;
-            document.getElementById('pr-ref').innerText = order.reference || '-';
-            document.getElementById('pr-time').innerText = order.startTime;
-
-            let itemsHtml = '';
-            order.items.forEach(item => {
-                itemsHtml += `
-                <tr>
-                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>${item.qty}</b></td>
-                    <td style="border: 1px solid #000; padding: 10px; text-align: left;">Plato de ${item.product} - Modalidad: ${order.serviceType.toUpperCase()}</td>
-                    <td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${Number(item.price).toFixed(2)}</td>
-                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>S/ ${(item.qty * item.price).toFixed(2)}</b></td>
-                </tr>`;
-            });
-            if (order.fee > 0) {
-                itemsHtml += `<tr><td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>1</b></td><td style="border: 1px solid #000; padding: 10px; text-align: left;">Logística</td><td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${Number(order.fee).toFixed(2)}</td><td style="border: 1px solid #000; padding: 10px; text-align: center;"><b>S/ ${Number(order.fee).toFixed(2)}</b></td></tr>`;
-            }
-            document.getElementById('pr-items-tbody').innerHTML = itemsHtml;
-            document.getElementById('pr-total2').innerText = 'S/ ' + Number(order.total).toFixed(2);
-            document.getElementById('pr-dep').innerText = Number(order.deposit).toFixed(2);
-            document.getElementById('pr-bal').innerText = (order.total - order.deposit).toFixed(2);
-            
-            let paymentHtml = '';
-            if(rules.yape) paymentHtml += `YAPE: <b>${rules.yape}</b><br/>`;
-            if(rules.plin) paymentHtml += `PLIN: <b>${rules.plin}</b><br/>`;
-            if(rules.banks && rules.banks.length > 0) rules.banks.forEach(b => { paymentHtml += `Cta ${b.name}: <b>${b.cta}</b> ${b.cci ? `(CCI: ${b.cci})` : ''}<br/>`; });
-            if(!paymentHtml) paymentHtml = '<i>A coordinar.</i>';
-            document.getElementById('pr-payment-methods').innerHTML = paymentHtml;
-            document.getElementById('pr-sig-seller').innerText = rules.sellerName || '';
-            document.getElementById('pr-sig-client').innerText = order.clientName;
-        }
-
+        // --- IMPRESIÓN ---
         function printContractDirectly(id) {
-            populateContractModal(submissions.find(s => s.id === id));
-            const printContainer = document.getElementById('modal-contract');
-            printContainer.classList.remove('hidden');
-            setTimeout(() => { window.print(); printContainer.classList.add('hidden'); }, 150);
+            let o = submissions.find(x => x.id === id);
+            document.getElementById('pr-date').innerText = o.submittedAt;
+            document.getElementById('pr-id').innerText = o.id;
+            document.getElementById('pr-seller').innerText = rules.sellerName;
+            document.getElementById('pr-company').innerText = rules.sellerBusiness;
+            document.getElementById('pr-client').innerText = o.clientName;
+            document.getElementById('pr-eventDate').innerText = o.eventDate;
+            document.getElementById('pr-location').innerText = (o.serviceType==='pickup')?'Local':o.eventLocation;
+            document.getElementById('pr-time').innerText = o.startTime;
+            document.getElementById('pr-total2').innerText = 'S/ ' + o.total.toFixed(2);
+            document.getElementById('pr-dep').innerText = o.deposit.toFixed(2);
+            document.getElementById('pr-bal').innerText = (o.total - o.deposit).toFixed(2);
+            
+            let itemsHtml = '';
+            o.items.forEach(i => { itemsHtml += `<tr><td style="border: 1px solid #000; padding: 10px; text-align: center;">${i.qty}</td><td style="border: 1px solid #000; padding: 10px;">Plato de ${i.product}</td><td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${Number(i.price).toFixed(2)}</td><td style="border: 1px solid #000; padding: 10px; text-align: center;">S/ ${(i.qty*i.price).toFixed(2)}</td></tr>`; });
+            document.getElementById('pr-items-tbody').innerHTML = itemsHtml;
+            
+            let pay = '';
+            if(rules.yape) pay += `YAPE: ${rules.yape}<br/>`;
+            if(rules.plin) pay += `PLIN: ${rules.plin}<br/>`;
+            rules.banks.forEach(b => { pay += `${b.name}: ${b.cta}<br/>`; });
+            document.getElementById('pr-payment-methods').innerHTML = pay || 'A coordinar.';
+
+            const container = document.getElementById('modal-contract');
+            container.classList.remove('hidden');
+            setTimeout(() => { window.print(); container.classList.add('hidden'); }, 150);
         }
 
         initApp();
