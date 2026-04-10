@@ -403,7 +403,6 @@
                                         <button type="button" onclick="setAdminServiceType('onsite')" id="btn-adm-onsite" class="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-700">Sitio</button>
                                     </div>
 
-                                    <!-- Campos de Fecha y Hora Responsivos -->
                                     <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full">
                                         <div class="flex-1 w-full">
                                             <input type="date" id="adm-date" class="w-full px-4 py-3 md:px-5 md:py-4 rounded-2xl bg-slate-50/80 border border-slate-200 font-semibold text-slate-800 text-xs md:text-sm focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
@@ -584,12 +583,13 @@
                                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">DNI Representante</label>
                                         <input type="text" id="set-sellerDni" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                                     </div>
-                                    <div class="space-y-1.5 col-span-1 sm:col-span-2">
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Empresa / Razón Social</label>
-                                        <div class="flex flex-col sm:flex-row gap-3">
-                                            <input type="text" id="set-sellerRuc" placeholder="RUC (Opcional)" class="w-full sm:w-1/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                                            <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-full sm:w-2/3 px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all font-bold">
-                                        </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">RUC Empresa</label>
+                                        <input type="text" id="set-sellerRuc" placeholder="RUC" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Razón Social / Negocio</label>
+                                        <input type="text" id="set-sellerBusiness" placeholder="Nombre Comercial" class="w-full px-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 font-semibold outline-none focus:bg-white focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all font-bold">
                                     </div>
                                 </div>
                             </div>
@@ -834,14 +834,12 @@
         }
 
         function formatExpDateUI(dStr) {
-            if (!dStr) return 'Sin asignar';
-            let cleaned = String(dStr);
-            if (cleaned.includes('T')) cleaned = cleaned.split('T')[0];
-            
-            const parts = cleaned.split('-');
-            if(parts.length >= 3) {
+            if (!dStr || dStr === 'undefined' || dStr === 'null') return 'Sin asignar';
+            let cleaned = String(dStr).trim();
+            const match = cleaned.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (match) {
                 const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-                return `${parseInt(parts[2])} de ${meses[parseInt(parts[1])-1]}, ${parts[0]}`;
+                return `${parseInt(match[3])} de ${meses[parseInt(match[2])-1]}, ${match[1]}`;
             }
             return cleaned;
         }
@@ -905,15 +903,13 @@
         function isPlanActive() {
             if (!saasConfig.expirationDate) return false; 
             let dStr = String(saasConfig.expirationDate);
-            if (dStr.includes('T')) dStr = dStr.split('T')[0];
+            const match = dStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (!match) return false;
 
             const today = new Date();
             today.setHours(0,0,0,0);
             
-            const parts = dStr.split('-');
-            if(parts.length < 3) return false;
-            
-            const exp = new Date(parts[0], parts[1]-1, parseInt(parts[2]));
+            const exp = new Date(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3]));
             return today <= exp;
         }
 
@@ -963,9 +959,6 @@
                             : 'text-rose-500 font-black flex items-center gap-1.5';
                     }
 
-                    const todayInput = document.getElementById('kitchen-date');
-                    if(todayInput) todayInput.value = new Date().toISOString().split('T')[0];
-                    
                     switchView('admin-dashboard');
                     document.getElementById('loader-dashboard').classList.add('hidden');
                 }
@@ -1405,6 +1398,7 @@
         function loadSettings() {
             document.getElementById('set-sellerName').value = rules.sellerName || '';
             document.getElementById('set-sellerDni').value = rules.sellerDni || '';
+            document.getElementById('set-sellerRuc').value = rules.sellerRuc || '';
             document.getElementById('set-sellerBusiness').value = rules.sellerBusiness || '';
             document.getElementById('set-yape').value = rules.yape || '';
             document.getElementById('set-plin').value = rules.plin || '';
@@ -1428,14 +1422,18 @@
         }
         function renderSettingsProducts() {
             let html = '';
+            if(tempSettingsProducts.length === 0) {
+                html = '<p class="text-xs text-slate-400 italic">No hay platos configurados.</p>';
+            }
             tempSettingsProducts.forEach(p => {
-                html += `<div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
+                html += `
+                <div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl">
                     <div class="col-span-12 md:col-span-7"><input type="text" value="${p.name}" oninput="updateSettingProduct(${p.id},'name',this.value)" class="w-full p-3 rounded-xl border border-slate-200" placeholder="Nombre plato"></div>
                     <div class="col-span-9 md:col-span-4 relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">S/</span><input type="number" value="${p.price}" oninput="updateSettingProduct(${p.id},'price',this.value)" class="w-full pl-8 p-3 rounded-xl border border-slate-200"></div>
                     <div class="col-span-3 md:col-span-1 flex justify-center"><button type="button" onclick="removeSettingProduct(${p.id})"><i data-lucide="trash-2" class="text-rose-500"></i></button></div>
                 </div>`;
             });
-            document.getElementById('settings-products-container').innerHTML = html || '<p class="text-xs italic text-slate-400">Añade platos.</p>';
+            document.getElementById('settings-products-container').innerHTML = html;
             lucide.createIcons();
         }
 
@@ -1444,23 +1442,37 @@
         function removeSettingBank(id) { tempSettingsBanks = tempSettingsBanks.filter(x => x.id !== id); renderSettingsBanks(); }
         function renderSettingsBanks() {
             let html = '';
+            if(tempSettingsBanks.length === 0) {
+                html = '<p class="text-xs text-slate-400 italic">No hay bancos configurados.</p>';
+            }
             tempSettingsBanks.forEach(b => {
-                html += `<div class="bg-slate-50 p-3 rounded-2xl mb-2 flex flex-col md:flex-row gap-2">
-                    <input type="text" placeholder="Banco (Ej: BCP)" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="flex-1 p-3 rounded-lg border border-slate-200 text-sm">
-                    <input type="text" placeholder="Nº Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="flex-1 p-3 rounded-lg border border-slate-200 text-sm">
-                    <div class="flex flex-1 gap-2">
-                        <input type="text" placeholder="CCI (Opcional)" value="${b.cci}" oninput="updateSettingBank(${b.id},'cci',this.value)" class="w-full p-3 rounded-lg border border-slate-200 text-sm">
-                        <button type="button" onclick="removeSettingBank(${b.id})" class="text-rose-500 bg-white border border-slate-200 p-3 rounded-lg"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                html += `
+                <div class="grid grid-cols-12 gap-2 mb-2 items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <div class="col-span-12 md:col-span-4 w-full">
+                        <input type="text" placeholder="Banco (Ej: BCP)" value="${b.name}" oninput="updateSettingBank(${b.id},'name',this.value)" class="w-full p-3 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                    <div class="col-span-12 md:col-span-4 w-full">
+                        <input type="text" placeholder="Nº Cta" value="${b.cta}" oninput="updateSettingBank(${b.id},'cta',this.value)" class="w-full p-3 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                    <div class="col-span-9 md:col-span-3 w-full">
+                        <input type="text" placeholder="CCI (Opcional)" value="${b.cci}" oninput="updateSettingBank(${b.id},'cci',this.value)" class="w-full p-3 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                    <div class="col-span-3 md:col-span-1 flex justify-center w-full">
+                        <button type="button" onclick="removeSettingBank(${b.id})" class="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all bg-white md:bg-transparent border border-slate-200 md:border-none shadow-sm md:shadow-none w-full md:w-auto flex justify-center">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
                     </div>
                 </div>`;
             });
-            document.getElementById('settings-banks-container').innerHTML = html || '<p class="text-xs italic text-slate-400">Añade bancos.</p>';
+            document.getElementById('settings-banks-container').innerHTML = html;
             lucide.createIcons();
         }
 
         async function saveSettings() {
             const btn = document.getElementById('btn-save-settings'); btn.disabled = true;
             rules.sellerName = document.getElementById('set-sellerName').value;
+            rules.sellerDni = document.getElementById('set-sellerDni').value;
+            rules.sellerRuc = document.getElementById('set-sellerRuc').value;
             rules.sellerBusiness = document.getElementById('set-sellerBusiness').value;
             rules.yape = document.getElementById('set-yape').value;
             rules.plin = document.getElementById('set-plin').value;
